@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Next
+apps/web/node_modules
+apps/web/.next
+
+# Spring
+apps/api/target
+apps/api/build
+
+# 환경변수
+.env
+.env.*
+infra/compose/cloudflared/*.json

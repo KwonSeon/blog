@@ -1,0 +1,19 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: s-nowk-nginx
+    ports:
+      - "8080:80"   # Tunnel이 들어오는 포트 (외부가 아니라 로컬)
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel run blog-home
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+    restart: unless-stopped
+    depends_on:
+      - nginx
