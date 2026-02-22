@@ -73,7 +73,7 @@ DB
 - [x] P0-005-DB-2 Flyway 도입 및 V1__init.sql 작성
 
 Backend
-- [ ] P0-006-BE-1 엔티티/JPA 리포지토리 구현(P0 코어)
+- [x] P0-006-BE-1 엔티티/JPA 리포지토리 구현(P0 코어)
 - [ ] P0-007-BE-2 관리자 로그인 API + ADMIN 보호구역 설정
 - [ ] P0-008-BE-3 프로젝트 CRUD(Admin)
 - [ ] P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환
