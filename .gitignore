@@ -13,3 +13,19 @@ apps/api/build
 .env
 .env.*
 infra/compose/cloudflared/*.json
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
