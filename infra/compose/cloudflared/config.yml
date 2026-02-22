@@ -4,4 +4,8 @@ credentials-file: /etc/cloudflared/539fabab-e780-4e48-94e3-0ca7c24f1d42.json
 ingress:
   - hostname: blog.s-nowk.com
     service: http://host.docker.internal:8080
+
+  - hostname: db.s-nowk.com
+    service: tcp://mysql_external:3306
+
   - service: http_status:404

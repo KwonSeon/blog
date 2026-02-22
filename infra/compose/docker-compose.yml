@@ -1,19 +1,183 @@
 services:
+
+  # ---------------------------------------------------------
+  # NGINX
+  # - 외부 트래픽의 진입점
+  # - 현재는 단순 응답용
+  # - todo: Next / Spring으로 reverse proxy 예정
+  # ---------------------------------------------------------
   nginx:
     image: nginx:alpine
     container_name: s-nowk-nginx
+    # Mac의 8080 포트를 컨테이너 80과 연결
+    # Cloudflare Tunnel이 host.docker.internal:8080으로 접근
     ports:
-      - "8080:80"   # Tunnel이 들어오는 포트 (외부가 아니라 로컬)
+      - "8080:80"
+    # nginx 설정 파일을 로컬에서 마운트
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    # Docker가 재시작되면 자동 실행
     restart: unless-stopped
 
+
+
+  # ---------------------------------------------------------
+  # Cloudflare Tunnel
+  # - blog.s-nowk.com 도메인을 로컬로 연결
+  # - CGNAT 환경에서도 외부 공개 가능
+  # - Docker 내부에서 Mac을 보려면 host.docker.internal 사용
+  # ---------------------------------------------------------
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
+    # blog-home이라는 터널 실행
     command: tunnel run blog-home
+    # ~/.cloudflared 폴더를 컨테이너 내부에 마운트
+    # config.yml + UUID.json 포함
     volumes:
       - ./cloudflared:/etc/cloudflared
-    restart: unless-stopped
+    # nginx가 먼저 떠야 의미 있음
     depends_on:
       - nginx
+    restart: unless-stopped
+
+
+
+  # ---------------------------------------------------------
+  # BLOG DATABASE
+  # - blog 서비스 전용 DB
+  # - posts / projects / tags 등 저장
+  # - Snowflake ID 사용 (AUTO_INCREMENT 사용 안 함)
+  # ---------------------------------------------------------
+  mysql_blog:
+    image: mysql:8.2
+    container_name: mysql_blog
+    environment:
+      # root 계정 비밀번호 (관리용)
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      # 최초 생성될 데이터베이스
+      MYSQL_DATABASE: blog_db
+      # 일반 사용자 계정
+      MYSQL_USER: blog_user
+      MYSQL_PASSWORD: ${BLOG_DB_PASSWORD}
+      # 타임존 설정
+      TZ: Asia/Seoul
+    # Mac에서 3310 접근 가능 (DataGrip 연결용)
+    ports:
+      - "3310:3306"
+    # 데이터 영속성 보장 (컨테이너 삭제해도 데이터 유지)
+    volumes:
+      - mysql_blog_data:/var/lib/mysql
+    # 한글 + 이모지 지원 필수 설정
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+
+
+
+  # ---------------------------------------------------------
+  # MEDIA DATABASE
+  # - S3/MinIO와 연동되는 메타데이터 저장
+  # - blog 및 추후 프로젝트 공용 사용
+  # - MSA 분리 대비
+  # ---------------------------------------------------------
+  mysql_media:
+    image: mysql:8.2
+    container_name: mysql_media
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: media_db
+      MYSQL_USER: media_user
+      MYSQL_PASSWORD: ${MEDIA_DB_PASSWORD}
+      TZ: Asia/Seoul
+    # blog DB와 충돌 방지를 위해 Mac의 3307 사용
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql_media_data:/var/lib/mysql
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # FLYWAY (BLOG DB)
+  # - blog_db 스키마 마이그레이션
+  # - V1__init.sql 기반
+  # ---------------------------------------------------------
+  flyway_blog:
+    image: flyway/flyway:10
+    container_name: flyway_blog
+    depends_on:
+      - mysql_blog
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql_blog:3306/blog_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      FLYWAY_USER: blog_user
+      FLYWAY_PASSWORD: ${BLOG_DB_PASSWORD}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    command:
+      - -connectRetries=60
+      - migrate
+    volumes:
+      - ./migrations/blog:/flyway/sql:ro
+    restart: "no"
+
+  # ---------------------------------------------------------
+  # FLYWAY (MEDIA DB)
+  # - media_db 스키마 마이그레이션
+  # - V1__init.sql 기반
+  # ---------------------------------------------------------
+  flyway_media:
+    image: flyway/flyway:10
+    container_name: flyway_media
+    depends_on:
+      - mysql_media
+    environment:
+      FLYWAY_URL: jdbc:mysql://mysql_media:3306/media_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      FLYWAY_USER: media_user
+      FLYWAY_PASSWORD: ${MEDIA_DB_PASSWORD}
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    command:
+      - -connectRetries=60
+      - migrate
+    volumes:
+      - ./migrations/media:/flyway/sql:ro
+    restart: "no"
+
+  # ---------------------------------------------------------
+  # EXTERNAL DATABASE
+  # - 외부 접근 전용 DB
+  # - 기존 Mac MySQL 데이터 복원 대상
+  # - db.s-nowk.com으로 접근 예정
+  # ---------------------------------------------------------
+  mysql_external:
+    image: mysql:8.2
+    container_name: mysql_external
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: Mysql        # 새 DB 이름
+      MYSQL_USER: external_user
+      MYSQL_PASSWORD: ${EXTERNAL_DB_PASSWORD}
+      TZ: Asia/Seoul
+    ports:
+      - "3320:3306"    # Mac에서는 3320으로 접근
+    volumes:
+      - mysql_external_data:/var/lib/mysql
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+
+
+# -----------------------------------------------------------
+# Docker Volume 정의
+# - 컨테이너 삭제해도 DB 데이터 유지
+# -----------------------------------------------------------
+volumes:
+  mysql_blog_data:
+  mysql_media_data:
+  mysql_external_data:
