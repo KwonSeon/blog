@@ -12,6 +12,8 @@ apps/api/build
 # 환경변수
 .env
 .env.*
+apps/api/.env
+apps/api/.env.*
 infra/compose/cloudflared/*.json
 
 # IntelliJ IDEA
@@ -29,3 +31,6 @@ out/
 .classpath
 .project
 .settings/
+
+# Local dev-only Spring config
+apps/api/src/main/resources/application-dev.yaml
