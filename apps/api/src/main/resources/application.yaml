@@ -24,11 +24,3 @@ spring:
   # Flyway는 현재 compose에서 별도 컨테이너로 수행 중이라 앱에서는 비활성
   flyway:
     enabled: false
-
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
-
-server:
-  port: 9000

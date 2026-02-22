@@ -1,0 +1,10 @@
+snowflake:
+  worker-id: ${BLOG_API_SNOWFLAKE_WORKER_ID}
+  datacenter-id: ${BLOG_API_SNOWFLAKE_DATACENTER_ID}
+
+logging:
+  level:
+    root: info
+    com.snowk.blog.api.global.config.aop: info
+    org.hibernate.SQL: warn
+    org.hibernate.orm.jdbc.bind: warn
