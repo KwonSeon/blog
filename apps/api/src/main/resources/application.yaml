@@ -24,3 +24,24 @@ spring:
   # Flyway는 현재 compose에서 별도 컨테이너로 수행 중이라 앱에서는 비활성
   flyway:
     enabled: false
+
+security:
+  # Spring Security 기본 허용 경로
+  # 형식: "경로패턴:HTTP_METHOD[,HTTP_METHOD...]"
+  public:
+    request-matchers:
+      - "/:GET"
+      - "/error:GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "/api/public/**:GET"
+      - "/api/admin/auth/login:POST"
+  # CORS 기본 허용 오리진(로컬 프론트)
+  cors:
+    allow:
+      origins:
+        - "http://localhost:3000"
+  jwt:
+    issuer: ${BLOG_JWT_ISSUER:https://auth.s-nowk.com}
+    # 진행용 fallback. 배포 전에는 환경변수로 대체
+    secret-key: ${BLOG_JWT_SECRET_KEY:Nr0k5G2dfQnJm5FBrVfH0Vof64u+0YecT2towTvTgEbzVHR1Lc75LpLu5iWnfXiM}
+    access-token:
+      expiretime: 60

@@ -16,3 +16,18 @@ spring:
 snowflake:
   worker-id: 1
   datacenter-id: 1
+
+security:
+  public:
+    request-matchers:
+      - "/error:GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "/api/admin/auth/login:POST"
+  cors:
+    allow:
+      origins:
+        - "http://localhost:3000"
+  jwt:
+    issuer: https://auth.test.s-nowk.com
+    secret-key: test-jwt-secret-key-0123456789abcd
+    access-token:
+      expiretime: 30
