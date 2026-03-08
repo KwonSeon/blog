@@ -1,3 +1,8 @@
+# Shared edge/runtime compose for blog + stock.
+# Secrets stay in local .env, and cross-project paths use repo-relative paths.
+# Local-only config files:
+# - ./nginx.conf (copy from nginx.example.conf)
+# - ./cloudflared/config.yml (copy from cloudflared/config.example.yml)
 services:
 
   # ---------------------------------------------------------
@@ -172,12 +177,262 @@ services:
       - --collation-server=utf8mb4_unicode_ci
     restart: unless-stopped
 
+  # ---------------------------------------------------------
+  # REDIS (STOCK CACHE)
+  # - stock-api 시세 캐시 저장소
+  # ---------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: stock_redis
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --maxmemory
+      - ${REDIS_MAXMEMORY:-1536mb}
+      - --maxmemory-policy
+      - ${REDIS_MAXMEMORY_POLICY:-volatile-lru}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+
+  # ---------------------------------------------------------
+  # STOCK API
+  # - stock-api 백엔드
+  # - mysql_external(Mysql DB) 재사용
+  # ---------------------------------------------------------
+  stock_api:
+    build:
+      context: ../../../stock/stock-api
+      dockerfile: Dockerfile
+    container_name: stock_api
+    depends_on:
+      - mysql_external
+      - redis
+    environment:
+      TZ: Asia/Seoul
+      JAVA_TOOL_OPTIONS: -Duser.timezone=Asia/Seoul
+      LOG_PATH: /var/log/stock-api
+      SPRING_TASK_SCHEDULING_ENABLED: "true"
+      DB_URL: jdbc:mysql://mysql_external:3306/stockdash?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      DB_USER: external_user
+      DB_PASSWORD: ${EXTERNAL_DB_PASSWORD}
+      DB_POOL_MAX_SIZE: ${DB_POOL_MAX_SIZE:-24}
+      DB_POOL_MIN_IDLE: ${DB_POOL_MIN_IDLE:-3}
+      DB_POOL_CONNECTION_TIMEOUT_MS: ${DB_POOL_CONNECTION_TIMEOUT_MS:-8000}
+      DB_POOL_VALIDATION_TIMEOUT_MS: ${DB_POOL_VALIDATION_TIMEOUT_MS:-2000}
+      DB_POOL_IDLE_TIMEOUT_MS: ${DB_POOL_IDLE_TIMEOUT_MS:-600000}
+      DB_POOL_MAX_LIFETIME_MS: ${DB_POOL_MAX_LIFETIME_MS:-1800000}
+      DB_POOL_LEAK_DETECTION_MS: ${DB_POOL_LEAK_DETECTION_MS:-20000}
+      APP_DB_TIMEZONE: ${APP_DB_TIMEZONE:-Asia/Seoul}
+      MARKET_SESSION_TIER_CACHE_MS: ${MARKET_SESSION_TIER_CACHE_MS:-60000}
+      APP_SCHEDULER_POOL_SIZE: "2"
+      APP_SCHEDULER_ENABLED: "true"
+      COLLECTOR_RUNTIME_SCHEDULING_ENABLED: "true"
+      MARKET_QUERY_MOVERS_BACKGROUND_ENABLED: "true"
+      BROKER_PROVIDER: ${BROKER_PROVIDER:-MOCK}
+      BROKER_DOMAIN: ${BROKER_DOMAIN:-https://api.kiwoom.com}
+      BROKER_REALTIME_DOMAIN: ${BROKER_REALTIME_DOMAIN:-wss://api.kiwoom.com:10000}
+      BROKER_APP_KEY: ${BROKER_APP_KEY:-}
+      BROKER_SECRET: ${BROKER_SECRET:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:you@example.com}
+      BROKER_MIN_REQUEST_INTERVAL_MS: ${BROKER_MIN_REQUEST_INTERVAL_MS:-200}
+      BROKER_KIWOOM_MIN_REQUEST_INTERVAL_MIN_MS: ${BROKER_KIWOOM_MIN_REQUEST_INTERVAL_MIN_MS:-200}
+      BROKER_KIWOOM_MIN_REQUEST_INTERVAL_MAX_MS: ${BROKER_KIWOOM_MIN_REQUEST_INTERVAL_MAX_MS:-1200}
+      BROKER_KIWOOM_GLOBAL_MAX_RPS: ${BROKER_KIWOOM_GLOBAL_MAX_RPS:-4.0}
+      BROKER_KIWOOM_PARALLEL_ACQUIRE_TIMEOUT_MS: ${BROKER_KIWOOM_PARALLEL_ACQUIRE_TIMEOUT_MS:-1200}
+      BROKER_KIWOOM_PARALLEL_START_INTERVAL_MS: ${BROKER_KIWOOM_PARALLEL_START_INTERVAL_MS:-50}
+      BROKER_KIWOOM_REFILL_TICK_MS: ${BROKER_KIWOOM_REFILL_TICK_MS:-100}
+      BROKER_KIWOOM_TRADE_AMOUNT_SCALE: ${BROKER_KIWOOM_TRADE_AMOUNT_SCALE:-1}
+      BROKER_KIWOOM_MAX_CANDLE_CONT_PAGES: ${BROKER_KIWOOM_MAX_CANDLE_CONT_PAGES:-10}
+      BROKER_KIWOOM_MAX_DAILY_CANDLE_PAGES: ${BROKER_KIWOOM_MAX_DAILY_CANDLE_PAGES:-10}
+      BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MS: ${BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MS:-200}
+      BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MIN_MS: ${BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MIN_MS:-200}
+      BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MAX_MS: ${BROKER_KIWOOM_WS_AUTH_MIN_REQUEST_INTERVAL_MAX_MS:-3000}
+      BROKER_KIWOOM_WS_AUTH_REFILL_TICK_MS: ${BROKER_KIWOOM_WS_AUTH_REFILL_TICK_MS:-100}
+      BROKER_ACQUIRE_TIMEOUT_MS: ${BROKER_ACQUIRE_TIMEOUT_MS:-4000}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      CACHE_QUOTE_ENABLED: ${CACHE_QUOTE_ENABLED:-true}
+      CACHE_QUOTE_SCHEDULER_ENABLED: "true"
+      CACHE_QUOTE_STRICT: ${CACHE_QUOTE_STRICT:-true}
+      CACHE_QUOTE_INITIAL_DELAY_MS: ${CACHE_QUOTE_INITIAL_DELAY_MS:-1000}
+      CACHE_QUOTE_REFRESH_MS: ${CACHE_QUOTE_REFRESH_MS:-1000}
+      CACHE_QUOTE_MEDIUM_HOURS_REFRESH_MS: ${CACHE_QUOTE_MEDIUM_HOURS_REFRESH_MS:-30000}
+      CACHE_QUOTE_OFF_HOURS_REFRESH_MS: ${CACHE_QUOTE_OFF_HOURS_REFRESH_MS:-60000}
+      CACHE_QUOTE_TTL_MS: ${CACHE_QUOTE_TTL_MS:-3000}
+      CACHE_QUOTE_LOCAL_MAX_ENTRIES: ${CACHE_QUOTE_LOCAL_MAX_ENTRIES:-3000}
+      CACHE_QUOTE_PERSIST_ENABLED: ${CACHE_QUOTE_PERSIST_ENABLED:-true}
+      CACHE_QUOTE_PERSIST_SCHEDULER_ENABLED: "false"
+      COLLECTOR_AFTER_CLOSE_BACKFILL_ENABLED: "true"
+      COLLECTOR_LIVE_FORWARD_SYNC_ENABLED: ${COLLECTOR_LIVE_FORWARD_SYNC_ENABLED:-false}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_SCAN_MS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_SCAN_MS:-1000}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_SCAN_MS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_SCAN_MS:-1000}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_INTERVAL_MS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_INTERVAL_MS:-5000}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_INTERVAL_MS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_INTERVAL_MS:-1000}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_CODES_PER_RUN: ${COLLECTOR_AFTER_CLOSE_BACKFILL_CODES_PER_RUN:-20}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_MAX_FETCHES_PER_RUN: ${COLLECTOR_AFTER_CLOSE_BACKFILL_MAX_FETCHES_PER_RUN:-20}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_PARALLELISM: ${COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_PARALLELISM:-16}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_MINUTE_WINDOW_MINUTES: ${COLLECTOR_AFTER_CLOSE_BACKFILL_MINUTE_WINDOW_MINUTES:-43200}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_MINUTE_CHUNK_MINUTES: ${COLLECTOR_AFTER_CLOSE_BACKFILL_MINUTE_CHUNK_MINUTES:-1440}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_WINDOW_DAYS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_WINDOW_DAYS:-20000}
+      COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_CHUNK_DAYS: ${COLLECTOR_AFTER_CLOSE_BACKFILL_DAY_CHUNK_DAYS:-20000}
+      COLLECTOR_STORAGE_MAX_BYTES: ${COLLECTOR_STORAGE_MAX_BYTES:-1099511627776}
+      COLLECTOR_STORAGE_CHECK_INTERVAL_MS: ${COLLECTOR_STORAGE_CHECK_INTERVAL_MS:-60000}
+      COLLECTOR_INTEGRITY_CLEANUP_ENABLED: "false"
+      COLLECTOR_INTEGRITY_CLEANUP_INTERVAL_MS: ${COLLECTOR_INTEGRITY_CLEANUP_INTERVAL_MS:-5000}
+      COLLECTOR_INTEGRITY_CLEANUP_INITIAL_DELAY_MS: ${COLLECTOR_INTEGRITY_CLEANUP_INITIAL_DELAY_MS:-3000}
+      COLLECTOR_INTEGRITY_CLEANUP_BATCH_SIZE: ${COLLECTOR_INTEGRITY_CLEANUP_BATCH_SIZE:-20000}
+      COLLECTOR_INTEGRITY_COORDINATOR_ENABLED: "false"
+      COLLECTOR_INTEGRITY_COORDINATOR_INITIAL_DELAY_MS: ${COLLECTOR_INTEGRITY_COORDINATOR_INITIAL_DELAY_MS:-8000}
+      COLLECTOR_INTEGRITY_COORDINATOR_INTERVAL_MS: ${COLLECTOR_INTEGRITY_COORDINATOR_INTERVAL_MS:-5000}
+      COLLECTOR_INTEGRITY_STARTUP_CHECK_ENABLED: "false"
+      COLLECTOR_INTEGRITY_STARTUP_CLEANUP_BATCHES: ${COLLECTOR_INTEGRITY_STARTUP_CLEANUP_BATCHES:-5}
+      COLLECTOR_INTEGRITY_STARTUP_CLEANUP_WORKERS: ${COLLECTOR_INTEGRITY_STARTUP_CLEANUP_WORKERS:-2}
+      COLLECTOR_INTEGRITY_PASS_CLEANUP_BATCHES: ${COLLECTOR_INTEGRITY_PASS_CLEANUP_BATCHES:-2}
+      COLLECTOR_INTEGRITY_PASS_CLEANUP_WORKERS: ${COLLECTOR_INTEGRITY_PASS_CLEANUP_WORKERS:-2}
+      COLLECTOR_INTEGRITY_PASS_INCLUDE_QUOTE_SNAPSHOT: ${COLLECTOR_INTEGRITY_PASS_INCLUDE_QUOTE_SNAPSHOT:-true}
+      COLLECTOR_INTEGRITY_PASS_MIN_INTERVAL_MS: ${COLLECTOR_INTEGRITY_PASS_MIN_INTERVAL_MS:-15000}
+      COLLECTOR_INTEGRITY_READY_MAX_INVALID_ROWS: ${COLLECTOR_INTEGRITY_READY_MAX_INVALID_ROWS:-0}
+      COLLECTOR_BACKFILL_LOW_SESSION_RPS_ENABLED: "false"
+      COLLECTOR_BACKFILL_LOW_SESSION_PREP_RPS: ${COLLECTOR_BACKFILL_LOW_SESSION_PREP_RPS:-4.0}
+      COLLECTOR_BACKFILL_LOW_SESSION_BOOST_RPS: ${COLLECTOR_BACKFILL_LOW_SESSION_BOOST_RPS:-4.0}
+      COLLECTOR_GAP_RECOVERY_ENABLED: "true"
+      COLLECTOR_GAP_RECOVERY_CODE_LIMIT: ${COLLECTOR_GAP_RECOVERY_CODE_LIMIT:-80}
+      COLLECTOR_GAP_RECOVERY_LOOKBACK_MINUTES: ${COLLECTOR_GAP_RECOVERY_LOOKBACK_MINUTES:-180}
+      COLLECTOR_GAP_RECOVERY_MIN_GAP_MINUTES: ${COLLECTOR_GAP_RECOVERY_MIN_GAP_MINUTES:-2}
+      COLLECTOR_GAP_RECOVERY_DEFAULT_BACKFILL_MINUTES: ${COLLECTOR_GAP_RECOVERY_DEFAULT_BACKFILL_MINUTES:-120}
+      COLLECTOR_RETRY_PROCESS_BATCH_SIZE: ${COLLECTOR_RETRY_PROCESS_BATCH_SIZE:-1}
+      COLLECTOR_RETRY_MINUTE_CHUNK_MINUTES: ${COLLECTOR_RETRY_MINUTE_CHUNK_MINUTES:-120}
+      COLLECTOR_RETRY_MINUTE_MAX_CHUNKS_PER_TASK: ${COLLECTOR_RETRY_MINUTE_MAX_CHUNKS_PER_TASK:-1}
+      COLLECTOR_BACKFILL_PAUSE_RETRY_QUEUE_THRESHOLD: ${COLLECTOR_BACKFILL_PAUSE_RETRY_QUEUE_THRESHOLD:-0}
+      COLLECTOR_BACKFILL_NO_DATA_COOLDOWN_MS: ${COLLECTOR_BACKFILL_NO_DATA_COOLDOWN_MS:-300000}
+      COLLECTOR_SNAPSHOT_FALLBACK_1M_ENABLED: ${COLLECTOR_SNAPSHOT_FALLBACK_1M_ENABLED:-true}
+      COLLECTOR_MINUTE_CANDLE_PERSIST_ENABLED: "true"
+      COLLECTOR_RECOVERY_AUTO_ENQUEUE_ENABLED: "false"
+      ALERT_SCHEDULER_ENABLED: "false"
+      REQUEST_PRIORITY_HOLD_MS: ${REQUEST_PRIORITY_HOLD_MS:-3000}
+      MARKET_QUERY_WINDOW_CACHE_PRECOMPUTE_ENABLED: "false"
+      MANAGEMENT_HEALTH_SHOW_DETAILS: ${MANAGEMENT_HEALTH_SHOW_DETAILS:-never}
+      MANAGEMENT_HEALTH_SHOW_COMPONENTS: ${MANAGEMENT_HEALTH_SHOW_COMPONENTS:-never}
+      APP_SECURITY_ALLOWED_ORIGIN_PATTERNS: ${APP_SECURITY_ALLOWED_ORIGIN_PATTERNS:-https://stock.s-nowk.com,https://s-nowk.com,https://www.s-nowk.com,https://stock-api.s-nowk.com,http://localhost:3000,http://127.0.0.1:3000}
+      APP_AUTH_GOOGLE_CLIENT_ID: ${APP_AUTH_GOOGLE_CLIENT_ID:-}
+      APP_AUTH_JWT_SECRET: ${APP_AUTH_JWT_SECRET:-change-me-stock-api-jwt-secret}
+      APP_AUTH_ADMIN_EMAILS: ${APP_AUTH_ADMIN_EMAILS:-}
+      MARKET_CALENDAR_SERVICE_KEY: ${MARKET_CALENDAR_SERVICE_KEY:-}
+      MARKET_CALENDAR_API_BASE_URL: ${MARKET_CALENDAR_API_BASE_URL:-http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService}
+      MARKET_CALENDAR_API_OPERATION: ${MARKET_CALENDAR_API_OPERATION:-getRestDeInfo}
+      MARKET_CALENDAR_API_NUM_OF_ROWS: ${MARKET_CALENDAR_API_NUM_OF_ROWS:-100}
+      WS_DIAGNOSTICS_ENABLED: ${WS_DIAGNOSTICS_ENABLED:-true}
+      WS_DIAGNOSTICS_SUMMARY_INTERVAL_MS: ${WS_DIAGNOSTICS_SUMMARY_INTERVAL_MS:-30000}
+      REALTIME_KIWOOM_DIAGNOSTICS_ENABLED: ${REALTIME_KIWOOM_DIAGNOSTICS_ENABLED:-true}
+      REALTIME_KIWOOM_DIAGNOSTICS_STATE_LOG_COOLDOWN_MS: ${REALTIME_KIWOOM_DIAGNOSTICS_STATE_LOG_COOLDOWN_MS:-15000}
+    ports:
+      - "8081:8080"
+    volumes:
+      - ../../../stock/stock-api/logs:/var/log/stock-api
+    expose:
+      - "8080"
+    networks:
+      default:
+        aliases:
+          - stock-api
+    restart: unless-stopped
 
 # -----------------------------------------------------------
 # Docker Volume 정의
 # - 컨테이너 삭제해도 DB 데이터 유지
 # -----------------------------------------------------------
+
+  # ---------------------------------------------------------
+  # STOCK WEB
+  # - Next.js frontend (production server)
+  # ---------------------------------------------------------
+  stock_web:
+    build:
+      context: ../../../stock/stock-web
+      dockerfile: Dockerfile
+    container_name: stock_web
+    environment:
+      BACKEND_ORIGIN: http://stock-api:8080
+      NEXT_PUBLIC_API_BASE_URL: /api
+      NEXT_PUBLIC_WS_BASE_URL: ${NEXT_PUBLIC_WS_BASE_URL:-}
+      NEXT_PUBLIC_WS_FORCE_BASE: ${NEXT_PUBLIC_WS_FORCE_BASE:-false}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+      NEXT_PUBLIC_VAPID_PUBLIC_KEY: ${NEXT_PUBLIC_VAPID_PUBLIC_KEY:-}
+      NEXT_PUBLIC_ENABLE_DEV_TOOLS: ${NEXT_PUBLIC_ENABLE_DEV_TOOLS:-false}
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # DOCKER SOCKET PROXY
+  # - Portainer가 Docker Desktop의 소켓 이슈를 피해서
+  #   내부 TCP 경유로 엔진에 연결하도록 중계
+  # - 외부 포트는 열지 않음 (compose 내부 네트워크 전용)
+  # ---------------------------------------------------------
+  docker_proxy:
+    image: alpine/socat
+    container_name: s-nowk-docker-proxy
+    command: >
+      tcp-listen:2375,reuseaddr,fork,bind=0.0.0.0
+      unix-connect:/var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    expose:
+      - "2375"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # PORTAINER AGENT
+  # - Docker API 버전 충돌 우회를 위해 Portainer가 Agent에 접속
+  # ---------------------------------------------------------
+  portainer_agent:
+    image: portainer/agent:2.39.0
+    container_name: s-nowk-portainer-agent
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.portainer_agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /:/host
+    expose:
+      - "9001"
+    restart: unless-stopped
+
+  # ---------------------------------------------------------
+  # PORTAINER
+  # - Docker 관리 UI
+  # - 외부 도메인(portainer.s-nowk.com)에서 nginx reverse proxy로 접근
+  # ---------------------------------------------------------
+  portainer:
+    image: portainer/portainer-ce:2.39.0
+    container_name: s-nowk-portainer
+    depends_on:
+      - docker_proxy
+      - portainer_agent
+    command:
+      - -H
+      - tcp://docker_proxy:2375
+      - --log-level
+      - DEBUG
+    volumes:
+      - portainer_data:/data
+    expose:
+      - "9000"
+    restart: unless-stopped
+
 volumes:
   mysql_blog_data:
   mysql_media_data:
   mysql_external_data:
+  redis_data:
+  portainer_data:

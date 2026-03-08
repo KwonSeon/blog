@@ -1,0 +1,27 @@
+# Copy this file to config.yml and replace the placeholder values.
+tunnel: YOUR_TUNNEL_UUID
+credentials-file: /etc/cloudflared/YOUR_TUNNEL_UUID.json
+
+ingress:
+  - hostname: blog.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: app.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: api.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: root.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: www.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: admin.example.com
+    service: http://host.docker.internal:8080
+
+  - hostname: db.example.com
+    service: tcp://mysql_external:3306
+
+  - service: http_status:404
