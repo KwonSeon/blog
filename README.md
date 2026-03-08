@@ -75,7 +75,7 @@ DB
 Backend
 - [x] P0-006-BE-1 엔티티/JPA 리포지토리 구현(P0 코어)
 - [x] P0-007-BE-2 관리자 로그인 API + ADMIN 보호구역 설정
-- [ ] P0-008-BE-3 프로젝트 CRUD(Admin)
+- [x] P0-008-BE-3 프로젝트 CRUD(Admin)
 - [ ] P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환
 - [ ] P0-010-BE-5 공개 프로젝트 조회 API(목록/상세 slug)
 - [ ] P0-011-BE-6 공개 글 조회 API(목록/상세 slug)
@@ -233,3 +233,6 @@ Deploy
 - 각 단계는 `현황 확인 -> 참고 원본 확인 -> 변경 범위 기록 -> 코드 수정 -> 테스트 -> README 갱신` 순서로 진행한다.
 - 앞 단계가 끝나기 전에는 다음 단계 구현으로 넘어가지 않는다.
 - 새 컨텍스트에서도 이어서 작업할 수 있도록 세부 진행 내역은 `WORK_PROGRESS.md`에 기록한다.
+- 삭제 정책 기본 원칙:
+  관리자 소유 콘텐츠(`Project`, `Post`, `Tag` 등)는 우선 hard delete로 설계하고,
+  외부 사용자 생성 데이터(`Comment`, `Reply`, 추후 사용자 활동 로그 등)는 soft delete를 우선 검토한다.

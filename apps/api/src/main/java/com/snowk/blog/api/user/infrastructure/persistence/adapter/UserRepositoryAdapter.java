@@ -6,9 +6,9 @@ import java.util.Optional;
 import com.snowk.blog.api.user.domain.entity.User;
 import com.snowk.blog.api.user.infrastructure.persistence.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class UserRepositoryAdapter implements UserRepositoryPort {
 

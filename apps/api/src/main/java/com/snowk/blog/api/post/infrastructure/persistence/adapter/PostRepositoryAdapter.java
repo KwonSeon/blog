@@ -6,9 +6,9 @@ import java.util.Optional;
 
 import com.snowk.blog.api.post.infrastructure.persistence.jpa.PostJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class PostRepositoryAdapter implements PostRepositoryPort {
 

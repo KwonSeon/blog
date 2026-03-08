@@ -7,9 +7,9 @@ import java.util.Optional;
 
 import com.snowk.blog.api.tag.infrastructure.persistence.jpa.TagJpaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class TagRepositoryAdapter implements TagRepositoryPort {
 

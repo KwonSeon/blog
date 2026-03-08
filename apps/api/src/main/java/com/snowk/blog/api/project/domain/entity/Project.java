@@ -3,6 +3,8 @@ package com.snowk.blog.api.project.domain.entity;
 import com.snowk.blog.api.post.domain.entity.PostProject;
 import com.snowk.blog.api.global.config.generator.SnowflakeId;
 import com.snowk.blog.api.global.common.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.global.exception.BaseException;
+import com.snowk.blog.api.project.domain.error.ProjectErrorStatus;
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
 import com.snowk.blog.api.shared.domain.enumtype.Visibility;
 import jakarta.persistence.Column;
@@ -76,4 +78,77 @@ public class Project extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "project")
     private Set<PostProject> postProjects = new HashSet<>();
+
+    /**
+     * 관리자 `createProject` 유스케이스에서 사용하는 프로젝트 생성 진입점이다.
+     */
+    public static Project create(
+        String slug,
+        String title,
+        String summary,
+        String serviceUrl,
+        String repoUrl,
+        Visibility visibility,
+        ProjectStatus status,
+        Long coverMediaAssetId,
+        LocalDateTime publishedAt
+    ) {
+        Project project = new Project();
+        project.slug = slug;
+        project.title = title;
+        project.summary = summary;
+        project.serviceUrl = serviceUrl;
+        project.repoUrl = repoUrl;
+        project.visibility = visibility;
+        project.status = status;
+        project.coverMediaAssetId = coverMediaAssetId;
+        project.publishedAt = publishedAt;
+        return project.validate();
+    }
+
+    public Project update(
+        String slug,
+        String title,
+        String summary,
+        String serviceUrl,
+        String repoUrl,
+        Visibility visibility,
+        ProjectStatus status,
+        Long coverMediaAssetId
+    ) {
+        this.slug = slug;
+        this.title = title;
+        this.summary = summary;
+        this.serviceUrl = serviceUrl;
+        this.repoUrl = repoUrl;
+        this.visibility = visibility;
+        this.status = status;
+        this.coverMediaAssetId = coverMediaAssetId;
+        this.publishedAt = resolvePublishedAt(status);
+        return validate();
+    }
+
+    private LocalDateTime resolvePublishedAt(ProjectStatus status) {
+        if (status == ProjectStatus.ACTIVE) {
+            return publishedAt != null ? publishedAt : LocalDateTime.now();
+        }
+
+        return null;
+    }
+
+    private Project validate() {
+        if (slug == null || slug.isBlank()) {
+            throw new BaseException(ProjectErrorStatus.INVALID_PROJECT_SLUG);
+        }
+        if (title == null || title.isBlank()) {
+            throw new BaseException(ProjectErrorStatus.INVALID_PROJECT_TITLE);
+        }
+        if (visibility == null) {
+            throw new BaseException(ProjectErrorStatus.INVALID_PROJECT_VISIBILITY);
+        }
+        if (status == null) {
+            throw new BaseException(ProjectErrorStatus.INVALID_PROJECT_STATUS);
+        }
+        return this;
+    }
 }
