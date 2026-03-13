@@ -2,8 +2,8 @@ package com.snowk.blog.api.global.config.security;
 
 import com.snowk.blog.api.global.config.properties.CorsProperties;
 import com.snowk.blog.api.global.config.properties.SecurityProperties;
+import com.snowk.blog.api.global.security.converter.JwtAuthenticatedUserConverter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +14,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -39,7 +35,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
         HttpSecurity http,
-        JwtAuthenticationConverter jwtAuthenticationConverter
+        JwtAuthenticatedUserConverter jwtAuthenticatedUserConverter
     ) throws Exception {
         RequestMatcher[] permitAllMatchers = toRequestMatcher(securityProperties.getRequestMatchers());
 
@@ -55,7 +51,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             // Bearer 토큰을 읽어 JwtDecoder/JwtAuthenticationConverter로 인증 객체를 구성한다.
             .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticatedUserConverter))
             )
             .authorizeHttpRequests(auth -> auth
                 // 환경설정으로 등록한 엔드포인트는 인증 없이 허용
@@ -74,14 +70,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        // JWT의 roles claim을 Spring Security 권한 목록으로 바꿀 때 사용한다.
-        JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
-        authenticationConverter.setJwtGrantedAuthoritiesConverter(this::toAuthorities);
-        return authenticationConverter;
     }
 
     @Bean
@@ -132,21 +120,5 @@ public class SecurityConfig {
         }
 
         return matchers.toArray(RequestMatcher[]::new);
-    }
-
-    private Collection<GrantedAuthority> toAuthorities(Jwt jwt) {
-        Object rolesClaim = jwt.getClaims().get("roles");
-        if (!(rolesClaim instanceof List<?> roles)) {
-            return List.of();
-        }
-
-        // access token에 담긴 ["ROLE_ADMIN"] 값을 GrantedAuthority로 그대로 변환한다.
-        return roles.stream()
-            .filter(String.class::isInstance)
-            .map(String.class::cast)
-            .filter(StringUtils::hasText)
-            .map(SimpleGrantedAuthority::new)
-            .map(GrantedAuthority.class::cast)
-            .toList();
     }
 }

@@ -1,7 +1,7 @@
 package com.snowk.blog.api.user.domain.entity;
 
 import com.snowk.blog.api.user.domain.enumtype.UserRole;
-import com.snowk.blog.api.global.common.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.common.persistence.baseentity.BaseTimeEntity;
 import com.snowk.blog.api.global.config.generator.SnowflakeId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

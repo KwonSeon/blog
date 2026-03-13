@@ -1,7 +1,7 @@
 package com.snowk.blog.api.project.presentation.dto.request;
 
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
-import com.snowk.blog.api.shared.domain.enumtype.Visibility;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;

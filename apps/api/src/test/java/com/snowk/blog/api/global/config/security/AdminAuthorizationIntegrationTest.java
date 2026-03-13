@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.snowk.blog.api.global.config.properties.JwtProperties;
+import com.snowk.blog.api.global.security.annotation.CurrentUserId;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -71,6 +72,19 @@ class AdminAuthorizationIntegrationTest {
             .andExpect(content().string("pong"));
     }
 
+    @Test
+    @DisplayName("관리자 보호구역에서는 현재 사용자 ID를 principal에서 주입받을 수 있다")
+    void adminEndpoint_resolvesCurrentUserId_whenRoleIsAdmin() throws Exception {
+        String accessToken = createAccessToken("1", "admin", List.of("ROLE_ADMIN"));
+
+        mockMvc.perform(
+                get("/api/admin/test/me")
+                    .header(AUTHORIZATION, "Bearer " + accessToken)
+            )
+            .andExpect(status().isOk())
+            .andExpect(content().string("1"));
+    }
+
     private String createAccessToken(String subject, String username, List<String> roles) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -78,6 +92,7 @@ class AdminAuthorizationIntegrationTest {
             .subject(subject)
             .issuedAt(now)
             .expiresAt(now.plusSeconds(1800))
+            .claim("userId", Long.parseLong(subject))
             .claim("username", username)
             .claim("roles", roles)
             .build();
@@ -92,6 +107,11 @@ class AdminAuthorizationIntegrationTest {
         @GetMapping("/api/admin/test/ping")
         String ping() {
             return "pong";
+        }
+
+        @GetMapping("/api/admin/test/me")
+        String me(@CurrentUserId Long userId) {
+            return String.valueOf(userId);
         }
     }
 }

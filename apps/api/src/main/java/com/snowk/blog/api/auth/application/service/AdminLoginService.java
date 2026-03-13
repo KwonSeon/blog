@@ -64,6 +64,7 @@ public class AdminLoginService implements AdminLoginUseCase {
             .subject(String.valueOf(user.getUserId()))
             .issuedAt(issuedAt)
             .expiresAt(expiresAt)
+            .claim("userId", user.getUserId())
             .claim("username", user.getUsername())
             .claim("roles", List.of("ROLE_ADMIN"))
             .build();

@@ -2,11 +2,11 @@ package com.snowk.blog.api.project.domain.entity;
 
 import com.snowk.blog.api.post.domain.entity.PostProject;
 import com.snowk.blog.api.global.config.generator.SnowflakeId;
-import com.snowk.blog.api.global.common.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.common.persistence.baseentity.BaseTimeEntity;
 import com.snowk.blog.api.global.exception.BaseException;
 import com.snowk.blog.api.project.domain.error.ProjectErrorStatus;
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
-import com.snowk.blog.api.shared.domain.enumtype.Visibility;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,10 +14,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -77,7 +80,8 @@ public class Project extends BaseTimeEntity {
     private Set<ProjectTag> projectTags = new HashSet<>();
 
     @OneToMany(mappedBy = "project")
-    private Set<PostProject> postProjects = new HashSet<>();
+    @OrderBy("sortOrder ASC")
+    private List<PostProject> postProjects = new ArrayList<>();
 
     /**
      * 관리자 `createProject` 유스케이스에서 사용하는 프로젝트 생성 진입점이다.

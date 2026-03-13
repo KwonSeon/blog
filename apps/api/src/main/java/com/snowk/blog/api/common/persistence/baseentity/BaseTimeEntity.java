@@ -1,4 +1,4 @@
-package com.snowk.blog.api.global.common.baseentity;
+package com.snowk.blog.api.common.persistence.baseentity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

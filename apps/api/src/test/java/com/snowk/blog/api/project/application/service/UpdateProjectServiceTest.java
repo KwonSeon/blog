@@ -16,7 +16,7 @@ import com.snowk.blog.api.project.application.result.UpdateProjectResult;
 import com.snowk.blog.api.project.domain.entity.Project;
 import com.snowk.blog.api.project.domain.error.ProjectErrorStatus;
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
-import com.snowk.blog.api.shared.domain.enumtype.Visibility;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import com.snowk.blog.api.support.ReflectionEntityFactory;
 import java.time.LocalDateTime;
 import java.util.Optional;

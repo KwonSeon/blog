@@ -4,7 +4,7 @@ import com.snowk.blog.api.post.domain.entity.PostTag;
 import com.snowk.blog.api.project.domain.entity.ProjectTag;
 import com.snowk.blog.api.tag.domain.enumtype.TagKind;
 import com.snowk.blog.api.tag.domain.enumtype.TagScope;
-import com.snowk.blog.api.global.common.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.common.persistence.baseentity.BaseTimeEntity;
 import com.snowk.blog.api.global.config.generator.SnowflakeId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,9 +16,12 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -52,7 +55,8 @@ public class Tag extends BaseTimeEntity {
     private Tag parentTag;
 
     @OneToMany(mappedBy = "parentTag")
-    private Set<Tag> childTags = new HashSet<>();
+    @OrderBy("sortOrder ASC")
+    private List<Tag> childTags = new ArrayList<>();
 
     @Column(name = "slug", nullable = false, length = 120)
     private String slug;

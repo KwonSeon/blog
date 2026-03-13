@@ -1,4 +1,4 @@
-package com.snowk.blog.api.shared.domain.enumtype;
+package com.snowk.blog.api.common.domain.enumtype;
 
 import lombok.Getter;
 

@@ -13,7 +13,7 @@ import com.snowk.blog.api.project.application.result.GetProjectResult;
 import com.snowk.blog.api.project.domain.entity.Project;
 import com.snowk.blog.api.project.domain.error.ProjectErrorStatus;
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
-import com.snowk.blog.api.shared.domain.enumtype.Visibility;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

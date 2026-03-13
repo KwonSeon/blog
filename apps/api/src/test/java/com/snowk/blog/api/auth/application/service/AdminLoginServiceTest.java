@@ -85,6 +85,7 @@ class AdminLoginServiceTest {
         JwtClaimsSet claims = parametersCaptor.getValue().getClaims();
         assertThat(claims.getIssuer().toString()).isEqualTo("https://auth.test.s-nowk.com");
         assertThat(claims.getSubject()).isEqualTo("1");
+        assertThat(claims.getClaims()).containsEntry("userId", 1L);
         assertThat(claims.getClaims()).containsEntry("username", "admin");
         assertThat(claims.getClaims()).containsEntry("roles", List.of("ROLE_ADMIN"));
         assertThat(claims.getIssuedAt()).isNotNull();
