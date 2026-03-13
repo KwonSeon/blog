@@ -78,7 +78,7 @@ Backend
 - [x] P0-008-BE-3 프로젝트 CRUD(Admin)
 - [x] P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환
 - [x] P0-010-BE-5 공개 프로젝트 조회 API(목록/상세 slug)
-- [ ] P0-011-BE-6 공개 글 조회 API(목록/상세 slug)
+- [x] P0-011-BE-6 공개 글 조회 API(목록/상세 slug)
 - [ ] P0-012-BE-7 QueryDSL 기반 필터/검색
 
 Media

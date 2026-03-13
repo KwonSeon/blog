@@ -16,5 +16,9 @@ public interface PostRepositoryPort {
 
     List<Post> findAll();
 
+    List<Post> findPublicPosts();
+
+    Optional<Post> findPublicPostBySlug(String slug);
+
     Optional<Post> findBySlug(String slug);
 }
