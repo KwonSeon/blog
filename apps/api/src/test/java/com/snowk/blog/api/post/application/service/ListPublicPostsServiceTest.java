@@ -2,6 +2,7 @@ package com.snowk.blog.api.post.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ class ListPublicPostsServiceTest {
     @Test
     @DisplayName("공개 게시글 목록 조회 시 publishedAt desc, postId desc 기준으로 목록과 totalCount를 반환한다")
     void listPosts_returnsOnlyPublicPublishedPostsInOrder() {
+        ListPublicPostsQuery query = new ListPublicPostsQuery();
         Post olderPost = mockPost(
             1L,
             "older-post",
@@ -52,11 +54,11 @@ class ListPublicPostsServiceTest {
             LocalDateTime.of(2026, 3, 8, 12, 0)
         );
 
-        when(postRepositoryPort.findPublicPosts()).thenReturn(
+        when(postRepositoryPort.findPublicPosts(query)).thenReturn(
             List.of(olderPost, newerPostLowId, newerPostHighId)
         );
 
-        ListPublicPostsResult result = listPublicPostsService.listPosts(new ListPublicPostsQuery());
+        ListPublicPostsResult result = listPublicPostsService.listPosts(query);
 
         assertThat(result.totalCount()).isEqualTo(3);
         assertThat(result.items())
@@ -72,7 +74,20 @@ class ListPublicPostsServiceTest {
                 LocalDateTime.of(2026, 3, 8, 11, 0),
                 LocalDateTime.of(2026, 3, 8, 9, 0)
             );
-        verify(postRepositoryPort).findPublicPosts();
+        verify(postRepositoryPort).findPublicPosts(query);
+    }
+
+    @Test
+    @DisplayName("공개 게시글 목록 조회 시 검색 query를 repository로 그대로 전달한다")
+    void listPosts_passesSearchQueryToRepository() {
+        ListPublicPostsQuery query = new ListPublicPostsQuery("spring", "ko");
+
+        when(postRepositoryPort.findPublicPosts(query)).thenReturn(List.of());
+
+        ListPublicPostsResult result = listPublicPostsService.listPosts(query);
+
+        assertThat(result.totalCount()).isZero();
+        verify(postRepositoryPort).findPublicPosts(query);
     }
 
     @Test
@@ -85,7 +100,7 @@ class ListPublicPostsServiceTest {
 
         assertThat(exception).isNotNull();
         assertThat(exception.getErrorCode()).isEqualTo(CommonErrorStatus.BAD_REQUEST);
-        verify(postRepositoryPort, never()).findPublicPosts();
+        verify(postRepositoryPort, never()).findPublicPosts(any(ListPublicPostsQuery.class));
     }
 
     private Post mockPost(

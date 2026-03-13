@@ -10,92 +10,61 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-012-BE-7 QueryDSL 기반 필터/검색`
+- `P0-013-MEDIA-1 MinIO 연결 + 버킷/키 규칙 확정`
 
 최근 완료 작업
-- `P0-011-BE-6 공개 글 조회 API(목록/상세 slug)` 완료
+- `P0-012-BE-7 QueryDSL 기반 필터/검색` 완료
 - 완료 범위
-  - `GET /api/posts`
-  - `GET /api/posts/{slug}`
-  - post 공개용 query/usecase/result/service/controller/response
-  - 공개 post repository 조회 메서드
-  - 공개 endpoint permitAll 설정
-  - post 공개 조회 관련 repository/service/controller/security 테스트
+  - QueryDSL 의존성/annotation processor 추가
+  - `JPAQueryFactory` 설정 추가
+  - 공개 글 목록 `/api/posts`에 `q`, `lang` 검색 추가
+  - QueryDSL 검색용 custom repository 추가
+  - 검색 repository/service/controller 테스트 작성
 - 구현 기준
-  - 공개 노출 대상은 `visibility=PUBLIC && status=PUBLISHED`
-  - 공개 상세 slug 조회도 같은 조건을 만족하는 글만 반환
-  - 비공개/미발행 글 slug 조회는 `POST_NOT_FOUND`로 통일
-  - 공개 목록 정렬은 `publishedAt desc -> postId desc`
-  - 공개 응답에는 `createdAt`, `updatedAt`를 포함
-- 최종 확인: `blog/apps/api`에서 `./gradlew --no-daemon test` 통과
-- `P0-010-BE-5 공개 프로젝트 조회 API(목록/상세 slug)` 완료
-- 완료 범위
-  - `GET /api/projects`
-  - `GET /api/projects/{slug}`
-  - project 공개용 query/usecase/result/service/controller/response
-  - 공개 프로젝트 repository 조회 메서드
-  - 공개 endpoint permitAll 설정
-  - project 공개 조회 관련 repository/service/controller/security 테스트
-- 구현 기준
-  - 공개 노출 대상은 `visibility=PUBLIC && status=ACTIVE`
-  - 공개 상세 slug 조회도 같은 조건을 만족하는 프로젝트만 반환
-  - 비공개/비활성 프로젝트 slug 조회는 `PROJECT_NOT_FOUND`로 통일
-  - 공개 목록 정렬은 `publishedAt desc -> projectId desc`
-- 최종 확인: `blog/apps/api`에서 `./gradlew --no-daemon test` 통과
-- `P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환` 완료
-- 완료 범위: `/api/admin/posts` create/detail/list/update/delete/status change, post 도메인/리포지토리/서비스/컨트롤러/DTO, post 관련 테스트
-- 구현 기준
-  - `authorUserId`는 인증 principal의 `userId` 기준으로 설정
-  - `publishedAt`은 서버가 상태 기준으로 관리
-  - 글 수정은 본문 필드 중심으로 처리하고, 상태 변경은 `PATCH /api/admin/posts/{postId}/status`로 분리
-- 추가 정리
-  - `Visibility` -> `common/domain`
-  - `BaseTimeEntity` -> `common/persistence`
-  - `postProjects`, `childTags` -> `List` + `@OrderBy`
-  - 인증 구조 -> `global/security`(principal, authentication, converter, annotation)
+  - 첫 적용 대상은 공개 글 목록만
+  - 첫 query parameter는 `q`, `lang`
+  - `q`는 `title`, `excerpt`, `contentMd` 부분 검색
+  - 정렬은 기존 공개 목록 규칙 `publishedAt desc -> postId desc` 유지
+  - `contentMd(LONGTEXT/CLOB)`는 cast 후 비교
 - 최종 확인: `blog/apps/api`에서 `./gradlew --no-daemon test` 통과
 
 현재 확인된 상태
-- 관리자 글 API는 완료됐다.
-  - `/api/admin/posts`
-  - `POST / GET(detail) / GET(list) / PUT / PATCH(status) / DELETE`
-- 공개 프로젝트 조회 API는 완료됐다.
-  - `/api/projects`
-  - `GET(list) / GET(detail by slug)`
-- 공개 글 조회 API도 완료됐다.
-  - `/api/posts`
-  - `GET(list) / GET(detail by slug)`
-- QueryDSL 기반 필터/검색은 아직 없다.
-- `apps/api/build.gradle`에는 QueryDSL 의존성/설정이 아직 없고, 관련 코드도 없다.
+- `blog_db`와 별도로 `media_db` 스키마와 `media_assets` 테이블 마이그레이션은 이미 있다.
+- `media_assets`에는 `namespace`, `bucket`, `object_key`, `checksum_sha256`, `uploaded_by_user_id` 등이 정의돼 있다.
+- `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
+- `apps/api`에는 아직 `media` 패키지, MinIO client 설정, presign API가 없다.
+- `apps/api/build.gradle`에는 아직 MinIO/S3 SDK 의존성이 없다.
+- `infra/compose/docker-compose.yml`에는 `mysql_media`, `flyway_media`는 있지만, 현재 기준 MinIO service 정의는 보이지 않는다.
 
 현재 확정 범위
-- 이번 단계에서는 `QueryDSL` 도입과 공개 조회용 필터/검색 기반을 우선 다룬다.
-- 현재 기준으로 QueryDSL 의존성, Q 타입 생성 설정, `JPAQueryFactory` bean은 전부 없다.
-- 검색/필터 대상이 글 목록 중심인지, 프로젝트까지 포함할지는 첫 단계에서 다시 확정한다.
-- 기존 공개 조회 API(`/api/posts`, `/api/projects`)의 계약을 깨지 않는 범위로 확장한다.
+- 이번 단계에서는 `MinIO 연결`과 `버킷/오브젝트 키 규칙 확정`까지만 다룬다.
+- presign 업로드 URL 발급 API와 `media_assets` 저장 로직은 `P0-014-MEDIA-2` 범위다.
+- 이번 단계에서는 업로드/다운로드 API보다 먼저 `연결 방식`, `환경변수`, `bucket/namespace/object key` 규칙을 고정한다.
+- 현재 compose에 MinIO service 정의가 없는 상태라, 연결 설정 전에 infra 기준도 함께 다시 확인해야 한다.
 
 세부 단계
-- [ ] QUERY-01 요구사항/대상 범위 확인
-  - [ ] QUERY-01-1 `README.md`의 `P0-012-BE-7`과 현재 공개 API 범위 다시 확인
-  - [ ] QUERY-01-2 검색/필터 대상을 `post`만 우선할지 `project`까지 포함할지 확정
-  - [ ] QUERY-01-3 첫 구현의 query parameter 범위를 정리
-- [ ] QUERY-02 QueryDSL 도입 기반 추가
-  - [ ] QUERY-02-1 `build.gradle`에 QueryDSL 의존성과 annotation processor 추가
-  - [ ] QUERY-02-2 `JPAQueryFactory` bean 위치와 패키지 확정
-  - [ ] QUERY-02-3 `./gradlew --no-daemon compileJava`로 Q 타입 생성 확인
-- [ ] QUERY-03 공개 글 목록 검색 repository 초안 연결
-  - [ ] QUERY-03-1 검색/필터 query 객체 추가
-  - [ ] QUERY-03-2 `PostRepositoryPort` 검색 메서드 시그니처 추가
-  - [ ] QUERY-03-3 QueryDSL adapter/custom repository 구현 위치 확정
-- [ ] QUERY-04 테스트 전략 확정
-  - [ ] QUERY-04-1 repository/service/controller 중 어디까지 우선 검증할지 정리
-  - [ ] QUERY-04-2 검색 정렬/빈 결과/부분일치 테스트 기준 정리
+- [ ] MEDIA-01 요구사항/기반 확인
+  - [ ] MEDIA-01-1 `README.md`의 `P0-013-MEDIA-1` 범위와 제외 범위 다시 확인
+  - [ ] MEDIA-01-2 `docker-compose.yml`, `migrations/media/V1__init.sql`에서 기존 media/minio 기반 확인
+  - [ ] MEDIA-01-3 `apps/api` 기준 media 패키지/MinIO 설정 부재 확인
+- [ ] MEDIA-02 MinIO 연결 정책 확정
+  - [ ] MEDIA-02-1 MinIO endpoint/credential/property 이름 확정
+  - [ ] MEDIA-02-2 SDK 선택과 client bean 위치 확정
+  - [ ] MEDIA-02-3 compose에 MinIO service를 둘지, 외부 MinIO를 붙일지 기준 확정
+- [ ] MEDIA-03 버킷/키 규칙 확정
+  - [ ] MEDIA-03-1 `media_assets.namespace` 허용값 초안 정리
+  - [ ] MEDIA-03-2 bucket 전략(단일/분리) 확정
+  - [ ] MEDIA-03-3 object key 템플릿 규칙 확정
+- [ ] MEDIA-04 백엔드 설정 골격 추가
+  - [ ] MEDIA-04-1 property class 추가
+  - [ ] MEDIA-04-2 MinIO client config 추가
+  - [ ] MEDIA-04-3 `./gradlew --no-daemon compileJava`로 설정 클래스 컴파일 확인
 
 계획 메모
-- QueryDSL 도입 전에는 검색 범위와 query parameter를 먼저 확정한다.
-- 공개 조회 계약은 이미 열려 있으므로, 다음 단계는 기존 endpoint 확장과 신규 repository 계층 추가를 중심으로 본다.
-- `post`가 우선 후보지만, `project`까지 포함할지는 첫 단계에서 다시 확인한다.
+- `media_assets` 테이블이 이미 있으므로, 다음 단계는 API보다 먼저 MinIO 연결 정책과 key naming 규칙을 고정하는 쪽이 맞다.
+- MinIO service가 현재 compose에 보이지 않으므로, infra 기준 확인이 선행돼야 한다.
+- `cover_media_asset_id`는 이미 post/project에 있으므로, media 업로드 흐름이 생기면 이후 연결은 자연스럽게 붙일 수 있다.
 
 다음 시작 지점
-- `QUERY-01-1`
-- 다음 구현은 `README 기준으로 P0-012-BE-7 범위와 현재 공개 API 상태를 다시 확인하는 것이다.`
+- `MEDIA-01-1`
+- 다음 구현은 `README.md`의 P0-013-MEDIA-1 범위와 제외 범위를 다시 확인하는 것이다.

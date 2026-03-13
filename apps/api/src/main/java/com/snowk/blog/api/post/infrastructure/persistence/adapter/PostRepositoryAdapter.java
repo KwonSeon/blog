@@ -2,9 +2,11 @@ package com.snowk.blog.api.post.infrastructure.persistence.adapter;
 
 import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import com.snowk.blog.api.post.application.port.out.PostRepositoryPort;
+import com.snowk.blog.api.post.application.query.ListPublicPostsQuery;
 import com.snowk.blog.api.post.domain.entity.Post;
 import com.snowk.blog.api.post.domain.enumtype.PostStatus;
 import com.snowk.blog.api.post.infrastructure.persistence.jpa.PostJpaRepository;
+import com.snowk.blog.api.post.infrastructure.persistence.query.PostPublicQueryRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Repository;
 public class PostRepositoryAdapter implements PostRepositoryPort {
 
     private final PostJpaRepository postJpaRepository;
+    private final PostPublicQueryRepository postPublicQueryRepository;
 
     @Override
     public Post save(Post post) {
@@ -44,6 +47,11 @@ public class PostRepositoryAdapter implements PostRepositoryPort {
     @Override
     public List<Post> findPublicPosts() {
         return postJpaRepository.findAllByVisibilityAndStatus(Visibility.PUBLIC, PostStatus.PUBLISHED);
+    }
+
+    @Override
+    public List<Post> findPublicPosts(ListPublicPostsQuery query) {
+        return postPublicQueryRepository.findPublicPosts(query);
     }
 
     @Override

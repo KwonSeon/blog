@@ -1,5 +1,6 @@
 package com.snowk.blog.api.post.application.port.out;
 
+import com.snowk.blog.api.post.application.query.ListPublicPostsQuery;
 import com.snowk.blog.api.post.domain.entity.Post;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,8 @@ public interface PostRepositoryPort {
     List<Post> findAll();
 
     List<Post> findPublicPosts();
+
+    List<Post> findPublicPosts(ListPublicPostsQuery query);
 
     Optional<Post> findPublicPostBySlug(String slug);
 

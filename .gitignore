@@ -8,6 +8,7 @@ apps/web/.next
 # Spring
 apps/api/target
 apps/api/build
+apps/api/src/main/generated
 
 # 환경변수
 .env

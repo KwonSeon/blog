@@ -30,7 +30,7 @@ public class ListPublicPostsService implements ListPublicPostsUseCase {
             throw new BaseException(CommonErrorStatus.BAD_REQUEST);
         }
 
-        List<ListPublicPostsResult.Item> items = postRepositoryPort.findPublicPosts().stream()
+        List<ListPublicPostsResult.Item> items = postRepositoryPort.findPublicPosts(query).stream()
             .sorted(PUBLIC_LIST_ORDER)
             .map(this::toItem)
             .toList();

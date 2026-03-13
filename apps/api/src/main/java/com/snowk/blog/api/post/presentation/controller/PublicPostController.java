@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -21,9 +22,12 @@ public class PublicPostController {
     private final ListPublicPostsUseCase listPublicPostsUseCase;
 
     @GetMapping
-    public ListPublicPostsResponse listPosts() {
+    public ListPublicPostsResponse listPosts(
+        @RequestParam(required = false) String q,
+        @RequestParam(required = false) String lang
+    ) {
         return ListPublicPostsResponse.from(
-            listPublicPostsUseCase.listPosts(new ListPublicPostsQuery())
+            listPublicPostsUseCase.listPosts(new ListPublicPostsQuery(q, lang))
         );
     }
 

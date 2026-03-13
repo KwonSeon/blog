@@ -84,6 +84,28 @@ class PublicPostControllerTest {
             .andExpect(jsonPath("$.content[0].updatedAt").exists());
 
         assertThat(queryCaptor.getValue()).isNotNull();
+        assertThat(queryCaptor.getValue().q()).isNull();
+        assertThat(queryCaptor.getValue().lang()).isNull();
+    }
+
+    @Test
+    @DisplayName("공개 게시글 목록 조회 시 q, lang query parameter를 바인딩한다")
+    void listPosts_bindsQueryParameters() throws Exception {
+        ArgumentCaptor<ListPublicPostsQuery> queryCaptor = ArgumentCaptor.forClass(ListPublicPostsQuery.class);
+
+        when(listPublicPostsUseCase.listPosts(queryCaptor.capture()))
+            .thenReturn(new ListPublicPostsResult(List.of(), 0));
+
+        mockMvc.perform(
+                get("/api/posts")
+                    .queryParam("q", "spring")
+                    .queryParam("lang", "ko")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalCount").value(0));
+
+        assertThat(queryCaptor.getValue().q()).isEqualTo("spring");
+        assertThat(queryCaptor.getValue().lang()).isEqualTo("ko");
     }
 
     @Test
