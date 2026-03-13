@@ -30,6 +30,14 @@ class PostJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("slug 존재 여부를 확인할 수 있다")
+    void existsBySlug_returnsTrue_whenSlugExists() {
+        postJpaRepository.save(createPost("exists-slug", "Exists"));
+
+        assertThat(postJpaRepository.existsBySlug("exists-slug")).isTrue();
+    }
+
+    @Test
     @DisplayName("동일한 슬러그의 게시글은 저장할 수 없다")
     void save_duplicateSlug_throwsDataIntegrityViolation() {
         postJpaRepository.saveAndFlush(createPost("duplicate-slug", "First"));

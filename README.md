@@ -76,7 +76,7 @@ Backend
 - [x] P0-006-BE-1 엔티티/JPA 리포지토리 구현(P0 코어)
 - [x] P0-007-BE-2 관리자 로그인 API + ADMIN 보호구역 설정
 - [x] P0-008-BE-3 프로젝트 CRUD(Admin)
-- [ ] P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환
+- [x] P0-009-BE-4 글 CRUD(Admin) + DRAFT/PUBLISHED 전환
 - [ ] P0-010-BE-5 공개 프로젝트 조회 API(목록/상세 slug)
 - [ ] P0-011-BE-6 공개 글 조회 API(목록/상세 slug)
 - [ ] P0-012-BE-7 QueryDSL 기반 필터/검색

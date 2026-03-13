@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostJpaRepository extends JpaRepository<Post, Long> {
 
+    boolean existsBySlug(String slug);
+
     Optional<Post> findBySlug(String slug);
 }

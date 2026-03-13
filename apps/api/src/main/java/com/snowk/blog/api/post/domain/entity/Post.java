@@ -1,9 +1,11 @@
 package com.snowk.blog.api.post.domain.entity;
 
+import com.snowk.blog.api.common.persistence.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import com.snowk.blog.api.global.config.generator.SnowflakeId;
-import com.snowk.blog.api.global.common.baseentity.BaseTimeEntity;
+import com.snowk.blog.api.global.exception.BaseException;
 import com.snowk.blog.api.post.domain.enumtype.PostStatus;
-import com.snowk.blog.api.shared.domain.enumtype.Visibility;
+import com.snowk.blog.api.post.domain.error.PostErrorStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,10 +14,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -83,5 +88,85 @@ public class Post extends BaseTimeEntity {
     private Set<PostTag> postTags = new HashSet<>();
 
     @OneToMany(mappedBy = "post")
-    private Set<PostProject> postProjects = new HashSet<>();
+    @OrderBy("sortOrder ASC")
+    private List<PostProject> postProjects = new ArrayList<>();
+
+    public static Post create(
+        String slug,
+        String title,
+        String excerpt,
+        String contentMd,
+        Visibility visibility,
+        PostStatus status,
+        String lang,
+        Long coverMediaAssetId,
+        Long authorUserId,
+        LocalDateTime publishedAt
+    ) {
+        Post post = new Post();
+        post.slug = slug;
+        post.title = title;
+        post.excerpt = excerpt;
+        post.contentMd = contentMd;
+        post.visibility = visibility;
+        post.status = status;
+        post.lang = lang;
+        post.coverMediaAssetId = coverMediaAssetId;
+        post.authorUserId = authorUserId;
+        post.publishedAt = publishedAt;
+        return post.validate();
+    }
+
+    public Post update(
+        String slug,
+        String title,
+        String excerpt,
+        String contentMd,
+        Visibility visibility,
+        String lang,
+        Long coverMediaAssetId
+    ) {
+        this.slug = slug;
+        this.title = title;
+        this.excerpt = excerpt;
+        this.contentMd = contentMd;
+        this.visibility = visibility;
+        this.lang = lang;
+        this.coverMediaAssetId = coverMediaAssetId;
+        return validate();
+    }
+
+    public Post publish() {
+        this.status = PostStatus.PUBLISHED;
+        this.publishedAt = publishedAt != null ? publishedAt : LocalDateTime.now();
+        return validate();
+    }
+
+    public Post unpublish() {
+        this.status = PostStatus.DRAFT;
+        this.publishedAt = null;
+        return validate();
+    }
+
+    private Post validate() {
+        if (slug == null || slug.isBlank()) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_SLUG);
+        }
+        if (title == null || title.isBlank()) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_TITLE);
+        }
+        if (contentMd == null || contentMd.isBlank()) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_CONTENT);
+        }
+        if (visibility == null) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_VISIBILITY);
+        }
+        if (status == null) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_STATUS);
+        }
+        if (lang == null || lang.isBlank()) {
+            throw new BaseException(PostErrorStatus.INVALID_POST_LANGUAGE);
+        }
+        return this;
+    }
 }
