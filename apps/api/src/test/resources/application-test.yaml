@@ -21,6 +21,8 @@ security:
   public:
     request-matchers:
       - "/error:GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      - "/api/projects:GET"
+      - "/api/projects/{slug}:GET"
       - "/api/admin/auth/login:POST"
   cors:
     allow:

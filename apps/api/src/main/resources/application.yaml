@@ -33,6 +33,8 @@ security:
       - "/:GET"
       - "/error:GET,POST,PUT,PATCH,DELETE,OPTIONS"
       - "/api/public/**:GET"
+      - "/api/projects:GET"
+      - "/api/projects/{slug}:GET"
       - "/api/admin/auth/login:POST"
   # CORS 기본 허용 오리진(로컬 프론트)
   cors:

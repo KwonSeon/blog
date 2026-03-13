@@ -1,7 +1,9 @@
 package com.snowk.blog.api.project.infrastructure.persistence.adapter;
 
 import com.snowk.blog.api.project.application.port.out.ProjectRepositoryPort;
+import com.snowk.blog.api.common.domain.enumtype.Visibility;
 import com.snowk.blog.api.project.domain.entity.Project;
+import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
 import com.snowk.blog.api.project.infrastructure.persistence.jpa.ProjectJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -42,6 +44,20 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     @Override
     public List<Project> findAll() {
         return projectJpaRepository.findAll();
+    }
+
+    @Override
+    public List<Project> findPublicProjects() {
+        return projectJpaRepository.findAllByVisibilityAndStatus(Visibility.PUBLIC, ProjectStatus.ACTIVE);
+    }
+
+    @Override
+    public Optional<Project> findPublicProjectBySlug(String slug) {
+        return projectJpaRepository.findBySlugAndVisibilityAndStatus(
+            slug,
+            Visibility.PUBLIC,
+            ProjectStatus.ACTIVE
+        );
     }
 
     @Override
