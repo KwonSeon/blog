@@ -107,9 +107,9 @@
   - [x] FE-SITEMAP-02-2 mock data 기반 프로젝트/글 상세 route 포함
   - [x] FE-SITEMAP-02-3 lastModified/changeFrequency/priority fallback 정리
 - [ ] FE-SITEMAP-03 robots 구현
-  - [ ] FE-SITEMAP-03-1 `app/robots.ts` 기본 허용/차단 규칙 추가
-  - [ ] FE-SITEMAP-03-2 sitemap 경로와 host 기준 연결
-  - [ ] FE-SITEMAP-03-3 관리자/비공개 경로 차단 규칙 확인
+  - [x] FE-SITEMAP-03-1 `app/robots.ts` 기본 허용/차단 규칙 추가
+  - [x] FE-SITEMAP-03-2 sitemap 경로와 host 기준 연결
+  - [x] FE-SITEMAP-03-3 관리자/비공개 경로 차단 규칙 확인
 - [ ] FE-SITEMAP-04 검증 및 문서 반영
   - [ ] FE-SITEMAP-04-1 route별 sitemap/robots 출력 점검
   - [ ] FE-SITEMAP-04-2 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
@@ -121,5 +121,5 @@
 - 현재는 mock data 기반 공개 route만 있으므로 sitemap도 같은 source of truth를 쓰는 쪽이 구현과 검증이 단순하다.
 
 다음 시작 지점
-- `FE-SITEMAP-03-1`
-- 다음 구현은 `app/robots.ts`에 기본 허용/차단 규칙과 sitemap 연결을 추가하는 것이다.
+- `FE-SITEMAP-04-1`
+- 다음 구현은 sitemap/robots 출력과 문서 반영을 함께 검증하는 것이다.
