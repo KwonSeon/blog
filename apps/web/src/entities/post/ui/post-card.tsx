@@ -4,6 +4,7 @@ import {
   POST_CATEGORY_LABELS,
   type Post,
 } from "@/src/entities/post/model/types";
+import { PostTagList } from "@/src/entities/post/ui/post-tag-list";
 import { StatusBadge } from "@/src/shared/ui";
 
 interface PostCardProps {
@@ -64,16 +65,7 @@ export function PostCard({ post, className }: PostCardProps) {
         ) : null}
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        {post.tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
+      <PostTagList tags={post.tags} className="mt-5" />
     </article>
   );
 }

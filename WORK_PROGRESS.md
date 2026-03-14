@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-017-FE-PUB-3 글 목록(필터/검색 UI)`
+- `P0-018-FE-PUB-4 글 상세(마크다운 렌더 + 관련 프로젝트)`
 
 최근 완료 작업
+- `P0-017-FE-PUB-3 글 목록(필터/검색 UI)` 완료
+- 완료 범위
+  - 공개 글 목록 `/posts` route, metadata, 검색 form, category chips, query-param 기반 결과 흐름 구현
+  - `filterMockPosts`, `PostsArchiveHero`, `PostsResultsSection`, `PostTagList` 분리와 `PostCard` 재사용 범위 정리
+  - 결과 grid, active filter summary, empty state, reset 흐름 구현
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)` 완료
 - 완료 범위
   - 공개 프로젝트 목록 `/projects`와 프로젝트 상세 `/projects/[slug]` 화면 구현
@@ -32,7 +38,7 @@
   - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
-- `apps/web` 공개 라우트에는 홈 `/`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]`가 있고 `/posts` 목록 화면은 아직 없다.
+- `apps/web` 공개 라우트에는 홈 `/`, 글 목록 `/posts`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]`가 있고 공개 목록/랜딩 흐름이 한 번 완성됐다.
 - `apps/web/src/entities/post/ui/post-card.tsx`는 홈 최신 글 카드 언어로 이미 구현되어 있다.
 - `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
 - `apps/web/src/shared/lib/mock/home-data.ts`에는 post category, tags, readingTime, relatedProjectSlug 기반 mock data가 있다.
@@ -45,13 +51,13 @@
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 글 목록 공개 화면 구현으로 넘어간다.
-- 이번 단계의 목표는 `/posts` 목록 화면을 검색 유입 관점의 공개 아카이브로 구현하는 것이다.
-- 홈에서 만든 최신 글 카드 언어는 가능한 범위에서 재사용하되, 검색/필터 summary와 hero는 목록 전용 표현으로 추가할 수 있다.
-- API 연동은 이미 가능하지만, 우선 공개 route 구조와 검색/필터 UI 정보를 먼저 정리한 뒤 mock 유지 또는 API 전환 지점을 정한다.
-- `P0-017`에서는 우선 mock data 기반으로 검색/필터 UI를 조립하되, 공개 API의 `q`, `lang` query 구조와 맞는 view model 책임을 먼저 잡는 편이 맞다.
-- category/tag/filter chips는 현재 공개 API 계약과 다르므로 첫 구현에서는 URL query 기반 mock filtering 또는 UI 표현 유지 중 하나를 선택해야 한다.
-- `/posts/[slug]` 상세는 다음 단계 `P0-018`에서 구현하므로 이번 단계는 목록 화면과 링크 흐름 정리까지가 범위다.
+- blog 저장소의 다음 범위는 글 상세 공개 화면 구현으로 넘어간다.
+- 이번 단계의 목표는 `/posts/[slug]` 상세 화면을 markdown renderer와 관련 프로젝트 흐름 기준으로 구현하는 것이다.
+- 글 목록에서 만든 `PostCard`, `PostsArchiveHero`, `PostsResultsSection` 구조는 유지하고, 상세 화면은 article 중심 서술형 레이아웃을 별도로 가진다.
+- API 연동은 이미 가능하지만, 우선 공개 detail route 구조와 content renderer 책임을 먼저 정리한 뒤 mock 유지 또는 API 전환 지점을 정한다.
+- 공개 글 상세 API는 `contentMd`, `lang`, `coverMediaAssetId`, `publishedAt`까지 제공하므로, 상세 단계에서는 목록 타입과 분리된 view model 또는 mock detail 구조가 필요할 수 있다.
+- 관련 프로젝트 연결은 현재 `relatedProjectSlug`, `relatedProjectTitle` mock 기준이 있으므로, 상세 화면에서 project CTA와 연동할 수 있는 구조를 먼저 잡는 편이 맞다.
+- markdown renderer, heading hierarchy, metadata, 관련 프로젝트 CTA를 함께 확인해야 다음 SEO 단계와 연결하기 쉽다.
 
 세부 단계
 - [x] FE-POST-01 글 목록 공개 화면 요구사항/정보구조 정리
@@ -66,10 +72,10 @@
   - [x] FE-POST-03-1 mockPosts 기반 search/category filtering helper 추가
   - [x] FE-POST-03-2 글 grid, 결과 개수, active filter summary 조립
   - [x] FE-POST-03-3 empty state와 reset 흐름 정리
-- [ ] FE-POST-04 공통 표현 정리 및 검증
-  - [ ] FE-POST-04-1 `PostCard` 재사용 범위와 목록 전용 표현 분리
-  - [ ] FE-POST-04-2 heading hierarchy/metadata/link 구조 확인
-  - [ ] FE-POST-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
+- [x] FE-POST-04 공통 표현 정리 및 검증
+  - [x] FE-POST-04-1 `PostCard` 재사용 범위와 목록 전용 표현 분리
+  - [x] FE-POST-04-2 heading hierarchy/metadata/link 구조 확인
+  - [x] FE-POST-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
 - 글 목록 화면은 홈보다 검색 유입과 아카이브 탐색 성격을 더 분명히 가져간다.
@@ -77,5 +83,5 @@
 - 공개 API는 이미 있으므로, route 구조와 query-param 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-POST-04-1`
-- 다음 구현은 `PostCard` 재사용 범위와 글 목록 전용 표현을 분리하는 것이다.
+- `P0-018-FE-PUB-4`
+- 다음 구현은 글 상세 공개 화면의 markdown renderer와 관련 프로젝트 영역을 구성하는 것이다.
