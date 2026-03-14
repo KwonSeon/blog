@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-019-FE-ADM-1 관리자 로그인 화면`
+- `P0-020-FE-ADM-2 마크다운 에디터(작성/미리보기/발행)`
 
 최근 완료 작업
+- `P0-019-FE-ADM-1 관리자 로그인 화면` 완료
+- 완료 범위
+  - 관리자 로그인 `/admin/login` route, noindex metadata, 전용 shell, 입력 form 구현
+  - `runtimeConfig`, `requestAdminLogin`, `admin-session` helper와 `AdminSessionGuard` 기반 보호 라우트 흐름 구현
+  - 로그인 성공 후 `/admin` placeholder로 이동하고 `AdminLogoutButton`으로 세션을 정리할 수 있게 구성
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-018-FE-PUB-4 글 상세(마크다운 렌더 + 관련 프로젝트)` 완료
 - 완료 범위
   - 공개 글 상세 `/posts/[slug]` route, metadata, not-found, article 중심 레이아웃 구현
@@ -44,52 +50,47 @@
   - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
-- `apps/web` 공개 라우트에는 홈 `/`, 글 목록 `/posts`, 글 상세 `/posts/[slug]`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]`가 있고 공개 탐색 흐름이 한 번 완성됐다.
-- `apps/web/src/entities/post`에는 목록용 `PostCard`, 상세용 `PostDetailHero`, `PostMarkdown`, `PostRelatedProjectCta`, 공통 `PostTagList`가 분리되어 있다.
-- `apps/web/src/shared/lib/mock/home-data.ts`에는 목록용 `mockPosts`와 상세용 `mockPostDetails`, `getMockPostDetailBySlug`가 함께 있다.
-- `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 이미 `/projects`, `/posts` 링크를 모두 가리킨다.
-- `apps/web`에는 아직 `/admin/login` route, 관리자 layout, auth storage helper, admin 보호 라우트가 없다.
-- 백엔드에는 `POST /api/admin/auth/login`과 `/api/admin/**` 보호구역 설정이 이미 있다.
-- `apps/api/src/main/resources/application.yaml`에는 `"/api/admin/auth/login:POST"`가 public request matcher로 등록돼 있어 로그인 요청 자체는 토큰 없이 호출할 수 있다.
-- 관리자 로그인 request는 `username`, `password`이고 response는 `accessToken`, `expiresAt`이다.
-- 관리자 후속 API 호출은 `Authorization: Bearer <accessToken>` 기준으로 붙는 구조로 보는 것이 맞다.
-- 공개 글 API 상세 응답은 `contentMd`, `lang`, `coverMediaAssetId`, `publishedAt`까지 제공하므로 이후 상세 mock을 API view model로 바꾸는 경로가 열려 있다.
+- `apps/web`에는 `/admin/login` 공개 route와 `/admin` 보호 placeholder route가 추가됐고, 관리자 인증 기본 흐름이 한 번 완성됐다.
+- `apps/web/src/shared/lib/auth`에는 `requestAdminLogin`, `admin-session` helper가 있고 세션은 `localStorage` 기준으로 관리된다.
+- `apps/web/src/widgets/admin-login-form`, `admin-login-shell`, `admin-session-guard`가 나뉘어 있어 로그인 form, shell, 보호 라우트 책임이 분리되어 있다.
+- `apps/web/src/shared/ui`에는 로그인 화면에서 재사용 가능한 `FormField`, `FormMessage`가 추가됐다.
+- 백엔드에는 `POST /api/admin/auth/login`, `POST /api/admin/posts`, `PUT /api/admin/posts/{postId}`, `PATCH /api/admin/posts/{postId}/status`, `GET /api/admin/posts`, `GET /api/admin/posts/{postId}`가 이미 있다.
+- 글 작성/수정 request에는 `slug`, `title`, `excerpt`, `contentMd`, `visibility`, `status`, `lang`, `coverMediaAssetId`가 핵심 필드로 들어간다.
+- `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 여전히 공개 화면 `/projects`, `/posts` 기준이다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 관리자 로그인 화면 구현으로 넘어간다.
-- 이번 단계의 목표는 `/admin/login` 공개 진입 화면과 로그인 form 제출 흐름을 먼저 구현하는 것이다.
-- 백엔드 로그인 API 계약은 이미 있으므로, 프론트는 입력 검증, submit 상태, 성공 시 토큰 저장 방식, 보호구역 진입 흐름을 먼저 정리하는 편이 맞다.
-- P0 범위에서는 일반 사용자 로그인 없이 관리자 전용 로그인만 고려하면 된다.
-- P0에서는 별도 BFF나 httpOnly cookie 세팅 없이 `accessToken`을 `localStorage`에 저장하고, 이후 관리자 화면은 client guard로 token 존재 여부를 먼저 확인하는 쪽이 현재 구조에 가장 단순하다.
-- `expiresAt`은 만료 토큰 정리와 재로그인 유도 기준으로 사용하고, 관리자 API 호출 helper는 이후 `Authorization` 헤더를 붙이는 방향으로 이어지게 잡는 편이 맞다.
-- 로그인 완료 후 이어질 관리자 작성 화면은 `P0-020-FE-ADM-2`이므로, 라우트 구조와 auth 상태 보관 방식을 지금부터 일관되게 잡아야 한다.
+- blog 저장소의 다음 범위는 관리자 글 작성 화면 구현으로 넘어간다.
+- 이번 단계의 목표는 `/admin` 인증 흐름 위에서 새 글 작성 route와 마크다운 에디터 shell, 미리보기, 발행 동작을 구현하는 것이다.
+- 백엔드 관리자 글 API 계약은 이미 있으므로, 프론트는 form state, markdown 편집/preview, visibility/status 선택, 발행 흐름을 먼저 정리하는 편이 맞다.
+- P0 범위에서는 이미지 업로드 없이 텍스트 기반 markdown 작성과 발행까지 먼저 닫고, 이미지 presign 연동은 `P0-021-FE-ADM-3`에서 이어간다.
+- 로그인 단계에서 만든 `localStorage + Authorization header` 기준은 그대로 재사용하고, 후속 관리자 글 API 호출 helper로 이어지게 잡는 편이 맞다.
+- 새 글 작성 route와 이후 수정 route가 같은 editor 표현을 재사용할 수 있게 지금부터 layout과 state 경계를 잡아야 한다.
 
 세부 단계
-- [x] FE-ADM-01 관리자 로그인 요구사항/정보구조 정리
-  - [x] FE-ADM-01-1 README 기준 관리자 로그인 화면 목표 다시 확인
-  - [x] FE-ADM-01-2 `/api/admin/auth/login` request/response와 보호구역 기준 정리
-  - [x] FE-ADM-01-3 로그인 성공 후 토큰 저장/보호 라우트 진입 기준 정리
-- [x] FE-ADM-02 관리자 로그인 route와 form shell 조립
-  - [x] FE-ADM-02-1 `app/admin/login/page.tsx` route와 metadata 베이스 추가
-  - [x] FE-ADM-02-2 로그인 hero, form shell, helper text 조립
-  - [x] FE-ADM-02-3 validation/error/success message 표현 기준 정리
-- [x] FE-ADM-03 로그인 submit/auth state 흐름 구현
-  - [x] FE-ADM-03-1 로그인 form state와 submit pending 흐름 구현
-  - [x] FE-ADM-03-2 성공 시 token 저장과 후속 라우트 이동 기준 연결
-  - [x] FE-ADM-03-3 실패 응답과 재시도 UX 정리
-- [ ] FE-ADM-04 공통 표현 정리 및 검증
-  - [ ] FE-ADM-04-1 로그인 전용 표현과 shared/ui 재사용 경계 정리
-  - [ ] FE-ADM-04-2 접근 제어/metadata/link 구조 확인
-  - [ ] FE-ADM-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
+- [ ] FE-EDITOR-01 관리자 글 작성 화면 요구사항/정보구조 정리
+  - [ ] FE-EDITOR-01-1 README 기준 관리자 에디터 화면 목표 다시 확인
+  - [ ] FE-EDITOR-01-2 `/api/admin/posts` create/update/status/list/get 계약과 필수 필드 정리
+  - [ ] FE-EDITOR-01-3 로그인 세션 재사용과 editor route 구조 기준 정리
+- [ ] FE-EDITOR-02 관리자 글 작성 route와 editor shell 조립
+  - [ ] FE-EDITOR-02-1 `app/admin/posts/new/page.tsx` route와 metadata 베이스 추가
+  - [ ] FE-EDITOR-02-2 slug/title/excerpt/contentMd/visibility/status/lang 입력 shell 구성
+  - [ ] FE-EDITOR-02-3 preview pane, helper text, submit CTA 배치
+- [ ] FE-EDITOR-03 작성/미리보기/발행 흐름 구현
+  - [ ] FE-EDITOR-03-1 editor form state와 markdown preview 연결
+  - [ ] FE-EDITOR-03-2 create post submit과 성공 응답 처리 연결
+  - [ ] FE-EDITOR-03-3 publish/status 변경 흐름과 오류/재시도 UX 정리
+- [ ] FE-EDITOR-04 공통 표현 정리 및 검증
+  - [ ] FE-EDITOR-04-1 editor 전용 표현과 shared/ui 재사용 경계 정리
+  - [ ] FE-EDITOR-04-2 보호 라우트/metadata/link 구조 확인
+  - [ ] FE-EDITOR-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
-- 관리자 로그인 화면은 공개 UI와 별도로 단정한 진입 화면을 가지되, 이후 작성 화면으로 자연스럽게 이어져야 한다.
-- 토큰 저장 위치와 보호 라우트 진입 방식은 `P0-020-FE-ADM-2`까지 고려해 지금부터 일관되게 정해야 한다.
-- 로그인 API는 이미 있으므로, 프론트는 입력/에러/토큰 저장 책임을 먼저 흔들리지 않게 잡는 편이 맞다.
-- 초기 관리자 인증은 `localStorage + client-side guard + Authorization header` 조합으로 먼저 닫고, 보안 강화를 위한 cookie 전략은 후속 단계에서 별도로 검토한다.
+- 관리자 에디터는 로그인 성공 이후 바로 이어지는 작업 화면이므로 `/admin` 보호 흐름을 그대로 재사용해야 한다.
+- 이미지 업로드는 다음 단계로 미루고, 이번 단계에서는 markdown 본문 작성과 preview/publish 흐름 자체를 먼저 흔들리지 않게 잡는 편이 맞다.
+- create/update/status API가 이미 있으므로, 프론트는 editor state와 request payload 매핑을 먼저 분명히 해야 한다.
 
 다음 시작 지점
-- `FE-ADM-04-1`
-- 다음 구현은 로그인 전용 표현과 auth guard 구조를 정리하고 검증을 마무리하는 것이다.
+- `FE-EDITOR-01-1`
+- 다음 구현은 README 기준으로 관리자 에디터 화면 목표를 다시 확인하는 것이다.

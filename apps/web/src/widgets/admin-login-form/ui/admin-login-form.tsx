@@ -7,6 +7,7 @@ import {
   saveAdminSession,
 } from "@/src/shared/lib/auth/admin-session";
 import { requestAdminLogin } from "@/src/shared/lib/auth/admin-auth-api";
+import { FormField, FormMessage } from "@/src/shared/ui";
 
 function resolveNextPath(candidate: string | null) {
   if (!candidate) {
@@ -108,50 +109,44 @@ export function AdminLoginForm() {
       </p>
 
       <form className="mt-8 grid gap-5" aria-label="관리자 로그인 form" onSubmit={handleSubmit}>
-        <label className="grid gap-2 text-sm text-foreground">
-          <span className="font-medium">아이디</span>
-          <input
-            type="text"
-            name="username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            placeholder="admin"
-            disabled={isPending}
-            autoComplete="username"
-            className="min-h-12 rounded-2xl border border-input bg-background px-4 text-base text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
-          />
-        </label>
+        <FormField
+          label="아이디"
+          type="text"
+          name="username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          placeholder="admin"
+          disabled={isPending}
+          autoComplete="username"
+        />
 
-        <label className="grid gap-2 text-sm text-foreground">
-          <span className="font-medium">비밀번호</span>
-          <input
-            type="password"
-            name="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="비밀번호를 입력하세요"
-            disabled={isPending}
-            autoComplete="current-password"
-            className="min-h-12 rounded-2xl border border-input bg-background px-4 text-base text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
-          />
-        </label>
+        <FormField
+          label="비밀번호"
+          type="password"
+          name="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          placeholder="비밀번호를 입력하세요"
+          disabled={isPending}
+          autoComplete="current-password"
+        />
 
         {errorMessage ? (
-          <div className="rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-4 text-sm leading-7 text-destructive">
+          <FormMessage variant="danger">
             {errorMessage}
-          </div>
+          </FormMessage>
         ) : null}
 
         {successMessage ? (
-          <div className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-4 text-sm leading-7 text-primary">
+          <FormMessage variant="success">
             {successMessage}
-          </div>
+          </FormMessage>
         ) : null}
 
-        <div className="rounded-2xl bg-secondary/70 px-4 py-4 text-sm leading-7 text-muted-foreground">
+        <FormMessage>
           성공 시 `localStorage`에 세션을 저장하고, `next` query 또는 기본 `/admin`
           화면으로 이동합니다.
-        </div>
+        </FormMessage>
 
         <button
           type="submit"
