@@ -31,6 +31,11 @@
 - `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
 - `apps/web/src/shared/lib/mock/home-data.ts`에는 프로젝트 slug/detailUrl/status/tags 기반 mock data가 있다.
 - `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 이미 `/projects` 링크를 가리킨다.
+- 프로젝트 목록 화면은 `ProjectCard`, `Container`, `SectionHeader`, `CTAButton`, `StatusBadge`, `SurfaceCard`를 그대로 재사용하는 방향이 맞다.
+- 프로젝트 상세 화면은 `ProjectCard` 전체 재사용보다 `Container`, `SurfaceCard`, `CTAButton`, `StatusBadge`를 조합한 상세 전용 hero/메타/CTA 섹션이 새로 필요하다.
+- 공개 프로젝트 API 목록 응답은 `projectId`, `slug`, `title`, `summary`, `serviceUrl`, `coverMediaAssetId`, `publishedAt`만 제공한다.
+- 공개 프로젝트 API 상세 응답은 목록 필드에 `repoUrl`이 추가되지만, `status`, `tags`는 제공하지 않는다.
+- 현재 프론트 `Project` 타입은 `description`, `tags`, `status`, `detailUrl`, `demoUrl` 중심이라 공개 API 응답과 바로 일치하지 않는다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
 
@@ -39,12 +44,15 @@
 - 이번 단계의 목표는 프로젝트 목록 화면과 프로젝트 상세 화면을 서비스 랜딩 UX 기준으로 구현하는 것이다.
 - 홈에서 만든 프로젝트 카드 언어는 가능한 범위에서 재사용하되, 상세 화면은 서술형 정보 구조를 별도로 가질 수 있다.
 - API 연동은 이미 가능하지만, 우선 화면 정보구조와 route 구조를 먼저 정리한 뒤 mock data 유지 또는 API 전환 지점을 정한다.
+- `P0-016`에서는 우선 mock data로 목록/상세 화면을 조립하되, 공개 API 응답 구조와 맞는 `project summary view model`을 별도로 두는 쪽이 맞다.
+- `detailUrl`은 slug 기준 `/projects/${slug}`로 프론트에서 파생 가능하고, `serviceUrl`은 API 응답 필드와 매핑 가능하다.
+- `status`, `tags`는 현재 공개 API에 없으므로 목록/상세 첫 구현에서는 mock 유지 또는 UI 축소 중 하나를 선택해야 한다.
 
 세부 단계
 - [ ] FE-PROJ-01 프로젝트 공개 화면 요구사항/정보구조 정리
-  - [ ] FE-PROJ-01-1 README 기준 프로젝트 목록/상세 목표 다시 확인
-  - [ ] FE-PROJ-01-2 현재 `ProjectCard`/`shared/ui` 재사용 범위 확인
-  - [ ] FE-PROJ-01-3 `/api/projects`, `/api/projects/{slug}` 연동 여부와 mock 기준 정리
+  - [x] FE-PROJ-01-1 README 기준 프로젝트 목록/상세 목표 다시 확인
+  - [x] FE-PROJ-01-2 현재 `ProjectCard`/`shared/ui` 재사용 범위 확인
+  - [x] FE-PROJ-01-3 `/api/projects`, `/api/projects/{slug}` 연동 여부와 mock 기준 정리
 - [ ] FE-PROJ-02 프로젝트 목록 화면 조립
   - [ ] FE-PROJ-02-1 `app/(public)/projects/page.tsx` route 및 metadata 베이스 추가
   - [ ] FE-PROJ-02-2 목록 소개 hero/CTA/섹션 헤더 구성
@@ -64,5 +72,5 @@
 - 공개 API는 이미 있으므로, route 구조와 view model 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-PROJ-01-1`
-- 다음 구현은 `README.md` 기준으로 프로젝트 목록/상세 목표를 다시 확인하고 정보구조를 먼저 정리하는 것이다.
+- `FE-PROJ-02-1`
+- 다음 구현은 `app/(public)/projects/page.tsx` route와 metadata 베이스를 추가해 프로젝트 목록 화면 조립을 시작하는 것이다.
