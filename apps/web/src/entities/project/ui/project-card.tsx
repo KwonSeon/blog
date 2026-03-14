@@ -5,6 +5,7 @@ import {
   PROJECT_STATUS_VARIANTS,
   type Project,
 } from "@/src/entities/project/model/types";
+import { ProjectTagList } from "@/src/entities/project/ui/project-tag-list";
 import { StatusBadge, SurfaceCard } from "@/src/shared/ui";
 
 interface ProjectCardProps {
@@ -71,16 +72,7 @@ export function ProjectCard({
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {project.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        <ProjectTagList tags={project.tags} />
 
         <div className="mt-auto flex flex-wrap items-center gap-4 text-sm">
           <Link

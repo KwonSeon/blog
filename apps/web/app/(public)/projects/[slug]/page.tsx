@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostCard } from "@/src/entities/post";
 import {
+  ProjectDetailHero,
+  ProjectTagList,
   PROJECT_STATUS_LABELS,
-  PROJECT_STATUS_VARIANTS,
 } from "@/src/entities/project";
 import { siteConfig } from "@/src/shared/config/site";
 import {
@@ -15,7 +16,6 @@ import {
   CTAButton,
   Container,
   SectionHeader,
-  StatusBadge,
   SurfaceCard,
 } from "@/src/shared/ui";
 
@@ -74,37 +74,7 @@ export default async function ProjectDetailPage({
       <Container as="section" className="py-16 sm:py-20 lg:py-24">
         <div className="grid gap-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
-            <div className="max-w-4xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge variant={PROJECT_STATUS_VARIANTS[project.status]}>
-                  {PROJECT_STATUS_LABELS[project.status]}
-                </StatusBadge>
-                <span className="text-sm text-muted-foreground">
-                  slug: {project.slug}
-                </span>
-              </div>
-
-              <p className="mt-5 text-xs uppercase tracking-[0.24em] text-primary">
-                Project Detail
-              </p>
-              <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                {project.title}
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
-                {project.description}
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                {project.demoUrl ? (
-                  <CTAButton href={project.demoUrl} size="lg">
-                    서비스 보기
-                  </CTAButton>
-                ) : null}
-                <CTAButton href="/projects" variant="outline" size="lg">
-                  목록으로 돌아가기
-                </CTAButton>
-              </div>
-            </div>
+            <ProjectDetailHero project={project} />
 
             <SurfaceCard padding="lg">
               <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
@@ -181,16 +151,11 @@ export default async function ProjectDetailPage({
                   <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
                     기술 정보
                   </h2>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                  <ProjectTagList
+                    tags={project.tags}
+                    className="mt-5"
+                    tagClassName="text-sm"
+                  />
                 </SurfaceCard>
               </aside>
             </div>
