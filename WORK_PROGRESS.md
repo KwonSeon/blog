@@ -55,7 +55,10 @@
 - `apps/web/src/widgets/admin-login-form`, `admin-login-shell`, `admin-session-guard`가 나뉘어 있어 로그인 form, shell, 보호 라우트 책임이 분리되어 있다.
 - `apps/web/src/shared/ui`에는 로그인 화면에서 재사용 가능한 `FormField`, `FormMessage`가 추가됐다.
 - 백엔드에는 `POST /api/admin/auth/login`, `POST /api/admin/posts`, `PUT /api/admin/posts/{postId}`, `PATCH /api/admin/posts/{postId}/status`, `GET /api/admin/posts`, `GET /api/admin/posts/{postId}`가 이미 있다.
-- 글 작성/수정 request에는 `slug`, `title`, `excerpt`, `contentMd`, `visibility`, `status`, `lang`, `coverMediaAssetId`가 핵심 필드로 들어간다.
+- 글 작성 request에는 `slug`, `title`, `excerpt`, `contentMd`, `visibility`, `status`, `lang`, `coverMediaAssetId`가 들어가고, 수정 request에는 `status`가 빠진다.
+- 상태 변경은 별도 `PATCH /api/admin/posts/{postId}/status`로 처리해야 하므로, create/update와 publish 전환을 프론트에서 분리해서 다뤄야 한다.
+- `visibility`는 `PUBLIC | PRIVATE`, `status`는 `DRAFT | PUBLISHED`만 사용한다.
+- `coverMediaAssetId`는 `@Positive`만 붙어 있어 현재 단계에서는 비워둘 수 있다.
 - `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 여전히 공개 화면 `/projects`, `/posts` 기준이다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
@@ -66,13 +69,14 @@
 - 백엔드 관리자 글 API 계약은 이미 있으므로, 프론트는 form state, markdown 편집/preview, visibility/status 선택, 발행 흐름을 먼저 정리하는 편이 맞다.
 - P0 범위에서는 이미지 업로드 없이 텍스트 기반 markdown 작성과 발행까지 먼저 닫고, 이미지 presign 연동은 `P0-021-FE-ADM-3`에서 이어간다.
 - 로그인 단계에서 만든 `localStorage + Authorization header` 기준은 그대로 재사용하고, 후속 관리자 글 API 호출 helper로 이어지게 잡는 편이 맞다.
-- 새 글 작성 route와 이후 수정 route가 같은 editor 표현을 재사용할 수 있게 지금부터 layout과 state 경계를 잡아야 한다.
+- 이번 단계의 주 route는 `/admin/posts/new`로 두고, 이후 수정 화면은 같은 editor 표현을 재사용하는 `/admin/posts/{postId}` 또는 `/admin/posts/{postId}/edit`로 확장 가능하게 잡는 편이 맞다.
+- 최초 저장은 `POST /api/admin/posts`, 이후 본문 수정은 `PUT /api/admin/posts/{postId}`, 발행 전환은 `PATCH /api/admin/posts/{postId}/status`를 조합하는 흐름이 현재 API 계약과 맞는다.
 
 세부 단계
-- [ ] FE-EDITOR-01 관리자 글 작성 화면 요구사항/정보구조 정리
-  - [ ] FE-EDITOR-01-1 README 기준 관리자 에디터 화면 목표 다시 확인
-  - [ ] FE-EDITOR-01-2 `/api/admin/posts` create/update/status/list/get 계약과 필수 필드 정리
-  - [ ] FE-EDITOR-01-3 로그인 세션 재사용과 editor route 구조 기준 정리
+- [x] FE-EDITOR-01 관리자 글 작성 화면 요구사항/정보구조 정리
+  - [x] FE-EDITOR-01-1 README 기준 관리자 에디터 화면 목표 다시 확인
+  - [x] FE-EDITOR-01-2 `/api/admin/posts` create/update/status/list/get 계약과 필수 필드 정리
+  - [x] FE-EDITOR-01-3 로그인 세션 재사용과 editor route 구조 기준 정리
 - [ ] FE-EDITOR-02 관리자 글 작성 route와 editor shell 조립
   - [ ] FE-EDITOR-02-1 `app/admin/posts/new/page.tsx` route와 metadata 베이스 추가
   - [ ] FE-EDITOR-02-2 slug/title/excerpt/contentMd/visibility/status/lang 입력 shell 구성
@@ -90,7 +94,8 @@
 - 관리자 에디터는 로그인 성공 이후 바로 이어지는 작업 화면이므로 `/admin` 보호 흐름을 그대로 재사용해야 한다.
 - 이미지 업로드는 다음 단계로 미루고, 이번 단계에서는 markdown 본문 작성과 preview/publish 흐름 자체를 먼저 흔들리지 않게 잡는 편이 맞다.
 - create/update/status API가 이미 있으므로, 프론트는 editor state와 request payload 매핑을 먼저 분명히 해야 한다.
+- `POST -> PUT -> PATCH(status)` 흐름을 분리해두면 초안 저장과 발행 전환을 동시에 다루기 쉽다.
 
 다음 시작 지점
-- `FE-EDITOR-01-1`
-- 다음 구현은 README 기준으로 관리자 에디터 화면 목표를 다시 확인하는 것이다.
+- `FE-EDITOR-02-1`
+- 다음 구현은 관리자 글 작성 route와 에디터 shell을 먼저 추가하는 것이다.
