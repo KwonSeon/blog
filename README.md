@@ -93,7 +93,7 @@ Media
 - [x] P0-014-MEDIA-2 presign 업로드 URL 발급 API + media_assets 저장 이관(`s-nowk/media`)
 
 Frontend
-- [ ] P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)
+- [x] P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)
 - [ ] P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)
 - [ ] P0-017-FE-PUB-3 글 목록(필터/검색 UI)
 - [ ] P0-018-FE-PUB-4 글 상세(마크다운 렌더 + 관련 프로젝트)

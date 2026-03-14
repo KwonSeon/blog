@@ -10,84 +10,59 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)` 준비 전
+- `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)`
 
 최근 완료 작업
 - `P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)` 완료
 - 완료 범위
-  - `HomeHero`, `HomeProjectsSection`, `HomePostsSection`, `HomeCTA` 위젯 조립
-  - 공개 홈 `page.tsx`에서 hero -> project -> promo slot -> posts -> cta 순으로 SSR 친화 구조 조립
-  - `ProjectCard`에 커버 placeholder 성격의 상단 showcase 영역 추가
-  - `PostCard`에 태그 라벨 영역 추가
-  - 홈 더미 데이터 확장(프로젝트 4개, 글 5개) 및 카피 보정
+  - 공개 홈 `page.tsx`에서 `hero -> project -> promo slot -> posts -> cta` 순으로 SSR 친화 구조 조립
+  - `HomeHero`, `HomeProjectsSection`, `HomePostsSection`, `HomeCTA` 위젯 구현
+  - `ProjectCard`, `PostCard`, `shared/ui` 공통 표현 레이어 정리
+  - 홈 더미 데이터 확장 및 카피 보정
   - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
-- `P0-015-FE-PUB-1` 사전 준비로 `frontexample` 기준 공개 홈 보일러플레이트 이식
+- `P0-010-BE-5 공개 프로젝트 조회 API(목록/상세 slug)` 완료
 - 완료 범위
-  - `apps/web` 공개 라우트 그룹 `app/(public)` 및 기본 metadata/layout 정리
-  - `src/shared/ui` 공통 UI 레이어(`container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`) 추가
-  - `src/entities/project`, `src/entities/post` 타입/카드 컴포넌트 추가
-  - `siteConfig`, `mock home data`, `lib/utils` 추가
-  - 실제 홈 화면 조립(`hero`, `projects`, `posts`, `cta`)은 아직 시작하지 않음
-- `P0-013-MEDIA-1`, `P0-014-MEDIA-2`는 별도 `s-nowk/media` 저장소로 이관
-- 이관 범위
-  - `media_db`, `media_assets` 마이그레이션
-  - MinIO/Flyway/MySQL media compose 기준
-  - presign/media metadata 저장 API 구현 예정 범위
-- blog 저장소에는 `cover_media_asset_id` 참조와 media 연동 계약만 남김
-- `P0-012-BE-7 QueryDSL 기반 필터/검색` 완료
-- 완료 범위
-  - QueryDSL 의존성/annotation processor 추가
-  - `JPAQueryFactory` 설정 추가
-  - 공개 글 목록 `/api/posts`에 `q`, `lang` 검색 추가
-  - QueryDSL 검색용 custom repository 추가
-  - 검색 repository/service/controller 테스트 작성
-- 구현 기준
-  - 첫 적용 대상은 공개 글 목록만
-  - 첫 query parameter는 `q`, `lang`
-  - `q`는 `title`, `excerpt`, `contentMd` 부분 검색
-  - 정렬은 기존 공개 목록 규칙 `publishedAt desc -> postId desc` 유지
-  - `contentMd(LONGTEXT/CLOB)`는 cast 후 비교
-- 최종 확인: `blog/apps/api`에서 `./gradlew --no-daemon test` 통과
+  - 공개 프로젝트 목록 `GET /api/projects`
+  - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
+- `apps/web` 공개 라우트는 현재 홈 `/`만 있고, `/projects`, `/projects/[slug]` 페이지는 아직 없다.
+- `apps/web/src/entities/project/ui/project-card.tsx`는 홈 프로젝트 카드 언어로 이미 구현되어 있다.
+- `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
+- `apps/web/src/shared/lib/mock/home-data.ts`에는 프로젝트 slug/detailUrl/status/tags 기반 mock data가 있다.
+- `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 이미 `/projects` 링크를 가리킨다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
-- `apps/api`에는 아직 `media` 패키지, MinIO client 설정, presign API가 없다.
-- `apps/api/build.gradle`에는 아직 MinIO/S3 SDK 의존성이 없다.
-- blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않는다.
-- media 관련 인프라와 마이그레이션의 source of truth는 별도 `s-nowk/media` 저장소다.
-- `apps/web`에는 이제 공개 레이아웃, 공통 UI, entity card, mock data 보일러플레이트가 있다.
-- 공개 홈 첫 화면은 mock data 기반으로 조립 완료됐다.
-- 다음 범위는 프로젝트 목록/상세 공개 화면으로 이어가면 된다.
+- blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 다시 blog 기능 구현으로 복귀한다.
-- media 업로드/저장/infra 작업은 `s-nowk/media` 저장소에서 진행한다.
-- blog 저장소에서는 이후 media 연동 API 계약과 `cover_media_asset_id` 활용 흐름만 다룬다.
+- blog 저장소의 다음 범위는 프로젝트 공개 화면 구현으로 넘어간다.
+- 이번 단계의 목표는 프로젝트 목록 화면과 프로젝트 상세 화면을 서비스 랜딩 UX 기준으로 구현하는 것이다.
+- 홈에서 만든 프로젝트 카드 언어는 가능한 범위에서 재사용하되, 상세 화면은 서술형 정보 구조를 별도로 가질 수 있다.
+- API 연동은 이미 가능하지만, 우선 화면 정보구조와 route 구조를 먼저 정리한 뒤 mock data 유지 또는 API 전환 지점을 정한다.
 
 세부 단계
-- [x] FE-PUB-01 홈 요구사항/정보구조 정리
-  - [x] FE-PUB-01-1 README 기준 홈/프로젝트/블로그 섹션 요구사항 다시 확인
-  - [x] FE-PUB-01-2 현재 `apps/web` 상태와 초기 스캐폴드 여부 확인
-  - [x] FE-PUB-01-3 홈 화면에 필요한 API/더미 데이터 기준 정리
-- [x] FE-PUB-02 공개 홈 보일러플레이트 이식
-  - [x] FE-PUB-02-1 `app/(public)` 레이아웃/metadata 베이스 정리
-  - [x] FE-PUB-02-2 `shared/ui`, `siteConfig`, `mock data`, `lib/utils` 추가
-  - [x] FE-PUB-02-3 entity card 컴포넌트와 public layout 공통 컴포넌트 추가
-- [x] FE-PUB-03 홈 화면 조립 시작
-  - [x] FE-PUB-03-1 Hero 위젯 조립 및 카피 반영
-  - [x] FE-PUB-03-2 프로젝트 섹션 위젯 조립
-  - [x] FE-PUB-03-3 최신 글 섹션 위젯 조립
-  - [x] FE-PUB-03-4 하단 CTA/promo slot 위치 정리
-- [ ] FE-PUB-04 프로젝트 공개 화면 범위 정리
-  - [ ] FE-PUB-04-1 목록/상세 공통 정보구조 정리
-  - [ ] FE-PUB-04-2 현재 home 카드에서 재사용할 UI 식별
-  - [ ] FE-PUB-04-3 mock data/API 연동 전환 포인트 정리
+- [ ] FE-PROJ-01 프로젝트 공개 화면 요구사항/정보구조 정리
+  - [ ] FE-PROJ-01-1 README 기준 프로젝트 목록/상세 목표 다시 확인
+  - [ ] FE-PROJ-01-2 현재 `ProjectCard`/`shared/ui` 재사용 범위 확인
+  - [ ] FE-PROJ-01-3 `/api/projects`, `/api/projects/{slug}` 연동 여부와 mock 기준 정리
+- [ ] FE-PROJ-02 프로젝트 목록 화면 조립
+  - [ ] FE-PROJ-02-1 `app/(public)/projects/page.tsx` route 및 metadata 베이스 추가
+  - [ ] FE-PROJ-02-2 목록 소개 hero/CTA/섹션 헤더 구성
+  - [ ] FE-PROJ-02-3 프로젝트 grid와 상태/태그/링크 흐름 조립
+- [ ] FE-PROJ-03 프로젝트 상세 화면 조립
+  - [ ] FE-PROJ-03-1 `app/(public)/projects/[slug]/page.tsx` route 및 not-found 흐름 추가
+  - [ ] FE-PROJ-03-2 상세 hero/개요/서비스 링크/기술 정보 영역 구성
+  - [ ] FE-PROJ-03-3 관련 글/목록 복귀/하단 CTA 영역 구성
+- [ ] FE-PROJ-04 공통 표현 정리 및 검증
+  - [ ] FE-PROJ-04-1 `ProjectCard` 재사용 범위와 상세 전용 표현 분리
+  - [ ] FE-PROJ-04-2 heading hierarchy/metadata/link 구조 확인
+  - [ ] FE-PROJ-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
-- blog 저장소는 media 자체 구현보다 media 서비스와의 연동 포인트를 명확히 유지하는 쪽이 맞다.
-- `cover_media_asset_id`는 이미 post/project에 있으므로, media 서비스 API가 준비되면 이후 연결은 자연스럽게 붙일 수 있다.
-- blog 기능 구현은 홈/공개 화면/관리 화면 작업으로 다시 복귀한다.
+- 프로젝트 화면은 홈보다 서비스 소개와 CTA 밀도를 높이고, 블로그보다 랜딩 성격을 더 분명히 가져간다.
+- `cover_media_asset_id` 실제 연결 전까지는 placeholder 또는 gradient cover 영역으로 버틸 수 있어야 한다.
+- 공개 API는 이미 있으므로, route 구조와 view model 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-PUB-04-1`
-- 다음 구현은 프로젝트 목록/상세 화면의 정보구조와 홈 카드 재사용 범위를 먼저 정리하는 것이다.
+- `FE-PROJ-01-1`
+- 다음 구현은 `README.md` 기준으로 프로젝트 목록/상세 목표를 다시 확인하고 정보구조를 먼저 정리하는 것이다.
