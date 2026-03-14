@@ -77,10 +77,10 @@
   - [x] FE-EDITOR-01-1 README 기준 관리자 에디터 화면 목표 다시 확인
   - [x] FE-EDITOR-01-2 `/api/admin/posts` create/update/status/list/get 계약과 필수 필드 정리
   - [x] FE-EDITOR-01-3 로그인 세션 재사용과 editor route 구조 기준 정리
-- [ ] FE-EDITOR-02 관리자 글 작성 route와 editor shell 조립
-  - [ ] FE-EDITOR-02-1 `app/admin/posts/new/page.tsx` route와 metadata 베이스 추가
-  - [ ] FE-EDITOR-02-2 slug/title/excerpt/contentMd/visibility/status/lang 입력 shell 구성
-  - [ ] FE-EDITOR-02-3 preview pane, helper text, submit CTA 배치
+- [x] FE-EDITOR-02 관리자 글 작성 route와 editor shell 조립
+  - [x] FE-EDITOR-02-1 `app/admin/posts/new/page.tsx` route와 metadata 베이스 추가
+  - [x] FE-EDITOR-02-2 slug/title/excerpt/contentMd/visibility/status/lang 입력 shell 구성
+  - [x] FE-EDITOR-02-3 preview pane, helper text, submit CTA 배치
 - [ ] FE-EDITOR-03 작성/미리보기/발행 흐름 구현
   - [ ] FE-EDITOR-03-1 editor form state와 markdown preview 연결
   - [ ] FE-EDITOR-03-2 create post submit과 성공 응답 처리 연결
@@ -97,5 +97,5 @@
 - `POST -> PUT -> PATCH(status)` 흐름을 분리해두면 초안 저장과 발행 전환을 동시에 다루기 쉽다.
 
 다음 시작 지점
-- `FE-EDITOR-02-1`
-- 다음 구현은 관리자 글 작성 route와 에디터 shell을 먼저 추가하는 것이다.
+- `FE-EDITOR-03-1`
+- 다음 구현은 editor form state와 markdown preview, 저장/발행 submit 흐름을 연결하는 것이다.

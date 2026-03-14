@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { siteConfig } from "@/src/shared/config/site";
 import { Container, SurfaceCard } from "@/src/shared/ui";
 import {
@@ -60,6 +61,12 @@ export default function AdminHomePage() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/admin/posts/new"
+                  className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+                >
+                  새 글 작성 시작
+                </Link>
                 <AdminLogoutButton />
               </div>
             </SurfaceCard>
