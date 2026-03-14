@@ -132,6 +132,10 @@ export function getMockProjectBySlug(slug: string) {
   return mockProjects.find((project) => project.slug === slug);
 }
 
+export function getMockPostBySlug(slug: string) {
+  return mockPosts.find((post) => post.slug === slug);
+}
+
 export function getMockPostsByProjectSlug(slug: string) {
   return mockPosts.filter((post) => post.relatedProjectSlug === slug);
 }
