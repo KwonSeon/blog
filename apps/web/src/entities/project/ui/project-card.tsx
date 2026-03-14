@@ -19,6 +19,8 @@ export function ProjectCard({
   featured = false,
   className,
 }: ProjectCardProps) {
+  const isExternalDemoUrl = Boolean(project.demoUrl?.startsWith("http"));
+
   return (
     <SurfaceCard
       as="article"
@@ -86,6 +88,8 @@ export function ProjectCard({
             <Link
               href={project.demoUrl}
               className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              target={isExternalDemoUrl ? "_blank" : undefined}
+              rel={isExternalDemoUrl ? "noopener noreferrer" : undefined}
             >
               서비스 보기
               <span aria-hidden="true">↗</span>

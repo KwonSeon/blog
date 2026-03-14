@@ -34,6 +34,10 @@ export async function generateMetadata({
   if (!project) {
     return {
       title: "프로젝트를 찾을 수 없음",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
@@ -68,100 +72,105 @@ export default async function ProjectDetailPage({
     relatedPosts.length > 0
       ? relatedPosts.slice(0, 3)
       : mockPosts.filter((post) => post.slug !== project.slug).slice(0, 2);
+  const isExternalDemoUrl = Boolean(project.demoUrl?.startsWith("http"));
 
   return (
     <>
-      <Container as="section" className="py-16 sm:py-20 lg:py-24">
-        <div className="grid gap-8">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
-            <ProjectDetailHero project={project} />
+      <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="project-detail-heading">
+        <Container>
+          <div className="grid gap-8">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
+              <ProjectDetailHero project={project} headingId="project-detail-heading" />
 
-            <SurfaceCard padding="lg">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Summary
-              </p>
-              <p className="mt-4 text-base leading-7 text-foreground">
-                이 프로젝트는 홈 화면에서 요약 카드로 보여주던 항목을 상세 단위로
-                확장하는 첫 공개 화면입니다. 서비스 진입 CTA와 기술 정보, 배경 설명을
-                단계적으로 붙여갈 수 있는 구조로 조립합니다.
-              </p>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                  <p className="text-xs text-muted-foreground">현재 상태</p>
-                  <p className="mt-2 text-sm text-foreground">
-                    {PROJECT_STATUS_LABELS[project.status]}
-                  </p>
-                </div>
-                <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                  <p className="text-xs text-muted-foreground">진입 흐름</p>
-                  <p className="mt-2 text-sm text-foreground">
-                    상세 확인 후 서비스 링크 또는 후속 관련 글 탐색
-                  </p>
-                </div>
-              </div>
-            </SurfaceCard>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-            <SurfaceCard as="article" padding="lg">
-              <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                Overview
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                프로젝트 개요
-              </h2>
-              <div className="mt-5 space-y-4 text-base leading-8 text-muted-foreground">
-                <p>
-                  {project.title}는 공개 홈에서 방문자가 바로 탐색할 수 있도록 정리한
-                  대표 프로젝트 중 하나입니다.
+              <SurfaceCard padding="lg">
+                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                  Summary
                 </p>
-                <p>{project.description}</p>
-                <p>
-                  상세 화면에서는 이후 구현 배경, 문제 정의, 주요 화면 흐름, 관련 글
-                  연결까지 자연스럽게 이어질 수 있도록 정보 블록을 분리합니다.
+                <p className="mt-4 text-base leading-7 text-foreground">
+                  이 프로젝트는 홈 화면에서 요약 카드로 보여주던 항목을 상세 단위로
+                  확장하는 첫 공개 화면입니다. 서비스 진입 CTA와 기술 정보, 배경 설명을
+                  단계적으로 붙여갈 수 있는 구조로 조립합니다.
                 </p>
-              </div>
-            </SurfaceCard>
-
-            <div className="grid gap-6">
-              <aside>
-                <SurfaceCard padding="lg">
-                  <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                    Service Links
-                  </p>
-                  <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                    서비스 링크
-                  </h2>
-                  <div className="mt-5 flex flex-col gap-3">
-                    {project.demoUrl ? (
-                      <CTAButton href={project.demoUrl}>서비스 바로가기</CTAButton>
-                    ) : null}
-                    <CTAButton href="/projects" variant="outline">
-                      프로젝트 목록
-                    </CTAButton>
+                <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
+                    <p className="text-xs text-muted-foreground">현재 상태</p>
+                    <p className="mt-2 text-sm text-foreground">
+                      {PROJECT_STATUS_LABELS[project.status]}
+                    </p>
                   </div>
-                </SurfaceCard>
-              </aside>
+                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
+                    <p className="text-xs text-muted-foreground">진입 흐름</p>
+                    <p className="mt-2 text-sm text-foreground">
+                      상세 확인 후 서비스 링크 또는 후속 관련 글 탐색
+                    </p>
+                  </div>
+                </div>
+              </SurfaceCard>
+            </div>
 
-              <aside>
-                <SurfaceCard padding="lg">
-                  <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                    Tech Info
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+              <SurfaceCard as="article" padding="lg">
+                <p className="text-xs uppercase tracking-[0.24em] text-primary">
+                  Overview
+                </p>
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                  프로젝트 개요
+                </h2>
+                <div className="mt-5 space-y-4 text-base leading-8 text-muted-foreground">
+                  <p>
+                    {project.title}는 공개 홈에서 방문자가 바로 탐색할 수 있도록 정리한
+                    대표 프로젝트 중 하나입니다.
                   </p>
-                  <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                    기술 정보
-                  </h2>
-                  <ProjectTagList
-                    tags={project.tags}
-                    className="mt-5"
-                    tagClassName="text-sm"
-                  />
-                </SurfaceCard>
-              </aside>
+                  <p>{project.description}</p>
+                  <p>
+                    상세 화면에서는 이후 구현 배경, 문제 정의, 주요 화면 흐름, 관련 글
+                    연결까지 자연스럽게 이어질 수 있도록 정보 블록을 분리합니다.
+                  </p>
+                </div>
+              </SurfaceCard>
+
+              <div className="grid gap-6">
+                <aside>
+                  <SurfaceCard padding="lg">
+                    <p className="text-xs uppercase tracking-[0.24em] text-primary">
+                      Service Links
+                    </p>
+                    <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                      서비스 링크
+                    </h2>
+                    <div className="mt-5 flex flex-col gap-3">
+                      {project.demoUrl ? (
+                        <CTAButton href={project.demoUrl} external={isExternalDemoUrl}>
+                          서비스 바로가기
+                        </CTAButton>
+                      ) : null}
+                      <CTAButton href="/projects" variant="outline">
+                        프로젝트 목록
+                      </CTAButton>
+                    </div>
+                  </SurfaceCard>
+                </aside>
+
+                <aside>
+                  <SurfaceCard padding="lg">
+                    <p className="text-xs uppercase tracking-[0.24em] text-primary">
+                      Tech Info
+                    </p>
+                    <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                      기술 정보
+                    </h2>
+                    <ProjectTagList
+                      tags={project.tags}
+                      className="mt-5"
+                      tagClassName="text-sm"
+                    />
+                  </SurfaceCard>
+                </aside>
+              </div>
             </div>
           </div>
-        </div>
-      </Container>
+        </Container>
+      </section>
 
       <section
         className="border-t border-border bg-secondary/20 py-16 sm:py-20"
@@ -176,8 +185,8 @@ export default async function ProjectDetailPage({
                 ? "이 프로젝트와 연결된 설계 메모, 구현 기록, 운영 회고를 이어서 읽을 수 있게 정리합니다."
                 : "직접 연결된 글은 아직 적지만, 현재 공개 중인 설계 기록과 개발 메모를 먼저 읽어볼 수 있습니다."
             }
-            viewAllHref="/projects"
-            viewAllLabel="프로젝트 목록으로"
+            viewAllHref="/posts"
+            viewAllLabel="전체 글 보기"
           />
 
           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
@@ -213,7 +222,11 @@ export default async function ProjectDetailPage({
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <CTAButton href="/projects">다른 프로젝트 보기</CTAButton>
               {project.demoUrl ? (
-                <CTAButton href={project.demoUrl} variant="outline">
+                <CTAButton
+                  href={project.demoUrl}
+                  variant="outline"
+                  external={isExternalDemoUrl}
+                >
                   이 프로젝트 확인하기
                 </CTAButton>
               ) : null}

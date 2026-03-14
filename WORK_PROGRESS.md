@@ -63,7 +63,7 @@
   - [x] FE-PROJ-03-3 관련 글/목록 복귀/하단 CTA 영역 구성
 - [ ] FE-PROJ-04 공통 표현 정리 및 검증
   - [x] FE-PROJ-04-1 `ProjectCard` 재사용 범위와 상세 전용 표현 분리
-  - [ ] FE-PROJ-04-2 heading hierarchy/metadata/link 구조 확인
+  - [x] FE-PROJ-04-2 heading hierarchy/metadata/link 구조 확인
   - [ ] FE-PROJ-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
@@ -72,5 +72,5 @@
 - 공개 API는 이미 있으므로, route 구조와 view model 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-PROJ-04-2`
-- 다음 구현은 프로젝트 목록/상세의 heading hierarchy, metadata, link 구조를 확인하는 것이다.
+- `FE-PROJ-04-3`
+- 다음 구현은 `blog/apps/web`에서 `npm run lint`, `npm run build`를 확인하는 것이다.

@@ -7,9 +7,15 @@ import { CTAButton, StatusBadge } from "@/src/shared/ui";
 
 interface ProjectDetailHeroProps {
   project: Project;
+  headingId?: string;
 }
 
-export function ProjectDetailHero({ project }: ProjectDetailHeroProps) {
+export function ProjectDetailHero({
+  project,
+  headingId = "project-detail-heading",
+}: ProjectDetailHeroProps) {
+  const isExternalDemoUrl = Boolean(project.demoUrl?.startsWith("http"));
+
   return (
     <div className="max-w-4xl">
       <div className="flex flex-wrap items-center gap-2">
@@ -22,7 +28,10 @@ export function ProjectDetailHero({ project }: ProjectDetailHeroProps) {
       <p className="mt-5 text-xs uppercase tracking-[0.24em] text-primary">
         Project Detail
       </p>
-      <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+      <h1
+        id={headingId}
+        className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
+      >
         {project.title}
       </h1>
       <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
@@ -31,7 +40,7 @@ export function ProjectDetailHero({ project }: ProjectDetailHeroProps) {
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         {project.demoUrl ? (
-          <CTAButton href={project.demoUrl} size="lg">
+          <CTAButton href={project.demoUrl} size="lg" external={isExternalDemoUrl}>
             서비스 보기
           </CTAButton>
         ) : null}
