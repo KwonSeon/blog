@@ -96,6 +96,13 @@
 - 현재 `nginx.conf`는 `blog.s-nowk.com -> blog_web:3000` 프록시와 stock 도메인 프록시를 함께 들고 있다.
 - compose 서비스 다수에는 `restart: unless-stopped`가 있지만, healthcheck는 아직 없고 dev/prod 파일도 분리돼 있지 않다.
 - 따라서 다음 단계는 SEO가 아니라 운영 배포 구성을 분리하고 healthcheck를 붙이는 작업에 가깝다.
+- 현재 공용 edge/runtime 성격의 파일이 `blog/infra` 아래에 있지만, 목표 위치는 blog 하위가 아니라 루트 `s-nowk/infra`로 보는 편이 맞다.
+- 현재 compose에 blog 관련으로 실제 정의된 것은 `mysql_blog`, `flyway_blog`뿐이고, `blog_web`나 `blog_api` 서비스 정의는 없다.
+- 반대로 `nginx.conf`는 이미 `blog.s-nowk.com -> blog_web:3000` upstream을 가정하고 있어, edge 설정과 실제 compose 서비스가 불일치한 상태다.
+- `.env`에는 `BLOG_DB_*`, snowflake 관련 blog 변수는 있지만 blog web/api 컨테이너용 런타임 변수는 정리돼 있지 않고, stock 쪽 env가 더 많은 비중을 차지한다.
+- 루트 `s-nowk/infra` 디렉터리는 아직 없으므로, 현재 `blog/infra`는 임시 위치에 있는 공용 infra 초안으로 보는 편이 맞다.
+- 즉 현재 blog 운영 경계는 DB/마이그레이션은 존재하지만 앱 컨테이너와 edge 연결은 완결되지 않았고, 공용 infra 파일도 아직 올바른 루트 위치로 승격되지 않은 상태다.
+- `media` 저장소는 이미 `infra/compose/.env.example`, `.env.prod.example`, `docker-compose.yml` 구조를 쓰고 있어, 루트 infra도 비슷한 운영 예시 파일 구조를 따라가는 편이 일관된다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 운영용 compose를 dev/prod 기준으로 분리하고 restart/healthcheck를 붙이는 것이다.
@@ -103,12 +110,17 @@
 - 우선순위는 dev/prod 파일 분리, blog 관련 서비스 경계 명확화, healthcheck 추가, restart 정책 재검토다.
 - stock 관련 서비스가 같은 compose에 섞여 있으므로, blog 작업 범위에서는 blog 운영 구성과 공용 edge 구성을 어떻게 나눌지 먼저 정리해야 한다.
 - nginx는 현재 blog와 stock 도메인을 함께 다루고 있으므로, compose 분리 전에 어떤 파일이 blog 전용이고 어떤 파일이 공용 edge인지 기준을 먼저 고정해야 한다.
+- 현재 기준으로 blog 전용 compose 후보는 `mysql_blog`, `flyway_blog`, 이후 추가될 `blog_api`, `blog_web`이고, `nginx`, `cloudflared`, 공용 compose 진입 파일은 루트 `s-nowk/infra`로 이동하는 공용 edge 후보로 보는 편이 자연스럽다.
+- dev/prod 파일 분리는 루트 `s-nowk/infra/compose` 아래 공통 `docker-compose.yml` base와 `docker-compose.dev.yml`, `docker-compose.prod.yml` override를 두는 방향으로 정리하는 편이 맞다.
+- `dev`는 로컬 개발 기준이라 `cloudflared`와 공개 도메인 edge를 기본 범위에서 제외하고, blog web/api/mysql/flyway 같은 로컬 실행 대상을 중심으로 두는 편이 맞다.
+- `prod`는 공용 edge를 포함하므로 `nginx`, `cloudflared`, 공개 도메인 라우팅, restart/healthcheck를 같이 들고 가는 편이 맞다.
+- 공용 edge 범위는 루트 `s-nowk/infra`가 소유하고, blog 저장소는 애플리케이션 소스와 빌드 컨텍스트를 유지하는 방향으로 정리하는 편이 안전하다.
 
 세부 단계
 - [ ] DEPLOY-01 운영 compose 목표/경계 정리
-  - [ ] DEPLOY-01-1 README 기준 운영 compose 분리 목표 다시 확인
-  - [ ] DEPLOY-01-2 현재 compose/nginx/env에서 blog 관련 서비스 경계 정리
-  - [ ] DEPLOY-01-3 dev/prod 파일 분리와 공용 edge 유지 범위 결정
+  - [x] DEPLOY-01-1 README 기준 운영 compose 분리 목표 다시 확인
+  - [x] DEPLOY-01-2 현재 compose/nginx/env에서 blog 관련 서비스 경계 정리
+  - [x] DEPLOY-01-3 dev/prod 파일 분리와 공용 edge 유지 범위 결정
 - [ ] DEPLOY-02 compose 파일 분리
   - [ ] DEPLOY-02-1 blog 전용 compose 초안 추가
   - [ ] DEPLOY-02-2 dev/prod override 또는 별도 파일 구조 정리
@@ -125,8 +137,10 @@
 계획 메모
 - 배포 단계는 코드 구현보다 인프라 경계 정리가 먼저라서, compose 파일을 바로 쪼개기 전에 현재 공용 edge와 blog 전용 서비스 범위를 먼저 고정하는 편이 안전하다.
 - 현재 stack은 stock과 blog가 같이 묶여 있으므로, blog 전용 배포 기준을 정리할 때 기존 stock 동작을 깨지 않게 파일 분리 전략을 먼저 세워야 한다.
+- 특히 공용 infra를 `blog/infra`에 남겨두는 방향이 아니라 루트 `s-nowk/infra`로 승격하는 방향을 먼저 전제로 잡아야 이후 분리가 덜 꼬인다.
 - healthcheck는 단순 추가보다 서비스별 readiness 기준이 필요하므로, web/api/nginx에 어떤 확인 경로를 쓸지 함께 정리해야 한다.
+- 즉 다음 구현은 루트 `s-nowk/infra`와 compose 분리 파일을 실제로 추가하는 단계로 바로 이어가면 된다.
 
 다음 시작 지점
-- `DEPLOY-01-1`
-- 다음 구현은 README 기준으로 운영용 compose 분리 목표를 다시 확인하는 것이다.
+- `DEPLOY-02-1`
+- 다음 구현은 루트 `s-nowk/infra` 아래 blog 전용 compose 초안을 추가하는 것이다.
