@@ -10,9 +10,17 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)`
+- `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)` 준비 전
 
 최근 완료 작업
+- `P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)` 완료
+- 완료 범위
+  - `HomeHero`, `HomeProjectsSection`, `HomePostsSection`, `HomeCTA` 위젯 조립
+  - 공개 홈 `page.tsx`에서 hero -> project -> promo slot -> posts -> cta 순으로 SSR 친화 구조 조립
+  - `ProjectCard`에 커버 placeholder 성격의 상단 showcase 영역 추가
+  - `PostCard`에 태그 라벨 영역 추가
+  - 홈 더미 데이터 확장(프로젝트 4개, 글 5개) 및 카피 보정
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-015-FE-PUB-1` 사전 준비로 `frontexample` 기준 공개 홈 보일러플레이트 이식
 - 완료 범위
   - `apps/web` 공개 라우트 그룹 `app/(public)` 및 기본 metadata/layout 정리
@@ -48,7 +56,8 @@
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않는다.
 - media 관련 인프라와 마이그레이션의 source of truth는 별도 `s-nowk/media` 저장소다.
 - `apps/web`에는 이제 공개 레이아웃, 공통 UI, entity card, mock data 보일러플레이트가 있다.
-- 홈 화면 위젯 조립과 디자인 고도화는 아직 남아 있다.
+- 공개 홈 첫 화면은 mock data 기반으로 조립 완료됐다.
+- 다음 범위는 프로젝트 목록/상세 공개 화면으로 이어가면 된다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 다시 blog 기능 구현으로 복귀한다.
@@ -64,11 +73,15 @@
   - [x] FE-PUB-02-1 `app/(public)` 레이아웃/metadata 베이스 정리
   - [x] FE-PUB-02-2 `shared/ui`, `siteConfig`, `mock data`, `lib/utils` 추가
   - [x] FE-PUB-02-3 entity card 컴포넌트와 public layout 공통 컴포넌트 추가
-- [ ] FE-PUB-03 홈 화면 조립 시작
-  - [ ] FE-PUB-03-1 Hero 위젯 조립 및 카피 반영
-  - [ ] FE-PUB-03-2 프로젝트 섹션 위젯 조립
-  - [ ] FE-PUB-03-3 최신 글 섹션 위젯 조립
-  - [ ] FE-PUB-03-4 하단 CTA/promo slot 위치 정리
+- [x] FE-PUB-03 홈 화면 조립 시작
+  - [x] FE-PUB-03-1 Hero 위젯 조립 및 카피 반영
+  - [x] FE-PUB-03-2 프로젝트 섹션 위젯 조립
+  - [x] FE-PUB-03-3 최신 글 섹션 위젯 조립
+  - [x] FE-PUB-03-4 하단 CTA/promo slot 위치 정리
+- [ ] FE-PUB-04 프로젝트 공개 화면 범위 정리
+  - [ ] FE-PUB-04-1 목록/상세 공통 정보구조 정리
+  - [ ] FE-PUB-04-2 현재 home 카드에서 재사용할 UI 식별
+  - [ ] FE-PUB-04-3 mock data/API 연동 전환 포인트 정리
 
 계획 메모
 - blog 저장소는 media 자체 구현보다 media 서비스와의 연동 포인트를 명확히 유지하는 쪽이 맞다.
@@ -76,5 +89,5 @@
 - blog 기능 구현은 홈/공개 화면/관리 화면 작업으로 다시 복귀한다.
 
 다음 시작 지점
-- `FE-PUB-03-1`
-- 다음 구현은 `shared/ui`와 entity card를 사용해 Hero 위젯을 조립하는 것이다.
+- `FE-PUB-04-1`
+- 다음 구현은 프로젝트 목록/상세 화면의 정보구조와 홈 카드 재사용 범위를 먼저 정리하는 것이다.

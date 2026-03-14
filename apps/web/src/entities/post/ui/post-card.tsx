@@ -21,7 +21,7 @@ export function PostCard({ post, className }: PostCardProps) {
   return (
     <article
       className={cn(
-        "rounded-3xl border border-transparent p-5 transition-colors hover:border-border hover:bg-surface",
+        "group rounded-3xl border border-transparent p-5 transition-colors hover:border-border hover:bg-surface",
         className,
       )}
     >
@@ -62,6 +62,17 @@ export function PostCard({ post, className }: PostCardProps) {
             {post.relatedProjectTitle}
           </Link>
         ) : null}
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        {post.tags.slice(0, 3).map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground"
+          >
+            {tag}
+          </span>
+        ))}
       </div>
     </article>
   );

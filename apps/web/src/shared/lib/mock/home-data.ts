@@ -34,6 +34,16 @@ export const mockProjects: Project[] = [
     status: "experimental",
     detailUrl: "/projects/c-memory-lab",
   },
+  {
+    id: "project-legacy-archive",
+    slug: "legacy-blog-archive",
+    title: "Legacy Blog Archive",
+    description:
+      "이전 블로그와 프로젝트 노트를 정리해 옮기는 아카이브 작업입니다. 새 플랫폼 구조 검증용 레퍼런스로 유지합니다.",
+    tags: ["Archive", "Migration", "Jekyll"],
+    status: "archived",
+    detailUrl: "/projects/legacy-blog-archive",
+  },
 ];
 
 export const mockPosts: Post[] = [
@@ -85,17 +95,30 @@ export const mockPosts: Post[] = [
     publishedAt: "2026-02-10",
     readingTime: "8분",
   },
+  {
+    id: "post-spring-api",
+    slug: "spring-next-blog-architecture-notes",
+    title: "Spring API와 Next.js 공개 화면을 같이 설계할 때 메모한 기준",
+    excerpt:
+      "관리 기능과 공개 화면의 책임을 분리하면서도 SEO와 운영 흐름을 같이 유지하기 위해 정리한 설계 기준입니다.",
+    category: "devlog",
+    tags: ["Spring", "Next.js", "Architecture"],
+    publishedAt: "2026-02-04",
+    readingTime: "14분",
+    relatedProjectSlug: "blog-platform",
+    relatedProjectTitle: "블로그 플랫폼",
+  },
 ];
 
 export const heroData = {
-  headline: "만들고, 기록하고, 바로 공개합니다",
-  subheadline: "프로젝트 랜딩과 기술 기록을 한 화면에 담는 공간",
+  headline: "직접 만든 프로젝트와 개발 기록을 한 화면에서 공개합니다",
+  subheadline: "프로젝트를 먼저 경험하고, 글로 설계와 시행착오를 읽는 홈",
   description:
-    "직접 운영하는 프로젝트와 그 과정을 정리한 글을 함께 보여주는 공개 홈의 초안입니다.",
+    "개발하며 만든 서비스, 실험 중인 도구, 그리고 그 배경을 정리한 글을 분리된 섹션으로 보여주는 개인 기술 블로그 플랫폼입니다.",
   currentFocus: ["C", "시스템 프로그래밍", "Next.js"],
   stats: {
     projects: mockProjects.length,
-    posts: mockPosts.length,
+    posts: 24,
     yearsOfDev: 5,
   },
 };
