@@ -28,8 +28,8 @@ export function AdminPostEditorShell({
               </h1>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
                 새 글 작성 route에서는 slug, 제목, 요약, markdown 본문, 공개 범위,
-                발행 상태를 한 번에 관리해야 합니다. 이 단계에서는 입력 영역과 preview
-                pane이 들어갈 shell을 먼저 고정합니다.
+                발행 상태를 한 번에 관리해야 합니다. 현재는 cover image와 본문
+                image 업로드까지 같은 흐름 안에서 처리하도록 연결돼 있습니다.
               </p>
             </div>
 
@@ -60,8 +60,9 @@ export function AdminPostEditorShell({
                 </p>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
                   최초 저장은 `POST /api/admin/posts`, 본문 수정은 `PUT`, 발행 전환은
-                  `PATCH /status` 기준으로 나뉩니다. 따라서 editor state와 submit
-                  action을 분리해 두는 편이 이후 수정 화면 재사용에도 유리합니다.
+                  `PATCH /status` 기준으로 나뉘고, media 업로드는 presign과 complete
+                  호출이 별도 흐름입니다. 그래서 editor state와 upload state를
+                  분리해 두는 편이 이후 수정 화면 재사용에도 유리합니다.
                 </p>
               </SurfaceCard>
             </div>

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 type MarkdownBlock =
   | { type: "heading"; level: 1 | 2 | 3; text: string }
   | { type: "paragraph"; text: string }
+  | { type: "image"; altText: string; src: string }
   | { type: "list"; items: string[] }
   | { type: "blockquote"; text: string[] }
   | { type: "code"; language: string; content: string };
@@ -55,6 +56,17 @@ function parseMarkdown(content: string): MarkdownBlock[] {
         type: "heading",
         level: headingMatch[1].length as 1 | 2 | 3,
         text: headingMatch[2],
+      });
+      index += 1;
+      continue;
+    }
+
+    const imageMatch = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+    if (imageMatch) {
+      blocks.push({
+        type: "image",
+        altText: imageMatch[1],
+        src: imageMatch[2],
       });
       index += 1;
       continue;
@@ -213,6 +225,25 @@ export function PostMarkdown({ content, className }: PostMarkdownProps) {
             <p key={key} className="text-base leading-8 text-muted-foreground">
               {renderInline(block.text, key)}
             </p>
+          );
+        }
+
+        if (block.type === "image") {
+          return (
+            <figure key={key} className="space-y-3">
+              {/* eslint-disable-next-line @next/next/no-img-element -- media URLs are dynamic and served by the separate media service. */}
+              <img
+                src={block.src}
+                alt={block.altText || "본문 이미지"}
+                loading="lazy"
+                className="w-full rounded-3xl border border-border bg-secondary/20 object-cover"
+              />
+              {block.altText ? (
+                <figcaption className="text-sm leading-7 text-muted-foreground">
+                  {block.altText}
+                </figcaption>
+              ) : null}
+            </figure>
           );
         }
 
