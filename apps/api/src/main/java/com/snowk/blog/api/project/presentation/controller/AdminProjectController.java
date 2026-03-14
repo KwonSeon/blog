@@ -56,20 +56,60 @@ public class AdminProjectController {
             )
         );
 
-        return CreateProjectResponse.from(result);
+        return new CreateProjectResponse(
+            result.projectId(),
+            result.slug(),
+            result.title(),
+            result.summary(),
+            result.serviceUrl(),
+            result.repoUrl(),
+            result.visibility(),
+            result.status(),
+            result.coverMediaAssetId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
+        );
     }
 
     @GetMapping("/{projectId}")
     public GetProjectResponse getProject(@PathVariable Long projectId) {
-        return GetProjectResponse.from(
-            getProjectUseCase.getProject(new GetProjectQuery(projectId))
+        var result = getProjectUseCase.getProject(new GetProjectQuery(projectId));
+
+        return new GetProjectResponse(
+            result.projectId(),
+            result.slug(),
+            result.title(),
+            result.summary(),
+            result.serviceUrl(),
+            result.repoUrl(),
+            result.visibility(),
+            result.status(),
+            result.coverMediaAssetId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 
     @GetMapping
     public ListProjectsResponse listProjects() {
-        return ListProjectsResponse.from(
-            listProjectsUseCase.listProjects(new ListProjectsQuery())
+        var result = listProjectsUseCase.listProjects(new ListProjectsQuery());
+
+        return new ListProjectsResponse(
+            result.items().stream()
+                .map(item -> new ListProjectsResponse.Item(
+                    item.projectId(),
+                    item.slug(),
+                    item.title(),
+                    item.visibility(),
+                    item.status(),
+                    item.publishedAt(),
+                    item.createdAt(),
+                    item.updatedAt()
+                ))
+                .toList(),
+            result.totalCount()
         );
     }
 
@@ -78,20 +118,33 @@ public class AdminProjectController {
         @PathVariable Long projectId,
         @Valid @RequestBody UpdateProjectRequest request
     ) {
-        return UpdateProjectResponse.from(
-            updateProjectUseCase.updateProject(
-                new UpdateProjectCommand(
-                    projectId,
-                    request.slug(),
-                    request.title(),
-                    request.summary(),
-                    request.serviceUrl(),
-                    request.repoUrl(),
-                    request.visibility(),
-                    request.status(),
-                    request.coverMediaAssetId()
-                )
+        var result = updateProjectUseCase.updateProject(
+            new UpdateProjectCommand(
+                projectId,
+                request.slug(),
+                request.title(),
+                request.summary(),
+                request.serviceUrl(),
+                request.repoUrl(),
+                request.visibility(),
+                request.status(),
+                request.coverMediaAssetId()
             )
+        );
+
+        return new UpdateProjectResponse(
+            result.projectId(),
+            result.slug(),
+            result.title(),
+            result.summary(),
+            result.serviceUrl(),
+            result.repoUrl(),
+            result.visibility(),
+            result.status(),
+            result.coverMediaAssetId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 

@@ -26,15 +26,41 @@ public class PublicPostController {
         @RequestParam(required = false) String q,
         @RequestParam(required = false) String lang
     ) {
-        return ListPublicPostsResponse.from(
-            listPublicPostsUseCase.listPosts(new ListPublicPostsQuery(q, lang))
+        var result = listPublicPostsUseCase.listPosts(new ListPublicPostsQuery(q, lang));
+
+        return new ListPublicPostsResponse(
+            result.items().stream()
+                .map(item -> new ListPublicPostsResponse.Item(
+                    item.postId(),
+                    item.slug(),
+                    item.title(),
+                    item.excerpt(),
+                    item.lang(),
+                    item.coverMediaAssetId(),
+                    item.publishedAt(),
+                    item.createdAt(),
+                    item.updatedAt()
+                ))
+                .toList(),
+            result.totalCount()
         );
     }
 
     @GetMapping("/{slug}")
     public GetPublicPostResponse getPost(@PathVariable String slug) {
-        return GetPublicPostResponse.from(
-            getPublicPostUseCase.getPost(new GetPublicPostQuery(slug))
+        var result = getPublicPostUseCase.getPost(new GetPublicPostQuery(slug));
+
+        return new GetPublicPostResponse(
+            result.postId(),
+            result.slug(),
+            result.title(),
+            result.excerpt(),
+            result.contentMd(),
+            result.lang(),
+            result.coverMediaAssetId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 }

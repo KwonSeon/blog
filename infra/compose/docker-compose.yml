@@ -81,33 +81,6 @@ services:
     restart: unless-stopped
 
 
-
-  # ---------------------------------------------------------
-  # MEDIA DATABASE
-  # - S3/MinIO와 연동되는 메타데이터 저장
-  # - blog 및 추후 프로젝트 공용 사용
-  # - MSA 분리 대비
-  # ---------------------------------------------------------
-  mysql_media:
-    image: mysql:8.2
-    container_name: mysql_media
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: media_db
-      MYSQL_USER: media_user
-      MYSQL_PASSWORD: ${MEDIA_DB_PASSWORD}
-      TZ: Asia/Seoul
-    # blog DB와 충돌 방지를 위해 Mac의 3307 사용
-    ports:
-      - "3311:3306"
-    volumes:
-      - mysql_media_data:/var/lib/mysql
-    command:
-      - mysqld
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-    restart: unless-stopped
-
   # ---------------------------------------------------------
   # FLYWAY (BLOG DB)
   # - blog_db 스키마 마이그레이션
@@ -128,28 +101,6 @@ services:
       - migrate
     volumes:
       - ./migrations/blog:/flyway/sql:ro
-    restart: "no"
-
-  # ---------------------------------------------------------
-  # FLYWAY (MEDIA DB)
-  # - media_db 스키마 마이그레이션
-  # - V1__init.sql 기반
-  # ---------------------------------------------------------
-  flyway_media:
-    image: flyway/flyway:10
-    container_name: flyway_media
-    depends_on:
-      - mysql_media
-    environment:
-      FLYWAY_URL: jdbc:mysql://mysql_media:3306/media_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-      FLYWAY_USER: media_user
-      FLYWAY_PASSWORD: ${MEDIA_DB_PASSWORD}
-      FLYWAY_LOCATIONS: filesystem:/flyway/sql
-    command:
-      - -connectRetries=60
-      - migrate
-    volumes:
-      - ./migrations/media:/flyway/sql:ro
     restart: "no"
 
   # ---------------------------------------------------------
@@ -432,7 +383,6 @@ services:
 
 volumes:
   mysql_blog_data:
-  mysql_media_data:
   mysql_external_data:
   redis_data:
   portainer_data:

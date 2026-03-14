@@ -25,6 +25,6 @@ public class AdminAuthController {
             new AdminLoginCommand(request.username(), request.password())
         );
 
-        return AdminLoginResponse.from(result);
+        return new AdminLoginResponse(result.accessToken(), result.expiresAt());
     }
 }

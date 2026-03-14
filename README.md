@@ -1,6 +1,6 @@
 # s-nowk blog 플랫폼
 
-Next.js(SSR) + Spring API + MySQL(블로그/미디어 분리) + Docker 배포 + Cloudflare DNS(필요 시 Tunnel) + Nginx 라우팅으로 **검색 유입(SEO)과 프로젝트 체험(랜딩)**을 동시에 만족하는 개인 블로그/프로젝트 플랫폼.
+Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배포 + Cloudflare DNS(필요 시 Tunnel) + Nginx 라우팅으로 **검색 유입(SEO)과 프로젝트 체험(랜딩)**을 동시에 만족하는 개인 블로그/프로젝트 플랫폼.
 
 ## 한 줄 요약
 검색 유입과 프로젝트 체험을 동시에 만족하는 개인 블로그/프로젝트 플랫폼을 만든다.
@@ -27,7 +27,7 @@ Next.js(SSR) + Spring API + MySQL(블로그/미디어 분리) + Docker 배포 + 
 - Backend: Spring Boot (REST API, Spring Security + JWT)
 - DB: MySQL
 - blog_db: posts/projects/tags/users/매핑 테이블
-- media_db: media_assets (메타데이터)
+- External Media Service: `s-nowk/media` (`media_db`, `media_assets`, object storage)
 - Reverse Proxy: Nginx
 - Infra: Docker Compose (로컬/홈서버)
 - DNS/CDN: Cloudflare (고정 IP 없으면 Tunnel 선택)
@@ -59,6 +59,13 @@ ID 전략
 - PK는 BIGINT + Snowflake(앱에서 생성)
 - PK 컬럼명: 테이블명_id 규칙
 
+미디어 저장 전략
+- media 업로드/메타데이터 관리는 별도 `s-nowk/media` 서비스가 담당한다.
+- storage provider는 `S3-compatible` 기준으로 설계하고, 초기 구현은 MinIO를 사용
+- MinIO -> AWS S3 전환 시에도 `bucket`, `object_key`, `namespace` 중심 메타데이터 구조는 유지하고 endpoint/credential/provider 설정만 교체할 수 있게 설계
+- blog 서비스는 `cover_media_asset_id` 같은 참조값만 저장하고 media DB를 직접 소유하지 않는다.
+- presign 업로드/다운로드 규약은 media 서비스가 소유하고, blog는 API 계약 기준으로만 연동한다.
+
 ## 현재 진행 상태 (체크리스트)
 
 DNS
@@ -82,8 +89,8 @@ Backend
 - [x] P0-012-BE-7 QueryDSL 기반 필터/검색
 
 Media
-- [ ] P0-013-MEDIA-1 MinIO 연결 + 버킷/키 규칙 확정
-- [ ] P0-014-MEDIA-2 presign 업로드 URL 발급 API + media_assets 저장
+- [x] P0-013-MEDIA-1 MinIO 연결 + 버킷/키 규칙 확정 이관(`s-nowk/media`)
+- [x] P0-014-MEDIA-2 presign 업로드 URL 발급 API + media_assets 저장 이관(`s-nowk/media`)
 
 Frontend
 - [ ] P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)

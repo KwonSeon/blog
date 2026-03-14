@@ -1,6 +1,5 @@
 package com.snowk.blog.api.project.presentation.dto.response;
 
-import com.snowk.blog.api.project.application.result.UpdateProjectResult;
 import com.snowk.blog.api.project.domain.enumtype.ProjectStatus;
 import com.snowk.blog.api.common.domain.enumtype.Visibility;
 
@@ -20,20 +19,4 @@ public record UpdateProjectResponse(
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
-    public static UpdateProjectResponse from(UpdateProjectResult result) {
-        return new UpdateProjectResponse(
-            result.projectId(),
-            result.slug(),
-            result.title(),
-            result.summary(),
-            result.serviceUrl(),
-            result.repoUrl(),
-            result.visibility(),
-            result.status(),
-            result.coverMediaAssetId(),
-            result.publishedAt(),
-            result.createdAt(),
-            result.updatedAt()
-        );
-    }
 }

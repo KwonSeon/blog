@@ -58,34 +58,80 @@ public class AdminPostController {
             throw new BaseException(CommonErrorStatus.BAD_REQUEST);
         }
 
-        return CreatePostResponse.from(
-            createPostUseCase.createPost(
-                new CreatePostCommand(
-                    request.slug(),
-                    request.title(),
-                    request.excerpt(),
-                    request.contentMd(),
-                    request.visibility(),
-                    request.status(),
-                    request.lang(),
-                    request.coverMediaAssetId(),
-                    userId
-                )
+        var result = createPostUseCase.createPost(
+            new CreatePostCommand(
+                request.slug(),
+                request.title(),
+                request.excerpt(),
+                request.contentMd(),
+                request.visibility(),
+                request.status(),
+                request.lang(),
+                request.coverMediaAssetId(),
+                userId
             )
+        );
+
+        return new CreatePostResponse(
+            result.postId(),
+            result.slug(),
+            result.title(),
+            result.excerpt(),
+            result.contentMd(),
+            result.visibility(),
+            result.status(),
+            result.lang(),
+            result.coverMediaAssetId(),
+            result.authorUserId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 
     @GetMapping("/{postId}")
     public GetPostResponse getPost(@PathVariable Long postId) {
-        return GetPostResponse.from(
-            getPostUseCase.getPost(new GetPostQuery(postId))
+        var result = getPostUseCase.getPost(new GetPostQuery(postId));
+
+        return new GetPostResponse(
+            result.postId(),
+            result.slug(),
+            result.title(),
+            result.excerpt(),
+            result.contentMd(),
+            result.visibility(),
+            result.status(),
+            result.lang(),
+            result.coverMediaAssetId(),
+            result.authorUserId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 
     @GetMapping
     public ListPostsResponse listPosts() {
-        return ListPostsResponse.from(
-            listPostsUseCase.listPosts(new ListPostsQuery())
+        var result = listPostsUseCase.listPosts(new ListPostsQuery());
+
+        return new ListPostsResponse(
+            result.items().stream()
+                .map(item -> new ListPostsResponse.Item(
+                    item.postId(),
+                    item.slug(),
+                    item.title(),
+                    item.excerpt(),
+                    item.visibility(),
+                    item.status(),
+                    item.lang(),
+                    item.coverMediaAssetId(),
+                    item.authorUserId(),
+                    item.publishedAt(),
+                    item.createdAt(),
+                    item.updatedAt()
+                ))
+                .toList(),
+            result.totalCount()
         );
     }
 
@@ -94,19 +140,33 @@ public class AdminPostController {
         @PathVariable Long postId,
         @Valid @RequestBody UpdatePostRequest request
     ) {
-        return UpdatePostResponse.from(
-            updatePostUseCase.updatePost(
-                new UpdatePostCommand(
-                    postId,
-                    request.slug(),
-                    request.title(),
-                    request.excerpt(),
-                    request.contentMd(),
-                    request.visibility(),
-                    request.lang(),
-                    request.coverMediaAssetId()
-                )
+        var result = updatePostUseCase.updatePost(
+            new UpdatePostCommand(
+                postId,
+                request.slug(),
+                request.title(),
+                request.excerpt(),
+                request.contentMd(),
+                request.visibility(),
+                request.lang(),
+                request.coverMediaAssetId()
             )
+        );
+
+        return new UpdatePostResponse(
+            result.postId(),
+            result.slug(),
+            result.title(),
+            result.excerpt(),
+            result.contentMd(),
+            result.visibility(),
+            result.status(),
+            result.lang(),
+            result.coverMediaAssetId(),
+            result.authorUserId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 
@@ -115,10 +175,24 @@ public class AdminPostController {
         @PathVariable Long postId,
         @Valid @RequestBody ChangePostStatusRequest request
     ) {
-        return ChangePostStatusResponse.from(
-            changePostStatusUseCase.changePostStatus(
-                new ChangePostStatusCommand(postId, request.status())
-            )
+        var result = changePostStatusUseCase.changePostStatus(
+            new ChangePostStatusCommand(postId, request.status())
+        );
+
+        return new ChangePostStatusResponse(
+            result.postId(),
+            result.slug(),
+            result.title(),
+            result.excerpt(),
+            result.contentMd(),
+            result.visibility(),
+            result.status(),
+            result.lang(),
+            result.coverMediaAssetId(),
+            result.authorUserId(),
+            result.publishedAt(),
+            result.createdAt(),
+            result.updatedAt()
         );
     }
 

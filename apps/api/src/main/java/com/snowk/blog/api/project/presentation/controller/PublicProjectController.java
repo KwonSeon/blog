@@ -22,15 +22,37 @@ public class PublicProjectController {
 
     @GetMapping
     public ListPublicProjectsResponse listProjects() {
-        return ListPublicProjectsResponse.from(
-            listPublicProjectsUseCase.listProjects(new ListPublicProjectsQuery())
+        var result = listPublicProjectsUseCase.listProjects(new ListPublicProjectsQuery());
+
+        return new ListPublicProjectsResponse(
+            result.items().stream()
+                .map(item -> new ListPublicProjectsResponse.Item(
+                    item.projectId(),
+                    item.slug(),
+                    item.title(),
+                    item.summary(),
+                    item.serviceUrl(),
+                    item.coverMediaAssetId(),
+                    item.publishedAt()
+                ))
+                .toList(),
+            result.totalCount()
         );
     }
 
     @GetMapping("/{slug}")
     public GetPublicProjectResponse getProject(@PathVariable String slug) {
-        return GetPublicProjectResponse.from(
-            getPublicProjectUseCase.getProject(new GetPublicProjectQuery(slug))
+        var result = getPublicProjectUseCase.getProject(new GetPublicProjectQuery(slug));
+
+        return new GetPublicProjectResponse(
+            result.projectId(),
+            result.slug(),
+            result.title(),
+            result.summary(),
+            result.serviceUrl(),
+            result.repoUrl(),
+            result.coverMediaAssetId(),
+            result.publishedAt()
         );
     }
 }
