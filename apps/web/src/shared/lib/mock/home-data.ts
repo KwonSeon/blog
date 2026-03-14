@@ -53,6 +53,7 @@ export const mockPosts: Post[] = [
     title: "C 포인터를 메모리 관점으로 다시 이해하기",
     excerpt:
       "포인터를 문법이 아니라 메모리 배치와 참조 흐름으로 설명해보는 글입니다.",
+    lang: "ko",
     category: "tutorial",
     tags: ["C", "포인터", "메모리"],
     publishedAt: "2026-03-01",
@@ -66,6 +67,7 @@ export const mockPosts: Post[] = [
     title: "프로젝트를 먼저 보여주는 블로그 홈을 설계한 이유",
     excerpt:
       "일반적인 글 목록형 홈이 아니라 프로젝트 랜딩 중심 구조를 선택한 배경과 기준을 정리합니다.",
+    lang: "ko",
     category: "devlog",
     tags: ["Next.js", "정보구조", "설계"],
     publishedAt: "2026-02-24",
@@ -79,6 +81,7 @@ export const mockPosts: Post[] = [
     title: "App Router 공개 화면에서 유지한 기본 규칙",
     excerpt:
       "Server Component 우선, 링크 중심 마크업, 메타데이터 확장 가능성 같은 공개 화면 기본 원칙을 정리합니다.",
+    lang: "ko",
     category: "web",
     tags: ["Next.js", "SSR", "SEO"],
     publishedAt: "2026-02-18",
@@ -90,6 +93,7 @@ export const mockPosts: Post[] = [
     title: "만들면서 공개하는 방식의 장단점",
     excerpt:
       "프로젝트와 기록을 함께 운영하면서 얻은 장점과, 감수해야 했던 운영 비용을 회고합니다.",
+    lang: "ko",
     category: "retrospective",
     tags: ["회고", "사이드 프로젝트"],
     publishedAt: "2026-02-10",
@@ -101,6 +105,7 @@ export const mockPosts: Post[] = [
     title: "Spring API와 Next.js 공개 화면을 같이 설계할 때 메모한 기준",
     excerpt:
       "관리 기능과 공개 화면의 책임을 분리하면서도 SEO와 운영 흐름을 같이 유지하기 위해 정리한 설계 기준입니다.",
+    lang: "ko",
     category: "devlog",
     tags: ["Spring", "Next.js", "Architecture"],
     publishedAt: "2026-02-04",
@@ -129,4 +134,26 @@ export function getMockProjectBySlug(slug: string) {
 
 export function getMockPostsByProjectSlug(slug: string) {
   return mockPosts.filter((post) => post.relatedProjectSlug === slug);
+}
+
+export function filterMockPosts(params: {
+  q?: string;
+  category?: string;
+  lang?: string;
+}) {
+  const q = params.q?.trim().toLowerCase();
+  const category = params.category?.trim();
+  const lang = params.lang?.trim();
+
+  return mockPosts.filter((post) => {
+    const matchesQuery =
+      !q ||
+      post.title.toLowerCase().includes(q) ||
+      post.excerpt.toLowerCase().includes(q) ||
+      post.tags.some((tag) => tag.toLowerCase().includes(q));
+    const matchesCategory = !category || post.category === category;
+    const matchesLang = !lang || post.lang === lang;
+
+    return matchesQuery && matchesCategory && matchesLang;
+  });
 }

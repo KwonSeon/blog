@@ -10,6 +10,7 @@ export interface Post {
   slug: string;
   title: string;
   excerpt: string;
+  lang: string;
   category: PostCategory;
   tags: string[];
   publishedAt: string;

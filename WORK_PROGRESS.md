@@ -62,10 +62,10 @@
   - [x] FE-POST-02-1 `app/(public)/posts/page.tsx` route 및 metadata 베이스 추가
   - [x] FE-POST-02-2 글 목록 소개 hero, 검색 form, filter chips 영역 구성
   - [x] FE-POST-02-3 목록 summary card와 section header 배치
-- [ ] FE-POST-03 글 grid/empty state/query-param 흐름 조립
-  - [ ] FE-POST-03-1 mockPosts 기반 search/category filtering helper 추가
-  - [ ] FE-POST-03-2 글 grid, 결과 개수, active filter summary 조립
-  - [ ] FE-POST-03-3 empty state와 reset 흐름 정리
+- [x] FE-POST-03 글 grid/empty state/query-param 흐름 조립
+  - [x] FE-POST-03-1 mockPosts 기반 search/category filtering helper 추가
+  - [x] FE-POST-03-2 글 grid, 결과 개수, active filter summary 조립
+  - [x] FE-POST-03-3 empty state와 reset 흐름 정리
 - [ ] FE-POST-04 공통 표현 정리 및 검증
   - [ ] FE-POST-04-1 `PostCard` 재사용 범위와 목록 전용 표현 분리
   - [ ] FE-POST-04-2 heading hierarchy/metadata/link 구조 확인
@@ -77,5 +77,5 @@
 - 공개 API는 이미 있으므로, route 구조와 query-param 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-POST-03-1`
-- 다음 구현은 mockPosts 기반 search/category filtering helper를 추가하는 것이다.
+- `FE-POST-04-1`
+- 다음 구현은 `PostCard` 재사용 범위와 글 목록 전용 표현을 분리하는 것이다.
