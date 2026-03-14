@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
-  POST_CATEGORY_LABELS,
+  PostDetailHero,
   PostMarkdown,
+  PostRelatedProjectCta,
   PostTagList,
 } from "@/src/entities/post";
 import { siteConfig } from "@/src/shared/config/site";
@@ -13,7 +14,6 @@ import {
 import {
   CTAButton,
   Container,
-  StatusBadge,
   SurfaceCard,
 } from "@/src/shared/ui";
 
@@ -42,6 +42,8 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
+    keywords: post.tags,
+    authors: [{ name: siteConfig.author.name }],
     alternates: {
       canonical: `/posts/${post.slug}`,
     },
@@ -51,6 +53,8 @@ export async function generateMetadata({
       url: `${siteConfig.url}/posts/${post.slug}`,
       siteName: siteConfig.name,
       type: "article",
+      publishedTime: `${post.publishedAt}T00:00:00+09:00`,
+      authors: [siteConfig.author.name],
     },
   };
 }
@@ -77,48 +81,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="post-detail-heading">
         <Container>
           <div className="grid gap-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
-              <div className="max-w-4xl">
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusBadge variant="accent">
-                    {POST_CATEGORY_LABELS[post.category]}
-                  </StatusBadge>
-                  <StatusBadge variant="outline">{post.lang.toUpperCase()}</StatusBadge>
-                  <span className="text-sm text-muted-foreground">slug: {post.slug}</span>
-                </div>
-
-                <p className="mt-5 text-xs uppercase tracking-[0.24em] text-primary">
-                  Post Detail
-                </p>
-                <h1
-                  id="post-detail-heading"
-                  className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
-                >
-                  {post.title}
-                </h1>
-                <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
-                  {post.excerpt}
-                </p>
-
-                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <CTAButton href="/posts" size="lg">
-                    글 목록으로 돌아가기
-                  </CTAButton>
-                  {relatedProject ? (
-                    <CTAButton
-                      href={`/projects/${relatedProject.slug}`}
-                      variant="outline"
-                      size="lg"
-                    >
-                      연결 프로젝트 보기
-                    </CTAButton>
-                  ) : (
-                    <CTAButton href="/" variant="outline" size="lg">
-                      홈으로 이동
-                    </CTAButton>
-                  )}
-                </div>
-              </div>
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
+              <PostDetailHero post={post} relatedProject={relatedProject} />
 
               <SurfaceCard padding="lg">
                 <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
@@ -163,45 +127,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   </div>
                 </SurfaceCard>
 
-                <SurfaceCard padding="lg">
-                  <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                    Related Project
-                  </p>
-                  <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                    연결 프로젝트
-                  </h2>
-                  {relatedProject ? (
-                    <>
-                      <p className="mt-5 text-base leading-8 text-muted-foreground">
-                        이 글은{" "}
-                        <span className="font-medium text-foreground">
-                          {relatedProject.title}
-                        </span>
-                        의 설계 배경과 구현 기준을 설명하는 기록입니다. 글을 읽은 뒤 실제
-                        프로젝트 화면으로 이어서 이동할 수 있게 연결합니다.
-                      </p>
-                      <div className="mt-6 flex flex-col gap-3">
-                        <CTAButton href={`/projects/${relatedProject.slug}`}>
-                          프로젝트 상세 보기
-                        </CTAButton>
-                        {relatedProject.demoUrl ? (
-                          <CTAButton
-                            href={relatedProject.demoUrl}
-                            variant="outline"
-                            external={relatedProject.demoUrl.startsWith("http")}
-                          >
-                            서비스 바로가기
-                          </CTAButton>
-                        ) : null}
-                      </div>
-                    </>
-                  ) : (
-                    <p className="mt-5 text-base leading-8 text-muted-foreground">
-                      아직 직접 연결된 프로젝트는 없지만, 이 글과 같은 흐름의 작업은
-                      프로젝트 목록에서 계속 확장할 예정입니다.
-                    </p>
-                  )}
-                </SurfaceCard>
+                <PostRelatedProjectCta project={relatedProject} />
               </div>
             </div>
           </div>
