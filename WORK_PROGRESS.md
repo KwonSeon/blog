@@ -85,6 +85,9 @@
 - 글 목록은 query-param이 붙을 때 canonical을 `/posts`로 유지하면서 `robots: noindex, follow`를 내려 중복 색인 기준을 먼저 정리했다.
 - 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계 OG는 우선 title/description/text fallback 중심으로 정리됐다.
 - 따라서 다음 SEO 단계는 metadata 자체보다 sitemap/robots 같은 크롤러 진입 계약을 추가하는 작업에 가깝다.
+- 현재 공개 route inventory는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`로 고정돼 있고 `admin` 계열은 sitemap 대상이 아니다.
+- 공개 slug source of truth는 `mockProjects`, `mockPostDetails`라서 sitemap도 같은 mock 데이터를 기준으로 생성하는 편이 맞다.
+- 글 상세는 `publishedAt`, 프로젝트 상세는 현재 고정 fallback 수정 시각을 lastModified 기준으로 두는 편이 단순하다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 sitemap과 robots 제공으로 넘어간다.
@@ -92,12 +95,13 @@
 - sitemap은 우선 홈, 프로젝트 목록/상세, 글 목록/상세를 포함하면 충분하고, 관리자 route는 제외해야 한다.
 - robots는 공개 route는 허용하고 `/admin`, `/api/admin` 같은 경로는 막는 기본 정책부터 두는 편이 맞다.
 - metadata와 canonical은 이미 정리됐으므로 이번 단계는 route inventory와 crawl policy를 코드로 표현하는 작업에 가깝다.
+- query-param 결과 페이지는 canonical과 robots로 제어하고 있으므로 sitemap에는 포함하지 않는다.
 
 세부 단계
 - [ ] FE-SITEMAP-01 sitemap/robots 기준 정리
-  - [ ] FE-SITEMAP-01-1 README 기준 sitemap과 robots 목표 다시 확인
-  - [ ] FE-SITEMAP-01-2 공개 route inventory와 제외 경로 기준 정리
-  - [ ] FE-SITEMAP-01-3 canonical과 sitemap 포함 범위 일치 여부 확인
+  - [x] FE-SITEMAP-01-1 README 기준 sitemap과 robots 목표 다시 확인
+  - [x] FE-SITEMAP-01-2 공개 route inventory와 제외 경로 기준 정리
+  - [x] FE-SITEMAP-01-3 canonical과 sitemap 포함 범위 일치 여부 확인
 - [ ] FE-SITEMAP-02 sitemap 구현
   - [ ] FE-SITEMAP-02-1 `app/sitemap.ts` 기본 route 목록 추가
   - [ ] FE-SITEMAP-02-2 mock data 기반 프로젝트/글 상세 route 포함
@@ -117,5 +121,5 @@
 - 현재는 mock data 기반 공개 route만 있으므로 sitemap도 같은 source of truth를 쓰는 쪽이 구현과 검증이 단순하다.
 
 다음 시작 지점
-- `FE-SITEMAP-01-1`
-- 다음 구현은 README 기준으로 sitemap과 robots 목표를 다시 확인하는 것이다.
+- `FE-SITEMAP-02-1`
+- 다음 구현은 `app/sitemap.ts`에 기본 공개 route와 mock slug 경로를 추가하는 것이다.
