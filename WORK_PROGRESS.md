@@ -39,14 +39,13 @@
 
 현재 확인된 상태
 - `apps/web` 공개 라우트에는 홈 `/`, 글 목록 `/posts`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]`가 있고 공개 목록/랜딩 흐름이 한 번 완성됐다.
-- `apps/web/src/entities/post/ui/post-card.tsx`는 홈 최신 글 카드 언어로 이미 구현되어 있다.
-- `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
-- `apps/web/src/shared/lib/mock/home-data.ts`에는 post category, tags, readingTime, relatedProjectSlug 기반 mock data가 있다.
+- `apps/web/src/entities/post/ui/post-card.tsx`는 홈 최신 글과 글 목록 카드 언어로 이미 구현되어 있고, 목록 화면은 이 카드를 그대로 재사용하고 있다.
+- `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있어 글 상세 상단 hero, 메타 정보, 관련 프로젝트 CTA를 같은 디자인 언어로 조립할 수 있다.
+- `apps/web/src/shared/lib/mock/home-data.ts`에는 post category, tags, readingTime, relatedProjectSlug 기반 mock data만 있고, 아직 `contentMd`를 포함한 detail helper는 없다.
 - `apps/web/src/shared/config/site.ts`의 메인 내비게이션은 이미 `/projects`, `/posts` 링크를 모두 가리킨다.
-- 글 목록 화면은 `PostCard`, `Container`, `SectionHeader`, `CTAButton`, `SurfaceCard`, `StatusBadge`를 그대로 재사용할 수 있다.
-- 공개 글 API 목록 응답은 `postId`, `slug`, `title`, `excerpt`, `lang`, `coverMediaAssetId`, `publishedAt`, `createdAt`, `updatedAt`만 제공한다.
-- 공개 글 API 목록 query는 현재 `q`, `lang`만 지원하고 category/tag 필터는 아직 없다.
-- 현재 프론트 `Post` 타입은 `category`, `tags`, `readingTime`, `relatedProjectSlug`, `relatedProjectTitle` 중심이라 공개 API 응답과 바로 일치하지 않는다.
+- 공개 글 API 상세 응답은 `postId`, `slug`, `title`, `excerpt`, `contentMd`, `lang`, `coverMediaAssetId`, `publishedAt`, `createdAt`, `updatedAt`를 제공한다.
+- 현재 프론트 `Post` 타입은 `category`, `tags`, `readingTime`, `relatedProjectSlug`, `relatedProjectTitle` 중심이라 공개 글 상세 API 응답과 바로 일치하지 않는다.
+- 글 상세 화면은 목록의 `PostCard` 전체를 재사용하기보다 article hero, markdown body, 관련 프로젝트 CTA를 전용 레이아웃으로 분리하는 편이 맞다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
 
@@ -60,28 +59,28 @@
 - markdown renderer, heading hierarchy, metadata, 관련 프로젝트 CTA를 함께 확인해야 다음 SEO 단계와 연결하기 쉽다.
 
 세부 단계
-- [x] FE-POST-01 글 목록 공개 화면 요구사항/정보구조 정리
-  - [x] FE-POST-01-1 README 기준 글 목록 공개 화면 목표 다시 확인
-  - [x] FE-POST-01-2 현재 `PostCard`/`shared/ui` 재사용 범위 확인
-  - [x] FE-POST-01-3 `/api/posts` query 구조와 mock filtering 기준 정리
-- [x] FE-POST-02 글 목록 route와 hero/filter shell 조립
-  - [x] FE-POST-02-1 `app/(public)/posts/page.tsx` route 및 metadata 베이스 추가
-  - [x] FE-POST-02-2 글 목록 소개 hero, 검색 form, filter chips 영역 구성
-  - [x] FE-POST-02-3 목록 summary card와 section header 배치
-- [x] FE-POST-03 글 grid/empty state/query-param 흐름 조립
-  - [x] FE-POST-03-1 mockPosts 기반 search/category filtering helper 추가
-  - [x] FE-POST-03-2 글 grid, 결과 개수, active filter summary 조립
-  - [x] FE-POST-03-3 empty state와 reset 흐름 정리
-- [x] FE-POST-04 공통 표현 정리 및 검증
-  - [x] FE-POST-04-1 `PostCard` 재사용 범위와 목록 전용 표현 분리
-  - [x] FE-POST-04-2 heading hierarchy/metadata/link 구조 확인
-  - [x] FE-POST-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
+- [x] FE-POSTD-01 글 상세 공개 화면 요구사항/정보구조 정리
+  - [x] FE-POSTD-01-1 README 기준 글 상세 공개 화면 목표 다시 확인
+  - [x] FE-POSTD-01-2 현재 `PostCard`/`shared/ui`/프로젝트 CTA 재사용 범위 확인
+  - [x] FE-POSTD-01-3 `/api/posts/{slug}` 응답 구조와 mock detail 기준 정리
+- [ ] FE-POSTD-02 글 상세 route와 metadata/not-found 흐름 추가
+  - [ ] FE-POSTD-02-1 `app/(public)/posts/[slug]/page.tsx` route 및 metadata 베이스 추가
+  - [ ] FE-POSTD-02-2 mock post detail lookup helper와 `notFound()` 흐름 추가
+  - [ ] FE-POSTD-02-3 detail hero, 메타 상단, article shell 베이스 배치
+- [ ] FE-POSTD-03 markdown article/관련 프로젝트/하단 CTA 조립
+  - [ ] FE-POSTD-03-1 `contentMd`를 포함한 mock detail 구조와 minimal markdown renderer 추가
+  - [ ] FE-POSTD-03-2 article body, section hierarchy, 메타 표현 조립
+  - [ ] FE-POSTD-03-3 관련 프로젝트 CTA, 목록 복귀 링크, 하단 CTA 연결
+- [ ] FE-POSTD-04 공통 표현 정리 및 검증
+  - [ ] FE-POSTD-04-1 detail 전용 표현 분리와 목록 표현 경계 정리
+  - [ ] FE-POSTD-04-2 heading hierarchy/metadata/link 구조 확인
+  - [ ] FE-POSTD-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
-- 글 목록 화면은 홈보다 검색 유입과 아카이브 탐색 성격을 더 분명히 가져간다.
+- 글 상세 화면은 검색 유입 이후 본문을 읽게 만드는 article 중심 레이아웃과 프로젝트 이동 CTA를 같이 가져가야 한다.
 - `cover_media_asset_id` 실제 연결 전까지는 placeholder 또는 gradient cover 영역으로 버틸 수 있어야 한다.
-- 공개 API는 이미 있으므로, route 구조와 query-param 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
+- 공개 API는 이미 있으므로, route 구조와 markdown renderer 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `P0-018-FE-PUB-4`
-- 다음 구현은 글 상세 공개 화면의 markdown renderer와 관련 프로젝트 영역을 구성하는 것이다.
+- `FE-POSTD-02-1`
+- 다음 구현은 글 상세 공개 route와 metadata/not-found 흐름을 먼저 추가하는 것이다.
