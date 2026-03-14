@@ -92,9 +92,9 @@
   - [x] FE-UPLOAD-01-2 media 서비스 계약과 blog `coverMediaAssetId` 연결 기준 정리
   - [x] FE-UPLOAD-01-3 에디터 본문/커버 이미지 삽입 위치와 UX 기준 정리
 - [ ] FE-UPLOAD-02 업로드 UI shell과 helper 구성
-  - [ ] FE-UPLOAD-02-1 presign 요청 helper와 업로드 상태 타입 추가
-  - [ ] FE-UPLOAD-02-2 cover image 선택/업로드 shell 배치
-  - [ ] FE-UPLOAD-02-3 본문 이미지 삽입 액션과 helper text 배치
+  - [x] FE-UPLOAD-02-1 presign 요청 helper와 업로드 상태 타입 추가
+  - [x] FE-UPLOAD-02-2 cover image 선택/업로드 shell 배치
+  - [x] FE-UPLOAD-02-3 본문 이미지 삽입 액션과 helper text 배치
 - [ ] FE-UPLOAD-03 presign 업로드와 본문 삽입 흐름 구현
   - [ ] FE-UPLOAD-03-1 presign 요청과 실제 업로드 흐름 연결
   - [ ] FE-UPLOAD-03-2 업로드 성공 시 `coverMediaAssetId`와 markdown 이미지 링크 반영
@@ -110,5 +110,5 @@
 - 업로드 성공 결과는 `coverMediaAssetId`와 markdown 이미지 링크 두 방향으로 나뉘어 반영될 수 있어야 한다.
 
 다음 시작 지점
-- `FE-UPLOAD-02-1`
-- 다음 구현은 presign 요청 helper와 업로드 상태 타입을 추가하는 것이다.
+- `FE-UPLOAD-03-1`
+- 다음 구현은 presign 요청과 실제 업로드 흐름을 editor shell에 연결하는 것이다.
