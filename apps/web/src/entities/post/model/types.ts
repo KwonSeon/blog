@@ -25,3 +25,14 @@ export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
   system: "시스템",
   web: "웹 개발",
 };
+
+export const POST_CATEGORY_OPTIONS: Array<{
+  value: PostCategory;
+  label: string;
+}> = [
+  { value: "tutorial", label: POST_CATEGORY_LABELS.tutorial },
+  { value: "devlog", label: POST_CATEGORY_LABELS.devlog },
+  { value: "retrospective", label: POST_CATEGORY_LABELS.retrospective },
+  { value: "system", label: POST_CATEGORY_LABELS.system },
+  { value: "web", label: POST_CATEGORY_LABELS.web },
+];
