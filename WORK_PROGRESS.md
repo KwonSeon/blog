@@ -13,6 +13,13 @@
 - `P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)`
 
 최근 완료 작업
+- `P0-015-FE-PUB-1` 사전 준비로 `frontexample` 기준 공개 홈 보일러플레이트 이식
+- 완료 범위
+  - `apps/web` 공개 라우트 그룹 `app/(public)` 및 기본 metadata/layout 정리
+  - `src/shared/ui` 공통 UI 레이어(`container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`) 추가
+  - `src/entities/project`, `src/entities/post` 타입/카드 컴포넌트 추가
+  - `siteConfig`, `mock home data`, `lib/utils` 추가
+  - 실제 홈 화면 조립(`hero`, `projects`, `posts`, `cta`)은 아직 시작하지 않음
 - `P0-013-MEDIA-1`, `P0-014-MEDIA-2`는 별도 `s-nowk/media` 저장소로 이관
 - 이관 범위
   - `media_db`, `media_assets` 마이그레이션
@@ -40,6 +47,8 @@
 - `apps/api/build.gradle`에는 아직 MinIO/S3 SDK 의존성이 없다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않는다.
 - media 관련 인프라와 마이그레이션의 source of truth는 별도 `s-nowk/media` 저장소다.
+- `apps/web`에는 이제 공개 레이아웃, 공통 UI, entity card, mock data 보일러플레이트가 있다.
+- 홈 화면 위젯 조립과 디자인 고도화는 아직 남아 있다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 다시 blog 기능 구현으로 복귀한다.
@@ -47,10 +56,19 @@
 - blog 저장소에서는 이후 media 연동 API 계약과 `cover_media_asset_id` 활용 흐름만 다룬다.
 
 세부 단계
-- [ ] FE-PUB-01 홈 요구사항/정보구조 정리
-  - [ ] FE-PUB-01-1 README 기준 홈/프로젝트/블로그 섹션 요구사항 다시 확인
-  - [ ] FE-PUB-01-2 현재 `apps/web` 상태와 초기 스캐폴드 여부 확인
-  - [ ] FE-PUB-01-3 홈 화면에 필요한 API/더미 데이터 기준 정리
+- [x] FE-PUB-01 홈 요구사항/정보구조 정리
+  - [x] FE-PUB-01-1 README 기준 홈/프로젝트/블로그 섹션 요구사항 다시 확인
+  - [x] FE-PUB-01-2 현재 `apps/web` 상태와 초기 스캐폴드 여부 확인
+  - [x] FE-PUB-01-3 홈 화면에 필요한 API/더미 데이터 기준 정리
+- [x] FE-PUB-02 공개 홈 보일러플레이트 이식
+  - [x] FE-PUB-02-1 `app/(public)` 레이아웃/metadata 베이스 정리
+  - [x] FE-PUB-02-2 `shared/ui`, `siteConfig`, `mock data`, `lib/utils` 추가
+  - [x] FE-PUB-02-3 entity card 컴포넌트와 public layout 공통 컴포넌트 추가
+- [ ] FE-PUB-03 홈 화면 조립 시작
+  - [ ] FE-PUB-03-1 Hero 위젯 조립 및 카피 반영
+  - [ ] FE-PUB-03-2 프로젝트 섹션 위젯 조립
+  - [ ] FE-PUB-03-3 최신 글 섹션 위젯 조립
+  - [ ] FE-PUB-03-4 하단 CTA/promo slot 위치 정리
 
 계획 메모
 - blog 저장소는 media 자체 구현보다 media 서비스와의 연동 포인트를 명확히 유지하는 쪽이 맞다.
@@ -58,5 +76,5 @@
 - blog 기능 구현은 홈/공개 화면/관리 화면 작업으로 다시 복귀한다.
 
 다음 시작 지점
-- `FE-PUB-01-1`
-- 다음 구현은 `README.md` 기준 홈 화면 요구사항을 다시 확인하는 것이다.
+- `FE-PUB-03-1`
+- 다음 구현은 `shared/ui`와 entity card를 사용해 Hero 위젯을 조립하는 것이다.

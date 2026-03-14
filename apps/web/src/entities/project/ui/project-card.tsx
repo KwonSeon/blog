@@ -1,0 +1,85 @@
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import {
+  PROJECT_STATUS_LABELS,
+  PROJECT_STATUS_VARIANTS,
+  type Project,
+} from "@/src/entities/project/model/types";
+import { StatusBadge, SurfaceCard } from "@/src/shared/ui";
+
+interface ProjectCardProps {
+  project: Project;
+  featured?: boolean;
+  className?: string;
+}
+
+export function ProjectCard({
+  project,
+  featured = false,
+  className,
+}: ProjectCardProps) {
+  return (
+    <SurfaceCard
+      as="article"
+      interactive
+      className={cn(
+        "flex h-full flex-col gap-4",
+        featured && "border-primary/20 bg-card",
+        className,
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <StatusBadge variant={PROJECT_STATUS_VARIANTS[project.status]}>
+          {PROJECT_STATUS_LABELS[project.status]}
+        </StatusBadge>
+        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          {project.slug}
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        <h3 className="text-xl font-semibold tracking-tight text-foreground">
+          <Link
+            href={project.detailUrl}
+            className="transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {project.title}
+          </Link>
+        </h3>
+        <p className="text-sm leading-7 text-muted-foreground">
+          {project.description}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {project.tags.map((tag) => (
+          <span
+            key={tag}
+            className="rounded-full bg-secondary px-3 py-1 text-xs text-secondary-foreground"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-auto flex flex-wrap items-center gap-4 text-sm">
+        <Link
+          href={project.detailUrl}
+          className="inline-flex items-center gap-1 font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          자세히 보기
+          <span aria-hidden="true">→</span>
+        </Link>
+        {project.demoUrl ? (
+          <Link
+            href={project.demoUrl}
+            className="inline-flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            서비스 보기
+            <span aria-hidden="true">↗</span>
+          </Link>
+        ) : null}
+      </div>
+    </SurfaceCard>
+  );
+}
