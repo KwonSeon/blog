@@ -69,6 +69,11 @@
 - 현재 blog 웹에는 아직 media 업로드 버튼, presign 요청 helper, 본문 이미지 삽입 UI가 없다.
 - `posts`, `projects`에는 `cover_media_asset_id` 컬럼이 이미 있다.
 - blog 저장소는 더 이상 `media_db`나 media compose를 소유하지 않고, media 관련 source of truth는 별도 `s-nowk/media` 저장소다.
+- media 현재 관리자 업로드 계약은 `POST /api/admin/media/uploads/presign`과 `POST /api/admin/media/uploads/complete` 두 단계로 고정돼 있다.
+- presign 요청 필드는 `namespace`, `originalFilename`, `contentType`, `sizeBytes`이고 응답은 `mediaAssetId`, `bucket`, `objectKey`, `uploadUrl`, `httpMethod`, `uploadStatus`, `expiresAt`를 준다.
+- complete 요청 필드는 `mediaAssetId`, `objectKey`, `originalFilename`이고 응답에서 최종 `mediaAssetId`, `contentType`, `sizeBytes`, `mediaType`, `uploadStatus`를 다시 확인할 수 있다.
+- 현재 허용 namespace는 `post-cover`, `project-cover`, `post-inline`, `project-inline`이고, 이번 단계에서는 글 작성 화면 기준으로 `post-cover`, `post-inline`만 쓰면 된다.
+- media `README` 기준으로 blog 프론트는 media API를 직접 호출하고, presign URL로 object storage에 `PUT` 업로드한 뒤 complete를 다시 호출하는 흐름을 따른다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 관리자 이미지 업로드와 본문 삽입 구현으로 넘어간다.
@@ -77,12 +82,15 @@
 - 현재 에디터는 `coverMediaAssetId`를 수동 입력으로만 다루므로, 다음 단계에서는 업로드 결과를 이 필드와 본문 삽입 액션으로 연결해야 한다.
 - 로그인 단계에서 만든 `localStorage + Authorization header` 기준은 그대로 재사용하고, media 계약도 별도 helper로 분리해두는 편이 맞다.
 - 에디터 본문에는 markdown 이미지 문법 삽입, cover image 선택, 업로드 진행 상태, 실패 재시도 UX가 같이 필요하다.
+- 커버 이미지 업로드 성공 시 complete 응답의 `mediaAssetId`를 `coverMediaAssetId`에 바로 반영하고, 본문 이미지는 `![alt](media public content url)` 문법으로 삽입하는 편이 맞다.
+- 본문 이미지 URL은 media 공개 content endpoint 기준 `GET /api/public/media/assets/{mediaAssetId}/content`를 사용하면 raw storage URL을 직접 노출하지 않아도 된다.
+- 업로드 상태는 `idle -> presigning -> uploading -> completing -> success | error`처럼 editor 본문 상태와 분리해서 관리하는 편이 안전하다.
 
 세부 단계
 - [ ] FE-UPLOAD-01 이미지 업로드 요구사항/정보구조 정리
-  - [ ] FE-UPLOAD-01-1 README 기준 presign 업로드와 본문 삽입 목표 다시 확인
-  - [ ] FE-UPLOAD-01-2 media 서비스 계약과 blog `coverMediaAssetId` 연결 기준 정리
-  - [ ] FE-UPLOAD-01-3 에디터 본문/커버 이미지 삽입 위치와 UX 기준 정리
+  - [x] FE-UPLOAD-01-1 README 기준 presign 업로드와 본문 삽입 목표 다시 확인
+  - [x] FE-UPLOAD-01-2 media 서비스 계약과 blog `coverMediaAssetId` 연결 기준 정리
+  - [x] FE-UPLOAD-01-3 에디터 본문/커버 이미지 삽입 위치와 UX 기준 정리
 - [ ] FE-UPLOAD-02 업로드 UI shell과 helper 구성
   - [ ] FE-UPLOAD-02-1 presign 요청 helper와 업로드 상태 타입 추가
   - [ ] FE-UPLOAD-02-2 cover image 선택/업로드 shell 배치
@@ -102,5 +110,5 @@
 - 업로드 성공 결과는 `coverMediaAssetId`와 markdown 이미지 링크 두 방향으로 나뉘어 반영될 수 있어야 한다.
 
 다음 시작 지점
-- `FE-UPLOAD-01-1`
-- 다음 구현은 README 기준으로 presign 업로드와 본문 삽입 목표를 다시 확인하는 것이다.
+- `FE-UPLOAD-02-1`
+- 다음 구현은 presign 요청 helper와 업로드 상태 타입을 추가하는 것이다.
