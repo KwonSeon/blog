@@ -1,25 +1,16 @@
 import type { Metadata } from "next";
 import { ProjectCard } from "@/src/entities/project";
-import { siteConfig } from "@/src/shared/config/site";
+import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 import { mockProjects } from "@/src/shared/lib/mock/home-data";
 import { CTAButton, Container, SectionHeader, SurfaceCard } from "@/src/shared/ui";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPublicMetadata({
   title: "프로젝트",
   description:
     "직접 만들고 운영하거나 실험 중인 프로젝트를 둘러볼 수 있는 공개 프로젝트 목록 화면입니다.",
-  alternates: {
-    canonical: "/projects",
-  },
-  openGraph: {
-    title: `프로젝트 | ${siteConfig.name}`,
-    description:
-      "직접 만들고 운영하거나 실험 중인 프로젝트를 둘러볼 수 있는 공개 프로젝트 목록 화면입니다.",
-    url: `${siteConfig.url}/projects`,
-    siteName: siteConfig.name,
-    type: "website",
-  },
-};
+  path: "/projects",
+  keywords: ["프로젝트 아카이브", "서비스 랜딩", "포트폴리오", "개발 실험"],
+});
 
 export default function ProjectsPage() {
   return (

@@ -93,9 +93,9 @@
   - [x] FE-SEO-01-2 현재 공개 route metadata와 cover image 사용 가능 범위 확인
   - [x] FE-SEO-01-3 title/description/canonical/robots/openGraph fallback 기준 정리
 - [ ] FE-SEO-02 프로젝트 route metadata 보강
-  - [ ] FE-SEO-02-1 `/projects` 목록 metadata 설명과 canonical 보강
-  - [ ] FE-SEO-02-2 `/projects/[slug]` 상세 generateMetadata에 OG 필드 보강
-  - [ ] FE-SEO-02-3 프로젝트 상세 fallback title/description/image 규칙 정리
+  - [x] FE-SEO-02-1 `/projects` 목록 metadata 설명과 canonical 보강
+  - [x] FE-SEO-02-2 `/projects/[slug]` 상세 generateMetadata에 OG 필드 보강
+  - [x] FE-SEO-02-3 프로젝트 상세 fallback title/description/image 규칙 정리
 - [ ] FE-SEO-03 글 route metadata 보강
   - [ ] FE-SEO-03-1 `/posts` 목록 metadata 설명과 query-param 대응 기준 정리
   - [ ] FE-SEO-03-2 `/posts/[slug]` 상세 generateMetadata에 article/OG 필드 보강
@@ -111,5 +111,5 @@
 - query-param이 붙는 목록 route는 canonical/robots 기준을 같이 정리하지 않으면 중복 색인이 생길 수 있어 이 부분을 먼저 확인해야 한다.
 
 다음 시작 지점
-- `FE-SEO-02-1`
-- 다음 구현은 프로젝트 목록과 상세 route metadata를 공통 helper 기준으로 보강하는 것이다.
+- `FE-SEO-03-1`
+- 다음 구현은 글 목록과 상세 route metadata를 공통 helper 기준으로 보강하는 것이다.

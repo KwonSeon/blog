@@ -6,12 +6,12 @@ import {
   ProjectTagList,
   PROJECT_STATUS_LABELS,
 } from "@/src/entities/project";
-import { siteConfig } from "@/src/shared/config/site";
 import {
   getMockPostsByProjectSlug,
   getMockProjectBySlug,
   mockPosts,
 } from "@/src/shared/lib/mock/home-data";
+import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 import {
   CTAButton,
   Container,
@@ -41,20 +41,19 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  return buildPublicMetadata({
     title: project.title,
     description: project.description,
-    alternates: {
-      canonical: `/projects/${project.slug}`,
-    },
-    openGraph: {
-      title: `${project.title} | ${siteConfig.name}`,
-      description: project.description,
-      url: `${siteConfig.url}/projects/${project.slug}`,
-      siteName: siteConfig.name,
-      type: "article",
-    },
-  };
+    path: `/projects/${project.slug}`,
+    type: "website",
+    keywords: [
+      project.title,
+      PROJECT_STATUS_LABELS[project.status],
+      ...project.tags,
+      "프로젝트 상세",
+      "서비스 랜딩",
+    ],
+  });
 }
 
 export default async function ProjectDetailPage({
