@@ -13,6 +13,12 @@
 - `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)`
 
 최근 완료 작업
+- `P0-016-FE-PUB-2 프로젝트 목록/상세(서비스 랜딩 UX)` 완료
+- 완료 범위
+  - 공개 프로젝트 목록 `/projects`와 프로젝트 상세 `/projects/[slug]` 화면 구현
+  - metadata, canonical, not-found, 관련 글, 하단 CTA까지 포함한 공개 화면 흐름 정리
+  - `ProjectDetailHero`, `ProjectTagList` 분리와 `ProjectCard` 목록 전용 재사용 범위 정리
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-015-FE-PUB-1 홈 UI(프로젝트/블로그 섹션 분리)` 완료
 - 완료 범위
   - 공개 홈 `page.tsx`에서 `hero -> project -> promo slot -> posts -> cta` 순으로 SSR 친화 구조 조립
@@ -26,7 +32,7 @@
   - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
-- `apps/web` 공개 라우트에는 이제 홈 `/`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]` 베이스가 있다.
+- `apps/web` 공개 라우트에는 이제 홈 `/`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]`가 있고 공개 프로젝트 랜딩 흐름이 한 번 완성됐다.
 - `apps/web/src/entities/project/ui/project-card.tsx`는 홈 프로젝트 카드 언어로 이미 구현되어 있다.
 - `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
 - `apps/web/src/shared/lib/mock/home-data.ts`에는 프로젝트 slug/detailUrl/status/tags 기반 mock data가 있다.
@@ -49,22 +55,22 @@
 - `status`, `tags`는 현재 공개 API에 없으므로 목록/상세 첫 구현에서는 mock 유지 또는 UI 축소 중 하나를 선택해야 한다.
 
 세부 단계
-- [ ] FE-PROJ-01 프로젝트 공개 화면 요구사항/정보구조 정리
+- [x] FE-PROJ-01 프로젝트 공개 화면 요구사항/정보구조 정리
   - [x] FE-PROJ-01-1 README 기준 프로젝트 목록/상세 목표 다시 확인
   - [x] FE-PROJ-01-2 현재 `ProjectCard`/`shared/ui` 재사용 범위 확인
   - [x] FE-PROJ-01-3 `/api/projects`, `/api/projects/{slug}` 연동 여부와 mock 기준 정리
-- [ ] FE-PROJ-02 프로젝트 목록 화면 조립
+- [x] FE-PROJ-02 프로젝트 목록 화면 조립
   - [x] FE-PROJ-02-1 `app/(public)/projects/page.tsx` route 및 metadata 베이스 추가
   - [x] FE-PROJ-02-2 목록 소개 hero/CTA/섹션 헤더 구성
   - [x] FE-PROJ-02-3 프로젝트 grid와 상태/태그/링크 흐름 조립
-- [ ] FE-PROJ-03 프로젝트 상세 화면 조립
+- [x] FE-PROJ-03 프로젝트 상세 화면 조립
   - [x] FE-PROJ-03-1 `app/(public)/projects/[slug]/page.tsx` route 및 not-found 흐름 추가
   - [x] FE-PROJ-03-2 상세 hero/개요/서비스 링크/기술 정보 영역 구성
   - [x] FE-PROJ-03-3 관련 글/목록 복귀/하단 CTA 영역 구성
-- [ ] FE-PROJ-04 공통 표현 정리 및 검증
+- [x] FE-PROJ-04 공통 표현 정리 및 검증
   - [x] FE-PROJ-04-1 `ProjectCard` 재사용 범위와 상세 전용 표현 분리
   - [x] FE-PROJ-04-2 heading hierarchy/metadata/link 구조 확인
-  - [ ] FE-PROJ-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
+  - [x] FE-PROJ-04-3 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
 
 계획 메모
 - 프로젝트 화면은 홈보다 서비스 소개와 CTA 밀도를 높이고, 블로그보다 랜딩 성격을 더 분명히 가져간다.
@@ -72,5 +78,5 @@
 - 공개 API는 이미 있으므로, route 구조와 view model 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-PROJ-04-3`
-- 다음 구현은 `blog/apps/web`에서 `npm run lint`, `npm run build`를 확인하는 것이다.
+- `P0-017-FE-PUB-3`
+- 다음 구현은 글 목록 공개 화면의 필터/검색 UI 구조를 정리하는 것이다.
