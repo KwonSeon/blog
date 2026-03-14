@@ -71,10 +71,10 @@
   - [x] FE-ADM-01-1 README 기준 관리자 로그인 화면 목표 다시 확인
   - [x] FE-ADM-01-2 `/api/admin/auth/login` request/response와 보호구역 기준 정리
   - [x] FE-ADM-01-3 로그인 성공 후 토큰 저장/보호 라우트 진입 기준 정리
-- [ ] FE-ADM-02 관리자 로그인 route와 form shell 조립
-  - [ ] FE-ADM-02-1 `app/admin/login/page.tsx` route와 metadata 베이스 추가
-  - [ ] FE-ADM-02-2 로그인 hero, form shell, helper text 조립
-  - [ ] FE-ADM-02-3 validation/error/success message 표현 기준 정리
+- [x] FE-ADM-02 관리자 로그인 route와 form shell 조립
+  - [x] FE-ADM-02-1 `app/admin/login/page.tsx` route와 metadata 베이스 추가
+  - [x] FE-ADM-02-2 로그인 hero, form shell, helper text 조립
+  - [x] FE-ADM-02-3 validation/error/success message 표현 기준 정리
 - [ ] FE-ADM-03 로그인 submit/auth state 흐름 구현
   - [ ] FE-ADM-03-1 로그인 form state와 submit pending 흐름 구현
   - [ ] FE-ADM-03-2 성공 시 token 저장과 후속 라우트 이동 기준 연결
@@ -91,5 +91,5 @@
 - 초기 관리자 인증은 `localStorage + client-side guard + Authorization header` 조합으로 먼저 닫고, 보안 강화를 위한 cookie 전략은 후속 단계에서 별도로 검토한다.
 
 다음 시작 지점
-- `FE-ADM-02-1`
-- 다음 구현은 관리자 로그인 route와 metadata 베이스를 먼저 추가하는 것이다.
+- `FE-ADM-03-1`
+- 다음 구현은 로그인 form state와 submit/auth 흐름을 연결하는 것이다.
