@@ -102,7 +102,7 @@ Frontend
 - [x] P0-021-FE-ADM-3 이미지 업로드(presign) + 본문 삽입
 
 SEO
-- [ ] P0-022-SEO-1 메타/OG 적용(글/프로젝트)
+- [x] P0-022-SEO-1 메타/OG 적용(글/프로젝트)
 - [ ] P0-023-SEO-2 sitemap.xml / robots.txt 제공
 
 Deploy

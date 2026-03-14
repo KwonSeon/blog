@@ -18,8 +18,29 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`,
   },
+  applicationName: siteConfig.name,
   description: siteConfig.description,
   metadataBase: new URL(siteConfig.url),
+  authors: [{ name: siteConfig.author.name }],
+  creator: siteConfig.author.name,
+  keywords: [...siteConfig.seo.defaultKeywords],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    locale: siteConfig.seo.locale,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: siteConfig.name,
+    description: siteConfig.description,
+  },
 };
 
 export const viewport: Viewport = {

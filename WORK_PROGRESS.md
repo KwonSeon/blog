@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-022-SEO-1 메타/OG 적용(글/프로젝트)`
+- `P0-023-SEO-2 sitemap.xml / robots.txt 제공`
 
 최근 완료 작업
+- `P0-022-SEO-1 메타/OG 적용(글/프로젝트)` 완료
+- 완료 범위
+  - `siteConfig.seo`, `buildPublicMetadata` helper, root metadata fallback 정리
+  - 프로젝트 목록/상세, 글 목록/상세 metadata를 공통 helper 기준으로 재구성하고 OG type, canonical, keywords, article metadata를 보강
+  - 글 목록 query-param 결과에 canonical `/posts` 유지와 `robots: noindex, follow` 적용
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-021-FE-ADM-3 이미지 업로드(presign) + 본문 삽입` 완료
 - 완료 범위
   - `admin-media-api`, `mediaApiBaseUrl`, presign/complete/upload helper와 editor upload state 구성
@@ -74,42 +80,42 @@
 - `README`에는 presign 업로드/다운로드 규약을 media 서비스가 소유하고 blog는 API 계약 기준으로만 연동한다고 명시돼 있다.
 - `apps/web/src/shared/lib/api/admin-media-api.ts`에는 admin session을 재사용하는 presign/complete/upload helper가 있고, media public content URL builder도 함께 있다.
 - `apps/web/src/entities/post/ui/post-markdown.tsx`는 heading/list/blockquote/code뿐 아니라 markdown image block까지 렌더링해 preview와 공개 글 상세에서 같은 이미지를 보여줄 수 있다.
-- 공개 홈, 프로젝트 목록/상세, 글 목록/상세는 모두 `metadata` 또는 `generateMetadata` 기반 기본 title/description/canonical 구조를 이미 갖고 있다.
-- 따라서 다음 SEO 단계는 새 route를 만드는 작업이 아니라, 기존 공개 route의 metadata를 richer OG 기준으로 보강하는 작업에 가깝다.
-- `apps/web/src/shared/config/site.ts`에는 site URL과 기본 SEO keyword/locale을 둘 수 있는 설정 지점이 있다.
-- 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계의 OG는 우선 title/description/text fallback 중심으로 정리하는 편이 맞다.
+- 공개 홈, 프로젝트 목록/상세, 글 목록/상세는 모두 `buildPublicMetadata` helper 또는 `generateMetadata` 기반 title/description/canonical/OG 구조를 갖고 있다.
+- root layout에는 `applicationName`, `authors`, `creator`, `keywords`, 기본 openGraph/twitter fallback이 들어가 있다.
+- 글 목록은 query-param이 붙을 때 canonical을 `/posts`로 유지하면서 `robots: noindex, follow`를 내려 중복 색인 기준을 먼저 정리했다.
+- 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계 OG는 우선 title/description/text fallback 중심으로 정리됐다.
+- 따라서 다음 SEO 단계는 metadata 자체보다 sitemap/robots 같은 크롤러 진입 계약을 추가하는 작업에 가깝다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 공개 글/프로젝트 metadata와 Open Graph 표현 정리로 넘어간다.
-- 이번 단계의 목표는 기존 공개 route에 이미 있는 `metadata`, `generateMetadata`, canonical 구성을 SEO/OG 기준으로 보강하는 것이다.
-- 우선순위는 홈보다 글 상세와 프로젝트 상세가 높고, 그다음 목록 route의 description/canonical/robots 표현을 정리하는 편이 맞다.
-- media가 별도 서비스로 분리돼 있으므로, OG image는 현재 있는 `coverMediaAssetId`나 media public URL builder를 활용할 수 있는지 먼저 판단해야 한다.
-- 공개 route는 이미 SSR 구조이므로 이번 단계는 렌더링 구조보다 metadata composition과 fallback 전략을 먼저 고정하는 것이 맞다.
-- 프로젝트 상세 OG type은 서비스 랜딩 성격상 `website`, 글 상세 OG type은 `article`로 나누는 편이 적절하다.
+- blog 저장소의 다음 범위는 sitemap과 robots 제공으로 넘어간다.
+- 이번 단계의 목표는 현재 공개 route 기준으로 `sitemap.xml`, `robots.txt`를 제공해 크롤러 진입 경로를 정리하는 것이다.
+- sitemap은 우선 홈, 프로젝트 목록/상세, 글 목록/상세를 포함하면 충분하고, 관리자 route는 제외해야 한다.
+- robots는 공개 route는 허용하고 `/admin`, `/api/admin` 같은 경로는 막는 기본 정책부터 두는 편이 맞다.
+- metadata와 canonical은 이미 정리됐으므로 이번 단계는 route inventory와 crawl policy를 코드로 표현하는 작업에 가깝다.
 
 세부 단계
-- [ ] FE-SEO-01 SEO/OG 기준 정리
-  - [x] FE-SEO-01-1 README 기준 글/프로젝트 메타와 OG 목표 다시 확인
-  - [x] FE-SEO-01-2 현재 공개 route metadata와 cover image 사용 가능 범위 확인
-  - [x] FE-SEO-01-3 title/description/canonical/robots/openGraph fallback 기준 정리
-- [ ] FE-SEO-02 프로젝트 route metadata 보강
-  - [x] FE-SEO-02-1 `/projects` 목록 metadata 설명과 canonical 보강
-  - [x] FE-SEO-02-2 `/projects/[slug]` 상세 generateMetadata에 OG 필드 보강
-  - [x] FE-SEO-02-3 프로젝트 상세 fallback title/description/image 규칙 정리
-- [ ] FE-SEO-03 글 route metadata 보강
-  - [x] FE-SEO-03-1 `/posts` 목록 metadata 설명과 query-param 대응 기준 정리
-  - [x] FE-SEO-03-2 `/posts/[slug]` 상세 generateMetadata에 article/OG 필드 보강
-  - [x] FE-SEO-03-3 글 상세 fallback title/description/image 규칙 정리
-- [ ] FE-SEO-04 검증 및 문서 반영
-  - [ ] FE-SEO-04-1 route별 metadata/link 구조 점검
-  - [ ] FE-SEO-04-2 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
-  - [ ] FE-SEO-04-3 README, WORK_PROGRESS 완료 상태 반영
+- [ ] FE-SITEMAP-01 sitemap/robots 기준 정리
+  - [ ] FE-SITEMAP-01-1 README 기준 sitemap과 robots 목표 다시 확인
+  - [ ] FE-SITEMAP-01-2 공개 route inventory와 제외 경로 기준 정리
+  - [ ] FE-SITEMAP-01-3 canonical과 sitemap 포함 범위 일치 여부 확인
+- [ ] FE-SITEMAP-02 sitemap 구현
+  - [ ] FE-SITEMAP-02-1 `app/sitemap.ts` 기본 route 목록 추가
+  - [ ] FE-SITEMAP-02-2 mock data 기반 프로젝트/글 상세 route 포함
+  - [ ] FE-SITEMAP-02-3 lastModified/changeFrequency/priority fallback 정리
+- [ ] FE-SITEMAP-03 robots 구현
+  - [ ] FE-SITEMAP-03-1 `app/robots.ts` 기본 허용/차단 규칙 추가
+  - [ ] FE-SITEMAP-03-2 sitemap 경로와 host 기준 연결
+  - [ ] FE-SITEMAP-03-3 관리자/비공개 경로 차단 규칙 확인
+- [ ] FE-SITEMAP-04 검증 및 문서 반영
+  - [ ] FE-SITEMAP-04-1 route별 sitemap/robots 출력 점검
+  - [ ] FE-SITEMAP-04-2 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
+  - [ ] FE-SITEMAP-04-3 README, WORK_PROGRESS 완료 상태 반영
 
 계획 메모
-- SEO 단계는 새 화면 구현보다 existing route metadata를 덮어쓰지 않고 보강하는 작업이라, 현재 metadata 구조와 fallback부터 먼저 고정하는 편이 안전하다.
-- 프로젝트와 글 상세는 현재 mock 데이터에 `coverMediaAssetId`가 없어도 description/title 기반 fallback OG를 제공해야 한다.
-- query-param이 붙는 목록 route는 canonical/robots 기준을 같이 정리하지 않으면 중복 색인이 생길 수 있어 이 부분을 먼저 확인해야 한다.
+- sitemap 단계는 metadata를 새로 만드는 작업이 아니라, 이미 정리된 canonical 집합을 크롤러 진입 경로로 다시 표현하는 작업이다.
+- 관리자 route와 query-param 결과 페이지는 검색 진입점이 아니므로 sitemap에는 넣지 않고 robots 정책도 별도로 분리하는 편이 맞다.
+- 현재는 mock data 기반 공개 route만 있으므로 sitemap도 같은 source of truth를 쓰는 쪽이 구현과 검증이 단순하다.
 
 다음 시작 지점
-- `FE-SEO-04-1`
-- 다음 구현은 route별 metadata 구조 검증과 README/WORK_PROGRESS 완료 반영이다.
+- `FE-SITEMAP-01-1`
+- 다음 구현은 README 기준으로 sitemap과 robots 목표를 다시 확인하는 것이다.
