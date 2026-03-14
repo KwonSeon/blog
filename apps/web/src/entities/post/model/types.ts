@@ -23,6 +23,41 @@ export interface PostDetail extends Post {
   contentMd: string;
 }
 
+export type AdminPostVisibility = "PUBLIC" | "PRIVATE";
+export type AdminPostStatus = "DRAFT" | "PUBLISHED";
+
+export interface AdminPostRecord {
+  postId: number;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  contentMd: string;
+  visibility: AdminPostVisibility;
+  status: AdminPostStatus;
+  lang: string;
+  coverMediaAssetId: number | null;
+  authorUserId: number;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const ADMIN_POST_VISIBILITY_OPTIONS: Array<{
+  value: AdminPostVisibility;
+  label: string;
+}> = [
+  { value: "PUBLIC", label: "공개" },
+  { value: "PRIVATE", label: "비공개" },
+];
+
+export const ADMIN_POST_STATUS_OPTIONS: Array<{
+  value: AdminPostStatus;
+  label: string;
+}> = [
+  { value: "DRAFT", label: "임시저장" },
+  { value: "PUBLISHED", label: "발행" },
+];
+
 export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
   tutorial: "튜토리얼",
   devlog: "개발 기록",
