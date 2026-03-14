@@ -75,24 +75,26 @@ export default function ProjectsPage() {
         </div>
       </Container>
 
-      <Container as="section" id="project-list" className="pb-16 sm:pb-20">
-        <SectionHeader
-          headingId="project-list-heading"
-          title="프로젝트 목록"
-          description="운영 상태, 기술 태그, 상세 링크, 서비스 진입 흐름을 같은 카드 언어로 비교할 수 있게 정리합니다."
-        />
+      <section id="project-list" className="pb-16 sm:pb-20">
+        <Container>
+          <SectionHeader
+            headingId="project-list-heading"
+            title="프로젝트 목록"
+            description="운영 상태, 기술 태그, 상세 링크, 서비스 진입 흐름을 같은 카드 언어로 비교할 수 있게 정리합니다."
+          />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {mockProjects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              featured={index === 0}
-              className={index === 0 ? "lg:col-span-2" : undefined}
-            />
-          ))}
-        </div>
-      </Container>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {mockProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                featured={index === 0}
+                className={index === 0 ? "lg:col-span-2" : undefined}
+              />
+            ))}
+          </div>
+        </Container>
+      </section>
     </>
   );
 }

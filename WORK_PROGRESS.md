@@ -26,7 +26,7 @@
   - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
-- `apps/web` 공개 라우트에는 이제 홈 `/`와 프로젝트 목록 `/projects`가 있고, `/projects/[slug]` 페이지는 아직 없다.
+- `apps/web` 공개 라우트에는 이제 홈 `/`, 프로젝트 목록 `/projects`, 프로젝트 상세 `/projects/[slug]` 베이스가 있다.
 - `apps/web/src/entities/project/ui/project-card.tsx`는 홈 프로젝트 카드 언어로 이미 구현되어 있다.
 - `apps/web/src/shared/ui`에는 `container`, `section-header`, `surface-card`, `cta-button`, `promo-slot`, `status-badge`가 있다.
 - `apps/web/src/shared/lib/mock/home-data.ts`에는 프로젝트 slug/detailUrl/status/tags 기반 mock data가 있다.
@@ -58,9 +58,9 @@
   - [x] FE-PROJ-02-2 목록 소개 hero/CTA/섹션 헤더 구성
   - [x] FE-PROJ-02-3 프로젝트 grid와 상태/태그/링크 흐름 조립
 - [ ] FE-PROJ-03 프로젝트 상세 화면 조립
-  - [ ] FE-PROJ-03-1 `app/(public)/projects/[slug]/page.tsx` route 및 not-found 흐름 추가
-  - [ ] FE-PROJ-03-2 상세 hero/개요/서비스 링크/기술 정보 영역 구성
-  - [ ] FE-PROJ-03-3 관련 글/목록 복귀/하단 CTA 영역 구성
+  - [x] FE-PROJ-03-1 `app/(public)/projects/[slug]/page.tsx` route 및 not-found 흐름 추가
+  - [x] FE-PROJ-03-2 상세 hero/개요/서비스 링크/기술 정보 영역 구성
+  - [x] FE-PROJ-03-3 관련 글/목록 복귀/하단 CTA 영역 구성
 - [ ] FE-PROJ-04 공통 표현 정리 및 검증
   - [ ] FE-PROJ-04-1 `ProjectCard` 재사용 범위와 상세 전용 표현 분리
   - [ ] FE-PROJ-04-2 heading hierarchy/metadata/link 구조 확인
@@ -72,5 +72,5 @@
 - 공개 API는 이미 있으므로, route 구조와 view model 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-PROJ-03-1`
-- 다음 구현은 `app/(public)/projects/[slug]/page.tsx` route와 not-found 흐름을 추가하는 것이다.
+- `FE-PROJ-04-1`
+- 다음 구현은 `ProjectCard` 재사용 범위와 프로젝트 상세 전용 표현을 분리하는 것이다.

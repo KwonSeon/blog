@@ -122,3 +122,11 @@ export const heroData = {
     yearsOfDev: 5,
   },
 };
+
+export function getMockProjectBySlug(slug: string) {
+  return mockProjects.find((project) => project.slug === slug);
+}
+
+export function getMockPostsByProjectSlug(slug: string) {
+  return mockPosts.filter((post) => post.relatedProjectSlug === slug);
+}
