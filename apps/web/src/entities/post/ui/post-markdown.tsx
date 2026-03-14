@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { cn } from "@/lib/utils";
 
 type MarkdownBlock =
-  | { type: "heading"; level: 2 | 3; text: string }
+  | { type: "heading"; level: 1 | 2 | 3; text: string }
   | { type: "paragraph"; text: string }
   | { type: "list"; items: string[] }
   | { type: "blockquote"; text: string[] }
@@ -49,11 +49,11 @@ function parseMarkdown(content: string): MarkdownBlock[] {
       continue;
     }
 
-    const headingMatch = trimmed.match(/^(##|###)\s+(.*)$/);
+    const headingMatch = trimmed.match(/^(#|##|###)\s+(.*)$/);
     if (headingMatch) {
       blocks.push({
         type: "heading",
-        level: headingMatch[1].length as 2 | 3,
+        level: headingMatch[1].length as 1 | 2 | 3,
         text: headingMatch[2],
       });
       index += 1;
@@ -94,7 +94,7 @@ function parseMarkdown(content: string): MarkdownBlock[] {
         current.startsWith("```") ||
         current.startsWith("- ") ||
         current.startsWith("> ") ||
-        /^(##|###)\s+/.test(current)
+        /^(#|##|###)\s+/.test(current)
       ) {
         break;
       }
@@ -176,6 +176,17 @@ export function PostMarkdown({ content, className }: PostMarkdownProps) {
         const key = `block-${index}`;
 
         if (block.type === "heading") {
+          if (block.level === 1) {
+            return (
+              <h1
+                key={key}
+                className="mt-10 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+              >
+                {renderInline(block.text, key)}
+              </h1>
+            );
+          }
+
           if (block.level === 2) {
             return (
               <h2

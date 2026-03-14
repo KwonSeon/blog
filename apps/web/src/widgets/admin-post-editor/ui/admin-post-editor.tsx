@@ -17,6 +17,8 @@ import {
 import {
   FormField,
   FormMessage,
+  FormSelect,
+  FormTextarea,
   SurfaceCard,
 } from "@/src/shared/ui";
 import { AdminPostEditorShell } from "@/src/widgets/admin-post-editor-shell";
@@ -229,54 +231,35 @@ export function AdminPostEditor() {
               disabled={isPending}
             />
 
-            <label className="grid gap-2 text-sm text-foreground">
-              <span className="font-medium">요약</span>
-              <textarea
-                rows={4}
-                value={editorState.excerpt}
-                onChange={(event) => updateField("excerpt", event.target.value)}
-                placeholder="공개 목록과 상세 상단에 노출될 요약을 입력하세요"
-                disabled={isPending}
-                className="rounded-2xl border border-input bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              />
-            </label>
+            <FormTextarea
+              label="요약"
+              rows={4}
+              value={editorState.excerpt}
+              onChange={(event) => updateField("excerpt", event.target.value)}
+              placeholder="공개 목록과 상세 상단에 노출될 요약을 입력하세요"
+              disabled={isPending}
+            />
 
             <div className="grid gap-5 md:grid-cols-2">
-              <label className="grid gap-2 text-sm text-foreground">
-                <span className="font-medium">공개 범위</span>
-                <select
-                  value={editorState.visibility}
-                  onChange={(event) =>
-                    updateField("visibility", event.target.value as AdminPostVisibility)
-                  }
-                  disabled={isPending}
-                  className="min-h-12 rounded-2xl border border-input bg-background px-4 text-base text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {ADMIN_POST_VISIBILITY_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <FormSelect
+                label="공개 범위"
+                value={editorState.visibility}
+                onChange={(event) =>
+                  updateField("visibility", event.target.value as AdminPostVisibility)
+                }
+                disabled={isPending}
+                options={ADMIN_POST_VISIBILITY_OPTIONS}
+              />
 
-              <label className="grid gap-2 text-sm text-foreground">
-                <span className="font-medium">상태</span>
-                <select
-                  value={editorState.status}
-                  onChange={(event) =>
-                    updateField("status", event.target.value as AdminPostStatus)
-                  }
-                  disabled={isPending}
-                  className="min-h-12 rounded-2xl border border-input bg-background px-4 text-base text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {ADMIN_POST_STATUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <FormSelect
+                label="상태"
+                value={editorState.status}
+                onChange={(event) =>
+                  updateField("status", event.target.value as AdminPostStatus)
+                }
+                disabled={isPending}
+                options={ADMIN_POST_STATUS_OPTIONS}
+              />
             </div>
 
             <div className="grid gap-5 md:grid-cols-2">
@@ -297,17 +280,15 @@ export function AdminPostEditor() {
               />
             </div>
 
-            <label className="grid gap-2 text-sm text-foreground">
-              <span className="font-medium">Markdown 본문</span>
-              <textarea
-                rows={20}
-                value={editorState.contentMd}
-                onChange={(event) => updateField("contentMd", event.target.value)}
-                placeholder="# 제목&#10;&#10;본문을 작성하세요"
-                disabled={isPending}
-                className="rounded-3xl border border-input bg-background px-4 py-4 font-mono text-sm leading-7 text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              />
-            </label>
+            <FormTextarea
+              label="Markdown 본문"
+              rows={20}
+              value={editorState.contentMd}
+              onChange={(event) => updateField("contentMd", event.target.value)}
+              placeholder="# 제목&#10;&#10;본문을 작성하세요"
+              disabled={isPending}
+              className="rounded-3xl py-4 font-mono text-sm leading-7"
+            />
 
             {errorMessage ? <FormMessage variant="danger">{errorMessage}</FormMessage> : null}
             {successMessage ? (

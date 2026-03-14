@@ -2,6 +2,8 @@ export { CTAButton } from "./cta-button";
 export { Container } from "./container";
 export { FormField } from "./form-field";
 export { FormMessage } from "./form-message";
+export { FormSelect } from "./form-select";
+export { FormTextarea } from "./form-textarea";
 export { PromoSlot } from "./promo-slot";
 export { SectionHeader } from "./section-header";
 export { StatusBadge } from "./status-badge";
