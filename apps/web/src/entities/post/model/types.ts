@@ -19,6 +19,10 @@ export interface Post {
   relatedProjectTitle?: string;
 }
 
+export interface PostDetail extends Post {
+  contentMd: string;
+}
+
 export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
   tutorial: "튜토리얼",
   devlog: "개발 기록",

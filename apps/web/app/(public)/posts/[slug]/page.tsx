@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
   POST_CATEGORY_LABELS,
+  PostMarkdown,
   PostTagList,
 } from "@/src/entities/post";
 import { siteConfig } from "@/src/shared/config/site";
-import { getMockPostBySlug } from "@/src/shared/lib/mock/home-data";
+import {
+  getMockPostDetailBySlug,
+  getMockProjectBySlug,
+} from "@/src/shared/lib/mock/home-data";
 import {
   CTAButton,
   Container,
@@ -23,7 +27,7 @@ export async function generateMetadata({
   params,
 }: PostDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getMockPostBySlug(slug);
+  const post = getMockPostDetailBySlug(slug);
 
   if (!post) {
     return {
@@ -53,12 +57,15 @@ export async function generateMetadata({
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { slug } = await params;
-  const post = getMockPostBySlug(slug);
+  const post = getMockPostDetailBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
+  const relatedProject = post.relatedProjectSlug
+    ? getMockProjectBySlug(post.relatedProjectSlug)
+    : undefined;
   const formattedDate = new Date(post.publishedAt).toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
@@ -66,99 +73,172 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   });
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="post-detail-heading">
-      <Container>
-        <div className="grid gap-8">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
-            <div className="max-w-4xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusBadge variant="accent">
-                  {POST_CATEGORY_LABELS[post.category]}
-                </StatusBadge>
-                <StatusBadge variant="outline">{post.lang.toUpperCase()}</StatusBadge>
-                <span className="text-sm text-muted-foreground">slug: {post.slug}</span>
-              </div>
-
-              <p className="mt-5 text-xs uppercase tracking-[0.24em] text-primary">
-                Post Detail
-              </p>
-              <h1
-                id="post-detail-heading"
-                className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
-              >
-                {post.title}
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
-                {post.excerpt}
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <CTAButton href="/posts" size="lg">
-                  글 목록으로 돌아가기
-                </CTAButton>
-                <CTAButton href="/" variant="outline" size="lg">
-                  홈으로 이동
-                </CTAButton>
-              </div>
-            </div>
-
-            <SurfaceCard padding="lg">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Summary
-              </p>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                  <p className="text-xs text-muted-foreground">발행일</p>
-                  <p className="mt-2 text-sm text-foreground">{formattedDate}</p>
+    <>
+      <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="post-detail-heading">
+        <Container>
+          <div className="grid gap-8">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
+              <div className="max-w-4xl">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge variant="accent">
+                    {POST_CATEGORY_LABELS[post.category]}
+                  </StatusBadge>
+                  <StatusBadge variant="outline">{post.lang.toUpperCase()}</StatusBadge>
+                  <span className="text-sm text-muted-foreground">slug: {post.slug}</span>
                 </div>
-                <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                  <p className="text-xs text-muted-foreground">읽기 시간</p>
-                  <p className="mt-2 text-sm text-foreground">{post.readingTime}</p>
+
+                <p className="mt-5 text-xs uppercase tracking-[0.24em] text-primary">
+                  Post Detail
+                </p>
+                <h1
+                  id="post-detail-heading"
+                  className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
+                >
+                  {post.title}
+                </h1>
+                <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground">
+                  {post.excerpt}
+                </p>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <CTAButton href="/posts" size="lg">
+                    글 목록으로 돌아가기
+                  </CTAButton>
+                  {relatedProject ? (
+                    <CTAButton
+                      href={`/projects/${relatedProject.slug}`}
+                      variant="outline"
+                      size="lg"
+                    >
+                      연결 프로젝트 보기
+                    </CTAButton>
+                  ) : (
+                    <CTAButton href="/" variant="outline" size="lg">
+                      홈으로 이동
+                    </CTAButton>
+                  )}
                 </div>
               </div>
 
-              <PostTagList tags={post.tags} className="mt-6" />
-            </SurfaceCard>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-            <SurfaceCard as="article" padding="lg">
-              <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                Article Body
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                본문 레이아웃 베이스
-              </h2>
-              <div className="mt-5 space-y-4 text-base leading-8 text-muted-foreground">
-                <p>
-                  이 영역은 다음 단계에서 markdown renderer를 붙여 실제 글 본문을
-                  article 계층 구조로 렌더링할 자리입니다.
-                </p>
-                <p>
-                  현재 단계에서는 route, metadata, not-found, 상세 상단 정보와 본문
-                  shell 구조를 먼저 고정합니다.
-                </p>
-              </div>
-            </SurfaceCard>
-
-            <div className="grid gap-6">
               <SurfaceCard padding="lg">
-                <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                  Detail Flow
+                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                  Summary
                 </p>
-                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                  상세 화면 흐름
-                </h2>
-                <div className="mt-5 space-y-3 text-sm leading-7 text-muted-foreground">
-                  <p>상단 hero에서 글 메타와 요약을 먼저 보여줍니다.</p>
-                  <p>중앙 article 영역에서 markdown 본문을 읽게 만듭니다.</p>
-                  <p>다음 단계에서 관련 프로젝트 CTA와 하단 이동 흐름을 붙입니다.</p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
+                    <p className="text-xs text-muted-foreground">발행일</p>
+                    <p className="mt-2 text-sm text-foreground">{formattedDate}</p>
+                  </div>
+                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
+                    <p className="text-xs text-muted-foreground">읽기 시간</p>
+                    <p className="mt-2 text-sm text-foreground">{post.readingTime}</p>
+                  </div>
                 </div>
+
+                <PostTagList tags={post.tags} className="mt-6" />
               </SurfaceCard>
             </div>
+
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+              <SurfaceCard as="article" padding="lg">
+                <p className="text-xs uppercase tracking-[0.24em] text-primary">Article</p>
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                  본문
+                </h2>
+                <PostMarkdown content={post.contentMd} className="mt-8" />
+              </SurfaceCard>
+
+              <div className="grid gap-6">
+                <SurfaceCard padding="lg">
+                  <p className="text-xs uppercase tracking-[0.24em] text-primary">
+                    Detail Flow
+                  </p>
+                  <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                    상세 화면 흐름
+                  </h2>
+                  <div className="mt-5 space-y-3 text-sm leading-7 text-muted-foreground">
+                    <p>상단 hero에서 글 메타와 요약을 먼저 보여줍니다.</p>
+                    <p>중앙 article 영역에서 markdown 본문을 읽게 만듭니다.</p>
+                    <p>관련 프로젝트와 다른 공개 화면으로 이동하는 CTA를 함께 둡니다.</p>
+                  </div>
+                </SurfaceCard>
+
+                <SurfaceCard padding="lg">
+                  <p className="text-xs uppercase tracking-[0.24em] text-primary">
+                    Related Project
+                  </p>
+                  <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+                    연결 프로젝트
+                  </h2>
+                  {relatedProject ? (
+                    <>
+                      <p className="mt-5 text-base leading-8 text-muted-foreground">
+                        이 글은{" "}
+                        <span className="font-medium text-foreground">
+                          {relatedProject.title}
+                        </span>
+                        의 설계 배경과 구현 기준을 설명하는 기록입니다. 글을 읽은 뒤 실제
+                        프로젝트 화면으로 이어서 이동할 수 있게 연결합니다.
+                      </p>
+                      <div className="mt-6 flex flex-col gap-3">
+                        <CTAButton href={`/projects/${relatedProject.slug}`}>
+                          프로젝트 상세 보기
+                        </CTAButton>
+                        {relatedProject.demoUrl ? (
+                          <CTAButton
+                            href={relatedProject.demoUrl}
+                            variant="outline"
+                            external={relatedProject.demoUrl.startsWith("http")}
+                          >
+                            서비스 바로가기
+                          </CTAButton>
+                        ) : null}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="mt-5 text-base leading-8 text-muted-foreground">
+                      아직 직접 연결된 프로젝트는 없지만, 이 글과 같은 흐름의 작업은
+                      프로젝트 목록에서 계속 확장할 예정입니다.
+                    </p>
+                  )}
+                </SurfaceCard>
+              </div>
+            </div>
           </div>
-        </div>
-      </Container>
-    </section>
+        </Container>
+      </section>
+
+      <section className="py-16 sm:py-20" aria-labelledby="post-detail-cta-heading">
+        <Container size="narrow">
+          <SurfaceCard padding="lg" className="text-center">
+            <p className="text-xs uppercase tracking-[0.24em] text-primary">Next step</p>
+            <h2
+              id="post-detail-cta-heading"
+              className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+            >
+              이어서 다른 글을 읽거나, 연결된 프로젝트를 직접 확인해보세요
+            </h2>
+            <p className="mt-4 text-base leading-8 text-muted-foreground">
+              공개 글 상세는 본문 독해로 끝나지 않고 다른 글 탐색과 프로젝트 체험
+              흐름으로 이어져야 합니다. 이후 이 위치에는 추천 글, 발행 맥락, 추가 CTA를
+              더 붙일 수 있습니다.
+            </p>
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <CTAButton href="/posts">다른 글 보기</CTAButton>
+              {relatedProject ? (
+                <CTAButton href={`/projects/${relatedProject.slug}`} variant="outline">
+                  연결 프로젝트 이동
+                </CTAButton>
+              ) : (
+                <CTAButton href="/" variant="outline">
+                  홈으로 돌아가기
+                </CTAButton>
+              )}
+            </div>
+          </SurfaceCard>
+        </Container>
+      </section>
+    </>
   );
 }

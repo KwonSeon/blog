@@ -67,10 +67,10 @@
   - [x] FE-POSTD-02-1 `app/(public)/posts/[slug]/page.tsx` route 및 metadata 베이스 추가
   - [x] FE-POSTD-02-2 mock post detail lookup helper와 `notFound()` 흐름 추가
   - [x] FE-POSTD-02-3 detail hero, 메타 상단, article shell 베이스 배치
-- [ ] FE-POSTD-03 markdown article/관련 프로젝트/하단 CTA 조립
-  - [ ] FE-POSTD-03-1 `contentMd`를 포함한 mock detail 구조와 minimal markdown renderer 추가
-  - [ ] FE-POSTD-03-2 article body, section hierarchy, 메타 표현 조립
-  - [ ] FE-POSTD-03-3 관련 프로젝트 CTA, 목록 복귀 링크, 하단 CTA 연결
+- [x] FE-POSTD-03 markdown article/관련 프로젝트/하단 CTA 조립
+  - [x] FE-POSTD-03-1 `contentMd`를 포함한 mock detail 구조와 minimal markdown renderer 추가
+  - [x] FE-POSTD-03-2 article body, section hierarchy, 메타 표현 조립
+  - [x] FE-POSTD-03-3 관련 프로젝트 CTA, 목록 복귀 링크, 하단 CTA 연결
 - [ ] FE-POSTD-04 공통 표현 정리 및 검증
   - [ ] FE-POSTD-04-1 detail 전용 표현 분리와 목록 표현 경계 정리
   - [ ] FE-POSTD-04-2 heading hierarchy/metadata/link 구조 확인
@@ -82,5 +82,5 @@
 - 공개 API는 이미 있으므로, route 구조와 markdown renderer 책임이 먼저 흔들리지 않게 잡는 편이 맞다.
 
 다음 시작 지점
-- `FE-POSTD-03-1`
-- 다음 구현은 `contentMd`를 포함한 mock detail 구조와 markdown renderer를 추가하는 것이다.
+- `FE-POSTD-04-1`
+- 다음 구현은 글 상세 전용 표현을 분리하고 heading hierarchy와 metadata/link 구조를 다시 확인하는 것이다.
