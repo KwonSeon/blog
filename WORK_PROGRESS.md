@@ -97,9 +97,9 @@
   - [x] FE-SEO-02-2 `/projects/[slug]` 상세 generateMetadata에 OG 필드 보강
   - [x] FE-SEO-02-3 프로젝트 상세 fallback title/description/image 규칙 정리
 - [ ] FE-SEO-03 글 route metadata 보강
-  - [ ] FE-SEO-03-1 `/posts` 목록 metadata 설명과 query-param 대응 기준 정리
-  - [ ] FE-SEO-03-2 `/posts/[slug]` 상세 generateMetadata에 article/OG 필드 보강
-  - [ ] FE-SEO-03-3 글 상세 fallback title/description/image 규칙 정리
+  - [x] FE-SEO-03-1 `/posts` 목록 metadata 설명과 query-param 대응 기준 정리
+  - [x] FE-SEO-03-2 `/posts/[slug]` 상세 generateMetadata에 article/OG 필드 보강
+  - [x] FE-SEO-03-3 글 상세 fallback title/description/image 규칙 정리
 - [ ] FE-SEO-04 검증 및 문서 반영
   - [ ] FE-SEO-04-1 route별 metadata/link 구조 점검
   - [ ] FE-SEO-04-2 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
@@ -111,5 +111,5 @@
 - query-param이 붙는 목록 route는 canonical/robots 기준을 같이 정리하지 않으면 중복 색인이 생길 수 있어 이 부분을 먼저 확인해야 한다.
 
 다음 시작 지점
-- `FE-SEO-03-1`
-- 다음 구현은 글 목록과 상세 route metadata를 공통 helper 기준으로 보강하는 것이다.
+- `FE-SEO-04-1`
+- 다음 구현은 route별 metadata 구조 검증과 README/WORK_PROGRESS 완료 반영이다.

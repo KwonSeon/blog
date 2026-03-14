@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {
+  POST_CATEGORY_LABELS,
   PostDetailHero,
   PostMarkdown,
   PostRelatedProjectCta,
   PostTagList,
 } from "@/src/entities/post";
-import { siteConfig } from "@/src/shared/config/site";
 import {
   getMockPostDetailBySlug,
   getMockProjectBySlug,
 } from "@/src/shared/lib/mock/home-data";
+import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 import {
   CTAButton,
   Container,
@@ -39,24 +40,21 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  return buildPublicMetadata({
     title: post.title,
     description: post.excerpt,
-    keywords: post.tags,
-    authors: [{ name: siteConfig.author.name }],
-    alternates: {
-      canonical: `/posts/${post.slug}`,
-    },
-    openGraph: {
-      title: `${post.title} | ${siteConfig.name}`,
-      description: post.excerpt,
-      url: `${siteConfig.url}/posts/${post.slug}`,
-      siteName: siteConfig.name,
-      type: "article",
-      publishedTime: `${post.publishedAt}T00:00:00+09:00`,
-      authors: [siteConfig.author.name],
-    },
-  };
+    path: `/posts/${post.slug}`,
+    type: "article",
+    keywords: [
+      post.title,
+      POST_CATEGORY_LABELS[post.category],
+      post.relatedProjectTitle ?? "",
+      ...post.tags,
+    ],
+    publishedTime: `${post.publishedAt}T00:00:00+09:00`,
+    section: POST_CATEGORY_LABELS[post.category],
+    tags: post.tags,
+  });
 }
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
