@@ -76,6 +76,8 @@
 - `apps/web/src/entities/post/ui/post-markdown.tsx`는 heading/list/blockquote/code뿐 아니라 markdown image block까지 렌더링해 preview와 공개 글 상세에서 같은 이미지를 보여줄 수 있다.
 - 공개 홈, 프로젝트 목록/상세, 글 목록/상세는 모두 `metadata` 또는 `generateMetadata` 기반 기본 title/description/canonical 구조를 이미 갖고 있다.
 - 따라서 다음 SEO 단계는 새 route를 만드는 작업이 아니라, 기존 공개 route의 metadata를 richer OG 기준으로 보강하는 작업에 가깝다.
+- `apps/web/src/shared/config/site.ts`에는 site URL과 기본 SEO keyword/locale을 둘 수 있는 설정 지점이 있다.
+- 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계의 OG는 우선 title/description/text fallback 중심으로 정리하는 편이 맞다.
 
 현재 확정 범위
 - blog 저장소의 다음 범위는 공개 글/프로젝트 metadata와 Open Graph 표현 정리로 넘어간다.
@@ -83,12 +85,13 @@
 - 우선순위는 홈보다 글 상세와 프로젝트 상세가 높고, 그다음 목록 route의 description/canonical/robots 표현을 정리하는 편이 맞다.
 - media가 별도 서비스로 분리돼 있으므로, OG image는 현재 있는 `coverMediaAssetId`나 media public URL builder를 활용할 수 있는지 먼저 판단해야 한다.
 - 공개 route는 이미 SSR 구조이므로 이번 단계는 렌더링 구조보다 metadata composition과 fallback 전략을 먼저 고정하는 것이 맞다.
+- 프로젝트 상세 OG type은 서비스 랜딩 성격상 `website`, 글 상세 OG type은 `article`로 나누는 편이 적절하다.
 
 세부 단계
 - [ ] FE-SEO-01 SEO/OG 기준 정리
-  - [ ] FE-SEO-01-1 README 기준 글/프로젝트 메타와 OG 목표 다시 확인
-  - [ ] FE-SEO-01-2 현재 공개 route metadata와 cover image 사용 가능 범위 확인
-  - [ ] FE-SEO-01-3 title/description/canonical/robots/openGraph fallback 기준 정리
+  - [x] FE-SEO-01-1 README 기준 글/프로젝트 메타와 OG 목표 다시 확인
+  - [x] FE-SEO-01-2 현재 공개 route metadata와 cover image 사용 가능 범위 확인
+  - [x] FE-SEO-01-3 title/description/canonical/robots/openGraph fallback 기준 정리
 - [ ] FE-SEO-02 프로젝트 route metadata 보강
   - [ ] FE-SEO-02-1 `/projects` 목록 metadata 설명과 canonical 보강
   - [ ] FE-SEO-02-2 `/projects/[slug]` 상세 generateMetadata에 OG 필드 보강
@@ -108,5 +111,5 @@
 - query-param이 붙는 목록 route는 canonical/robots 기준을 같이 정리하지 않으면 중복 색인이 생길 수 있어 이 부분을 먼저 확인해야 한다.
 
 다음 시작 지점
-- `FE-SEO-01-1`
-- 다음 구현은 README 기준으로 글/프로젝트 메타와 OG 목표를 다시 확인하는 것이다.
+- `FE-SEO-02-1`
+- 다음 구현은 프로젝트 목록과 상세 route metadata를 공통 helper 기준으로 보강하는 것이다.

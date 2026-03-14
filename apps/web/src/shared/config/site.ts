@@ -2,6 +2,18 @@ export const siteConfig = {
   name: "s-nowk",
   description: "개발 기록과 직접 만든 서비스를 함께 공개하는 블로그 플랫폼",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  seo: {
+    locale: "ko_KR",
+    defaultKeywords: [
+      "s-nowk",
+      "kwonseon",
+      "블로그",
+      "프로젝트",
+      "개발 기록",
+      "웹 개발",
+      "시스템 프로그래밍",
+    ],
+  },
   author: {
     name: "kwonseon",
     role: "소프트웨어 개발자",
