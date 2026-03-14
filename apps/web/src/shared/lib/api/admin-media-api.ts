@@ -50,6 +50,13 @@ export interface AdminMediaUploadCompleteResult {
   createdAt: string;
 }
 
+interface UploadFileToPresignedUrlInput {
+  uploadUrl: string;
+  file: File;
+  contentType: string;
+  onProgress?: (percent: number) => void;
+}
+
 function toMediaApiUrl(path: string) {
   return `${runtimeConfig.mediaApiBaseUrl.replace(/\/$/, "")}${path}`;
 }
@@ -119,4 +126,49 @@ export function completeAdminMediaUpload(input: AdminMediaUploadCompleteInput) {
 
 export function buildPublicMediaContentUrl(mediaAssetId: number) {
   return toMediaApiUrl(`/public/media/assets/${mediaAssetId}/content`);
+}
+
+export function uploadFileToPresignedUrl({
+  uploadUrl,
+  file,
+  contentType,
+  onProgress,
+}: UploadFileToPresignedUrlInput) {
+  return new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+
+    request.open("PUT", uploadUrl);
+
+    if (contentType) {
+      request.setRequestHeader("Content-Type", contentType);
+    }
+
+    request.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable || !onProgress) {
+        return;
+      }
+
+      onProgress(Math.round((event.loaded / event.total) * 100));
+    });
+
+    request.addEventListener("load", () => {
+      if (request.status >= 200 && request.status < 300) {
+        onProgress?.(100);
+        resolve();
+        return;
+      }
+
+      reject(new Error("presigned upload에 실패했습니다."));
+    });
+
+    request.addEventListener("error", () => {
+      reject(new Error("이미지 업로드 중 네트워크 오류가 발생했습니다."));
+    });
+
+    request.addEventListener("abort", () => {
+      reject(new Error("이미지 업로드가 취소됐습니다."));
+    });
+
+    request.send(file);
+  });
 }

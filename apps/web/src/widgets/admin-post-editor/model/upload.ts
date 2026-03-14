@@ -14,8 +14,10 @@ export interface AdminMediaUploadState {
   fileName: string;
   contentType: string;
   sizeBytes: number | null;
+  progressPercent: number;
   mediaAssetId: number | null;
   objectKey: string;
+  publicUrl: string;
   errorMessage: string;
   completedAt: string | null;
 }
@@ -29,8 +31,10 @@ export function createInitialAdminMediaUploadState(
     fileName: "",
     contentType: "",
     sizeBytes: null,
+    progressPercent: 0,
     mediaAssetId: null,
     objectKey: "",
+    publicUrl: "",
     errorMessage: "",
     completedAt: null,
   };

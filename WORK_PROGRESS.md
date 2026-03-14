@@ -96,9 +96,9 @@
   - [x] FE-UPLOAD-02-2 cover image 선택/업로드 shell 배치
   - [x] FE-UPLOAD-02-3 본문 이미지 삽입 액션과 helper text 배치
 - [ ] FE-UPLOAD-03 presign 업로드와 본문 삽입 흐름 구현
-  - [ ] FE-UPLOAD-03-1 presign 요청과 실제 업로드 흐름 연결
-  - [ ] FE-UPLOAD-03-2 업로드 성공 시 `coverMediaAssetId`와 markdown 이미지 링크 반영
-  - [ ] FE-UPLOAD-03-3 업로드 오류/재시도/진행 상태 UX 정리
+  - [x] FE-UPLOAD-03-1 presign 요청과 실제 업로드 흐름 연결
+  - [x] FE-UPLOAD-03-2 업로드 성공 시 `coverMediaAssetId`와 markdown 이미지 링크 반영
+  - [x] FE-UPLOAD-03-3 업로드 오류/재시도/진행 상태 UX 정리
 - [ ] FE-UPLOAD-04 공통 표현 정리 및 검증
   - [ ] FE-UPLOAD-04-1 업로드 전용 표현과 editor/shared 재사용 경계 정리
   - [ ] FE-UPLOAD-04-2 보호 라우트/metadata/link 구조 확인
@@ -110,5 +110,5 @@
 - 업로드 성공 결과는 `coverMediaAssetId`와 markdown 이미지 링크 두 방향으로 나뉘어 반영될 수 있어야 한다.
 
 다음 시작 지점
-- `FE-UPLOAD-03-1`
-- 다음 구현은 presign 요청과 실제 업로드 흐름을 editor shell에 연결하는 것이다.
+- `FE-UPLOAD-04-1`
+- 다음 구현은 업로드 전용 표현 경계와 markdown image 렌더링을 정리하는 것이다.

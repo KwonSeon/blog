@@ -11,6 +11,9 @@ import {
 } from "@/src/entities/post";
 import {
   buildPublicMediaContentUrl,
+  completeAdminMediaUpload,
+  requestAdminMediaUploadPresign,
+  uploadFileToPresignedUrl,
   type AdminMediaNamespace,
 } from "@/src/shared/lib/api/admin-media-api";
 import {
@@ -165,6 +168,46 @@ function buildInlineImageTemplate(altText: string) {
   return `![${altText.trim() || "업로드 이미지"}](${MEDIA_CONTENT_URL_TEMPLATE})`;
 }
 
+function buildInlineImageMarkdown(
+  mediaAssetId: number,
+  altText: string,
+  fileName: string,
+) {
+  const resolvedAltText =
+    altText.trim() || fileName.replace(/\.[^.]+$/, "") || "업로드 이미지";
+
+  return `![${resolvedAltText}](${buildPublicMediaContentUrl(mediaAssetId)})`;
+}
+
+function isUploadBusy(state: AdminMediaUploadState) {
+  return (
+    state.phase === "presigning" ||
+    state.phase === "uploading" ||
+    state.phase === "completing"
+  );
+}
+
+function getUploadButtonLabel(
+  state: AdminMediaUploadState,
+  idleLabel: string,
+  successLabel: string,
+) {
+  switch (state.phase) {
+    case "presigning":
+      return "presign 요청 중...";
+    case "uploading":
+      return `업로드 중... ${state.progressPercent}%`;
+    case "completing":
+      return "완료 처리 중...";
+    case "success":
+      return successLabel;
+    case "error":
+      return "다시 시도";
+    default:
+      return idleLabel;
+  }
+}
+
 export function AdminPostEditor() {
   const [editorState, setEditorState] = useState(INITIAL_EDITOR_STATE);
   const [savedPost, setSavedPost] = useState<AdminPostRecord | null>(null);
@@ -183,6 +226,7 @@ export function AdminPostEditor() {
   const deferredContentMd = useDeferredValue(editorState.contentMd);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const inlineFileInputRef = useRef<HTMLInputElement>(null);
+  const markdownTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   function updateField<K extends keyof typeof INITIAL_EDITOR_STATE>(
     key: K,
@@ -192,6 +236,18 @@ export function AdminPostEditor() {
       ...current,
       [key]: value,
     }));
+  }
+
+  function updateUploadState(
+    target: "cover" | "inline",
+    updater: (current: AdminMediaUploadState) => AdminMediaUploadState,
+  ) {
+    if (target === "cover") {
+      setCoverUploadState((current) => updater(current));
+      return;
+    }
+
+    setInlineUploadState((current) => updater(current));
   }
 
   function buildCreatePayload(status: AdminPostStatus) {
@@ -264,6 +320,194 @@ export function AdminPostEditor() {
 
     if (inlineFileInputRef.current) {
       inlineFileInputRef.current.value = "";
+    }
+  }
+
+  async function runMediaUpload(target: "cover" | "inline") {
+    const file = target === "cover" ? selectedCoverFile : selectedInlineFile;
+    const namespace =
+      target === "cover" ? COVER_UPLOAD_NAMESPACE : INLINE_UPLOAD_NAMESPACE;
+
+    if (!file) {
+      throw new Error(
+        target === "cover"
+          ? "업로드할 커버 이미지를 먼저 선택하세요."
+          : "삽입할 본문 이미지를 먼저 선택하세요.",
+      );
+    }
+
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    updateUploadState(target, (current) => ({
+      ...current,
+      phase: "presigning",
+      progressPercent: 0,
+      errorMessage: "",
+    }));
+
+    try {
+      const presigned = await requestAdminMediaUploadPresign({
+        namespace,
+        originalFilename: file.name,
+        contentType: file.type || "application/octet-stream",
+        sizeBytes: file.size,
+      });
+
+      updateUploadState(target, (current) => ({
+        ...current,
+        phase: "uploading",
+        mediaAssetId: presigned.mediaAssetId,
+        objectKey: presigned.objectKey,
+        errorMessage: "",
+      }));
+
+      await uploadFileToPresignedUrl({
+        uploadUrl: presigned.uploadUrl,
+        file,
+        contentType: file.type || "application/octet-stream",
+        onProgress: (percent) => {
+          updateUploadState(target, (current) => ({
+            ...current,
+            phase: "uploading",
+            progressPercent: percent,
+          }));
+        },
+      });
+
+      updateUploadState(target, (current) => ({
+        ...current,
+        phase: "completing",
+        progressPercent: 100,
+      }));
+
+      const completed = await completeAdminMediaUpload({
+        mediaAssetId: presigned.mediaAssetId,
+        objectKey: presigned.objectKey,
+        originalFilename: file.name,
+      });
+
+      const publicUrl = buildPublicMediaContentUrl(completed.mediaAssetId);
+
+      updateUploadState(target, (current) => ({
+        ...current,
+        phase: "success",
+        progressPercent: 100,
+        mediaAssetId: completed.mediaAssetId,
+        objectKey: completed.objectKey,
+        publicUrl,
+        completedAt: completed.createdAt,
+      }));
+
+      return {
+        file,
+        completed,
+        publicUrl,
+      };
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "이미지 업로드 중 오류가 발생했습니다.";
+
+      updateUploadState(target, (current) => ({
+        ...current,
+        phase: "error",
+        errorMessage: message,
+      }));
+
+      throw error;
+    }
+  }
+
+  function insertMarkdownAtCursor(snippet: string) {
+    const textarea = markdownTextareaRef.current;
+    const currentValue = editorState.contentMd;
+    const selectionStart = textarea?.selectionStart ?? currentValue.length;
+    const selectionEnd = textarea?.selectionEnd ?? currentValue.length;
+    const before = currentValue.slice(0, selectionStart);
+    const after = currentValue.slice(selectionEnd);
+    const prefix =
+      before.length === 0
+        ? ""
+        : before.endsWith("\n\n")
+          ? ""
+          : before.endsWith("\n")
+            ? "\n"
+            : "\n\n";
+    const suffix =
+      after.length === 0
+        ? ""
+        : after.startsWith("\n\n")
+          ? ""
+          : after.startsWith("\n")
+            ? "\n"
+            : "\n\n";
+    const nextContent = `${before}${prefix}${snippet}${suffix}${after}`;
+    const nextCursor = (before + prefix + snippet).length;
+
+    setEditorState((current) => ({
+      ...current,
+      contentMd: nextContent,
+    }));
+
+    requestAnimationFrame(() => {
+      const nextTextarea = markdownTextareaRef.current;
+
+      if (!nextTextarea) {
+        return;
+      }
+
+      nextTextarea.focus();
+      nextTextarea.setSelectionRange(nextCursor, nextCursor);
+    });
+  }
+
+  async function handleCoverUpload() {
+    try {
+      const result = await runMediaUpload("cover");
+
+      if (!result) {
+        return;
+      }
+
+      updateField("coverMediaAssetId", String(result.completed.mediaAssetId));
+      setSuccessMessage(
+        `커버 이미지 업로드가 완료돼 coverMediaAssetId ${result.completed.mediaAssetId}를 반영했습니다.`,
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "커버 이미지 업로드 중 오류가 발생했습니다.",
+      );
+    }
+  }
+
+  async function handleInlineImageInsert() {
+    try {
+      const result = await runMediaUpload("inline");
+
+      if (!result) {
+        return;
+      }
+
+      const markdown = buildInlineImageMarkdown(
+        result.completed.mediaAssetId,
+        inlineImageAlt,
+        result.file.name,
+      );
+
+      insertMarkdownAtCursor(markdown);
+      setSuccessMessage(
+        `본문 이미지 업로드가 완료돼 mediaAssetId ${result.completed.mediaAssetId}를 본문에 삽입했습니다.`,
+      );
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "본문 이미지 삽입 중 오류가 발생했습니다.",
+      );
     }
   }
 
@@ -400,7 +644,7 @@ export function AdminPostEditor() {
                 value={editorState.coverMediaAssetId}
                 onChange={(event) => updateField("coverMediaAssetId", event.target.value)}
                 placeholder="업로드 후 자동 반영 또는 수동 입력"
-                disabled={isPending}
+                disabled={isPending || isUploadBusy(coverUploadState)}
               />
             </div>
 
@@ -411,11 +655,11 @@ export function AdminPostEditor() {
                     Cover Upload
                   </p>
                   <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground">
-                    커버 이미지 업로드 shell
+                    커버 이미지 업로드
                   </h3>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    `post-cover` namespace로 presign 업로드를 준비하고, 완료 후
-                    `coverMediaAssetId`를 자동 반영할 자리를 먼저 고정합니다.
+                    `post-cover` namespace로 presign 업로드를 수행하고, complete 응답의
+                    `mediaAssetId`를 `coverMediaAssetId`에 자동 반영합니다.
                   </p>
                 </div>
 
@@ -423,17 +667,22 @@ export function AdminPostEditor() {
                   <button
                     type="button"
                     onClick={() => coverFileInputRef.current?.click()}
-                    disabled={isPending}
+                    disabled={isPending || isUploadBusy(coverUploadState)}
                     className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     커버 이미지 선택
                   </button>
                   <button
                     type="button"
-                    disabled
-                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground opacity-60"
+                    onClick={() => void handleCoverUpload()}
+                    disabled={!selectedCoverFile || isPending || isUploadBusy(coverUploadState)}
+                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    업로드 연결 예정
+                    {getUploadButtonLabel(
+                      coverUploadState,
+                      "커버 이미지 업로드",
+                      "다시 업로드",
+                    )}
                   </button>
                 </div>
               </div>
@@ -457,24 +706,41 @@ export function AdminPostEditor() {
                     <p>content-type: {coverUploadState.contentType || "없음"}</p>
                     <p>size: {formatFileSize(coverUploadState.sizeBytes)}</p>
                     <p>phase: {formatUploadPhase(coverUploadState.phase)}</p>
+                    <p>progress: {coverUploadState.progressPercent}%</p>
+                    <p>
+                      mediaAssetId:{" "}
+                      {coverUploadState.mediaAssetId ? coverUploadState.mediaAssetId : "없음"}
+                    </p>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => clearSelectedUpload("cover")}
-                  disabled={!selectedCoverFile || isPending}
+                  disabled={!selectedCoverFile || isPending || isUploadBusy(coverUploadState)}
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   선택 해제
                 </button>
               </div>
 
-              <FormMessage className="mt-4">
-                실제 presign 요청, storage 업로드, complete 호출은 다음 단계에서
-                연결합니다. 이 단계에서는 file selection, namespace, 자동 반영
-                위치만 먼저 고정합니다.
-              </FormMessage>
+              {coverUploadState.errorMessage ? (
+                <FormMessage variant="danger" className="mt-4">
+                  {coverUploadState.errorMessage}
+                </FormMessage>
+              ) : null}
+
+              {coverUploadState.phase === "success" ? (
+                <FormMessage variant="success" className="mt-4">
+                  mediaAssetId {coverUploadState.mediaAssetId} 업로드가 완료됐고,
+                  `coverMediaAssetId` 입력란에 자동 반영할 준비가 끝났습니다.
+                </FormMessage>
+              ) : (
+                <FormMessage className="mt-4">
+                  업로드가 완료되면 complete 응답의 `mediaAssetId`를 바로
+                  `coverMediaAssetId`에 채웁니다.
+                </FormMessage>
+              )}
             </SurfaceCard>
 
             <SurfaceCard padding="md" className="border border-border/80 bg-secondary/25">
@@ -484,11 +750,11 @@ export function AdminPostEditor() {
                     Inline Image
                   </p>
                   <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground">
-                    본문 이미지 삽입 shell
+                    본문 이미지 업로드와 삽입
                   </h3>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    업로드 완료 후 `post-inline` namespace 기준 이미지를 본문 caret
-                    위치에 markdown 문법으로 삽입할 자리를 먼저 고정합니다.
+                    업로드 완료 후 `post-inline` namespace 기준 이미지를 markdown
+                    본문 현재 caret 위치에 삽입합니다.
                   </p>
                 </div>
 
@@ -496,17 +762,22 @@ export function AdminPostEditor() {
                   <button
                     type="button"
                     onClick={() => inlineFileInputRef.current?.click()}
-                    disabled={isPending}
+                    disabled={isPending || isUploadBusy(inlineUploadState)}
                     className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     본문 이미지 선택
                   </button>
                   <button
                     type="button"
-                    disabled
-                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground opacity-60"
+                    onClick={() => void handleInlineImageInsert()}
+                    disabled={!selectedInlineFile || isPending || isUploadBusy(inlineUploadState)}
+                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    본문 삽입 연결 예정
+                    {getUploadButtonLabel(
+                      inlineUploadState,
+                      "업로드 후 본문 삽입",
+                      "다시 업로드 후 삽입",
+                    )}
                   </button>
                 </div>
               </div>
@@ -527,7 +798,7 @@ export function AdminPostEditor() {
                   value={inlineImageAlt}
                   onChange={(event) => setInlineImageAlt(event.target.value)}
                   placeholder="설명 텍스트를 입력하세요"
-                  disabled={isPending}
+                  disabled={isPending || isUploadBusy(inlineUploadState)}
                 />
 
                 <div className="grid gap-2 text-sm text-foreground">
@@ -548,27 +819,47 @@ export function AdminPostEditor() {
                     <p>content-type: {inlineUploadState.contentType || "없음"}</p>
                     <p>size: {formatFileSize(inlineUploadState.sizeBytes)}</p>
                     <p>phase: {formatUploadPhase(inlineUploadState.phase)}</p>
+                    <p>progress: {inlineUploadState.progressPercent}%</p>
+                    <p>
+                      mediaAssetId:{" "}
+                      {inlineUploadState.mediaAssetId
+                        ? inlineUploadState.mediaAssetId
+                        : "없음"}
+                    </p>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => clearSelectedUpload("inline")}
-                  disabled={!selectedInlineFile || isPending}
+                  disabled={!selectedInlineFile || isPending || isUploadBusy(inlineUploadState)}
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   선택 해제
                 </button>
               </div>
 
-              <FormMessage className="mt-4">
-                업로드가 끝나면 `mediaAssetId`를 content endpoint URL로 바꿔 본문에
-                삽입합니다. 실제 caret 위치 삽입과 완료 후 메시지는 다음 단계에서
-                연결합니다.
-              </FormMessage>
+              {inlineUploadState.errorMessage ? (
+                <FormMessage variant="danger" className="mt-4">
+                  {inlineUploadState.errorMessage}
+                </FormMessage>
+              ) : null}
+
+              {inlineUploadState.phase === "success" ? (
+                <FormMessage variant="success" className="mt-4">
+                  mediaAssetId {inlineUploadState.mediaAssetId} 업로드가 완료됐고,
+                  markdown 본문에 content URL을 바로 삽입할 수 있습니다.
+                </FormMessage>
+              ) : (
+                <FormMessage className="mt-4">
+                  업로드가 끝나면 `mediaAssetId`를 content endpoint URL로 바꿔 본문
+                  현재 위치에 삽입합니다.
+                </FormMessage>
+              )}
             </SurfaceCard>
 
             <FormTextarea
+              ref={markdownTextareaRef}
               label="Markdown 본문"
               rows={20}
               value={editorState.contentMd}
@@ -585,8 +876,8 @@ export function AdminPostEditor() {
 
             <FormMessage>
               최초 저장은 `POST`, 이후 수정은 `PUT`, 발행 전환은 `PATCH /status`
-              흐름으로 처리합니다. media 연동은 현재 shell까지 들어가 있고, 다음
-              단계에서 presign 업로드와 본문 삽입 동작을 연결합니다.
+              흐름으로 처리합니다. media 업로드는 presign -&gt; object storage PUT -&gt;
+              complete 순서로 분리해 호출합니다.
             </FormMessage>
           </div>
         </SurfaceCard>
@@ -648,6 +939,7 @@ export function AdminPostEditor() {
               <p>저장된 postId: {savedPost?.postId ?? "없음"}</p>
               <p>최근 수정 시각: {formatDateTime(savedPost?.updatedAt ?? null)}</p>
               <p>발행 시각: {formatDateTime(savedPost?.publishedAt ?? null)}</p>
+              <p>coverMediaAssetId: {editorState.coverMediaAssetId || "없음"}</p>
             </div>
           </SurfaceCard>
         </>
