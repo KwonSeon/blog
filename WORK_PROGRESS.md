@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-023-SEO-2 sitemap.xml / robots.txt 제공`
+- `P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck`
 
 최근 완료 작업
+- `P0-023-SEO-2 sitemap.xml / robots.txt 제공` 완료
+- 완료 범위
+  - `public-routes` helper로 공개 route inventory와 제외 경로 기준 정리
+  - `app/sitemap.ts`에서 홈, 프로젝트 목록/상세, 글 목록/상세 공개 경로와 우선순위 기본값 제공
+  - `app/robots.ts`에서 공개 경로 허용, admin 계열 차단, sitemap/host 연결
+  - `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-022-SEO-1 메타/OG 적용(글/프로젝트)` 완료
 - 완료 범위
   - `siteConfig.seo`, `buildPublicMetadata` helper, root metadata fallback 정리
@@ -84,42 +90,43 @@
 - root layout에는 `applicationName`, `authors`, `creator`, `keywords`, 기본 openGraph/twitter fallback이 들어가 있다.
 - 글 목록은 query-param이 붙을 때 canonical을 `/posts`로 유지하면서 `robots: noindex, follow`를 내려 중복 색인 기준을 먼저 정리했다.
 - 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계 OG는 우선 title/description/text fallback 중심으로 정리됐다.
-- 따라서 다음 SEO 단계는 metadata 자체보다 sitemap/robots 같은 크롤러 진입 계약을 추가하는 작업에 가깝다.
-- 현재 공개 route inventory는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`로 고정돼 있고 `admin` 계열은 sitemap 대상이 아니다.
-- 공개 slug source of truth는 `mockProjects`, `mockPostDetails`라서 sitemap도 같은 mock 데이터를 기준으로 생성하는 편이 맞다.
-- 글 상세는 `publishedAt`, 프로젝트 상세는 현재 고정 fallback 수정 시각을 lastModified 기준으로 두는 편이 단순하다.
+- 현재 공개 route inventory는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`로 고정돼 있고, `sitemap.xml`과 `robots.txt`도 제공된다.
+- 공개 slug source of truth는 `mockProjects`, `mockPostDetails`라서 sitemap도 같은 mock 데이터를 기준으로 생성한다.
+- 현재 infra/compose는 blog와 stock이 같이 들어 있는 단일 `docker-compose.yml` 하나로 운영되고 있다.
+- 현재 `nginx.conf`는 `blog.s-nowk.com -> blog_web:3000` 프록시와 stock 도메인 프록시를 함께 들고 있다.
+- compose 서비스 다수에는 `restart: unless-stopped`가 있지만, healthcheck는 아직 없고 dev/prod 파일도 분리돼 있지 않다.
+- 따라서 다음 단계는 SEO가 아니라 운영 배포 구성을 분리하고 healthcheck를 붙이는 작업에 가깝다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 sitemap과 robots 제공으로 넘어간다.
-- 이번 단계의 목표는 현재 공개 route 기준으로 `sitemap.xml`, `robots.txt`를 제공해 크롤러 진입 경로를 정리하는 것이다.
-- sitemap은 우선 홈, 프로젝트 목록/상세, 글 목록/상세를 포함하면 충분하고, 관리자 route는 제외해야 한다.
-- robots는 공개 route는 허용하고 `/admin`, `/api/admin` 같은 경로는 막는 기본 정책부터 두는 편이 맞다.
-- metadata와 canonical은 이미 정리됐으므로 이번 단계는 route inventory와 crawl policy를 코드로 표현하는 작업에 가깝다.
-- query-param 결과 페이지는 canonical과 robots로 제어하고 있으므로 sitemap에는 포함하지 않는다.
+- blog 저장소의 다음 범위는 운영용 compose를 dev/prod 기준으로 분리하고 restart/healthcheck를 붙이는 것이다.
+- 이번 단계의 목표는 현재 단일 compose를 운영 관점에서 재정리하고, blog web/api/nginx/mysql/flyway 기준 기동 구조를 명확히 하는 것이다.
+- 우선순위는 dev/prod 파일 분리, blog 관련 서비스 경계 명확화, healthcheck 추가, restart 정책 재검토다.
+- stock 관련 서비스가 같은 compose에 섞여 있으므로, blog 작업 범위에서는 blog 운영 구성과 공용 edge 구성을 어떻게 나눌지 먼저 정리해야 한다.
+- nginx는 현재 blog와 stock 도메인을 함께 다루고 있으므로, compose 분리 전에 어떤 파일이 blog 전용이고 어떤 파일이 공용 edge인지 기준을 먼저 고정해야 한다.
 
 세부 단계
-- [ ] FE-SITEMAP-01 sitemap/robots 기준 정리
-  - [x] FE-SITEMAP-01-1 README 기준 sitemap과 robots 목표 다시 확인
-  - [x] FE-SITEMAP-01-2 공개 route inventory와 제외 경로 기준 정리
-  - [x] FE-SITEMAP-01-3 canonical과 sitemap 포함 범위 일치 여부 확인
-- [ ] FE-SITEMAP-02 sitemap 구현
-  - [x] FE-SITEMAP-02-1 `app/sitemap.ts` 기본 route 목록 추가
-  - [x] FE-SITEMAP-02-2 mock data 기반 프로젝트/글 상세 route 포함
-  - [x] FE-SITEMAP-02-3 lastModified/changeFrequency/priority fallback 정리
-- [ ] FE-SITEMAP-03 robots 구현
-  - [x] FE-SITEMAP-03-1 `app/robots.ts` 기본 허용/차단 규칙 추가
-  - [x] FE-SITEMAP-03-2 sitemap 경로와 host 기준 연결
-  - [x] FE-SITEMAP-03-3 관리자/비공개 경로 차단 규칙 확인
-- [ ] FE-SITEMAP-04 검증 및 문서 반영
-  - [ ] FE-SITEMAP-04-1 route별 sitemap/robots 출력 점검
-  - [ ] FE-SITEMAP-04-2 `blog/apps/web`에서 `npm run lint`, `npm run build` 확인
-  - [ ] FE-SITEMAP-04-3 README, WORK_PROGRESS 완료 상태 반영
+- [ ] DEPLOY-01 운영 compose 목표/경계 정리
+  - [ ] DEPLOY-01-1 README 기준 운영 compose 분리 목표 다시 확인
+  - [ ] DEPLOY-01-2 현재 compose/nginx/env에서 blog 관련 서비스 경계 정리
+  - [ ] DEPLOY-01-3 dev/prod 파일 분리와 공용 edge 유지 범위 결정
+- [ ] DEPLOY-02 compose 파일 분리
+  - [ ] DEPLOY-02-1 blog 전용 compose 초안 추가
+  - [ ] DEPLOY-02-2 dev/prod override 또는 별도 파일 구조 정리
+  - [ ] DEPLOY-02-3 blog web/api/mysql/flyway 의존 순서 정리
+- [ ] DEPLOY-03 restart/healthcheck 보강
+  - [ ] DEPLOY-03-1 blog web/api/nginx healthcheck 추가
+  - [ ] DEPLOY-03-2 restart 정책과 depends_on 조건 정리
+  - [ ] DEPLOY-03-3 운영 환경 변수와 예시 파일 정리
+- [ ] DEPLOY-04 검증 및 문서 반영
+  - [ ] DEPLOY-04-1 compose config 또는 기동 검증
+  - [ ] DEPLOY-04-2 README, WORK_PROGRESS 완료 상태 반영
+  - [ ] DEPLOY-04-3 다음 라우팅 작업 기준 정리
 
 계획 메모
-- sitemap 단계는 metadata를 새로 만드는 작업이 아니라, 이미 정리된 canonical 집합을 크롤러 진입 경로로 다시 표현하는 작업이다.
-- 관리자 route와 query-param 결과 페이지는 검색 진입점이 아니므로 sitemap에는 넣지 않고 robots 정책도 별도로 분리하는 편이 맞다.
-- 현재는 mock data 기반 공개 route만 있으므로 sitemap도 같은 source of truth를 쓰는 쪽이 구현과 검증이 단순하다.
+- 배포 단계는 코드 구현보다 인프라 경계 정리가 먼저라서, compose 파일을 바로 쪼개기 전에 현재 공용 edge와 blog 전용 서비스 범위를 먼저 고정하는 편이 안전하다.
+- 현재 stack은 stock과 blog가 같이 묶여 있으므로, blog 전용 배포 기준을 정리할 때 기존 stock 동작을 깨지 않게 파일 분리 전략을 먼저 세워야 한다.
+- healthcheck는 단순 추가보다 서비스별 readiness 기준이 필요하므로, web/api/nginx에 어떤 확인 경로를 쓸지 함께 정리해야 한다.
 
 다음 시작 지점
-- `FE-SITEMAP-04-1`
-- 다음 구현은 sitemap/robots 출력과 문서 반영을 함께 검증하는 것이다.
+- `DEPLOY-01-1`
+- 다음 구현은 README 기준으로 운영용 compose 분리 목표를 다시 확인하는 것이다.
