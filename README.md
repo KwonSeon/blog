@@ -135,7 +135,7 @@ Deploy
 - [x] P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)
 
 DNS
-- [ ] P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정
+- [x] P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정
 
 Deploy
 - [ ] P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트

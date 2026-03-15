@@ -10,9 +10,14 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정`
+- `P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트`
 
 최근 완료 작업
+- `P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정` 완료
+- 완료 범위
+  - 실제 Cloudflare DNS record가 `A 레코드`가 아니라 proxied `CNAME -> 539fabab-e780-4e48-94e3-0ca7c24f1d42.cfargotunnel.com` 기준임을 API로 확인
+  - `s-nowk`, `blog`, `www`, `stock`, `media`, `portainer` 공개 host만 유지하고 `db` ingress는 제거
+  - 문서 기준도 direct origin `A 레코드`가 아니라 `Cloudflare Tunnel CNAME + Proxy`로 전환
 - `P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)` 완료
 - 완료 범위
   - root `nginx`에 `s-nowk.com/media/* -> media public content` 라우팅 추가
@@ -93,6 +98,7 @@
 현재 확인된 상태
 - `s-nowk.com`, `blog.s-nowk.com`, `stock.s-nowk.com`, `media.s-nowk.com`, `portainer.s-nowk.com`은 모두 Cloudflare Tunnel target `CNAME + Proxy` 기준으로 운영 중이다.
 - 현재 Cloudflare DNS에는 `A 레코드`가 아니라 `539fabab-e780-4e48-94e3-0ca7c24f1d42.cfargotunnel.com`을 가리키는 proxied `CNAME`이 연결돼 있다.
+- `cloudflared ingress`도 위 5개 공개 host와 `www`만 남겨 DNS inventory와 일치한다.
 - `s-nowk.com`은 `blog_web`, `s-nowk.com/api/*`는 `blog_api`, `s-nowk.com/media/*`는 `media-api`의 public content로 분기된다.
 - `blog.s-nowk.com`과 `www.s-nowk.com`은 대표 주소 `https://s-nowk.com`으로 리다이렉트된다.
 - `media.s-nowk.com/api/*`는 media admin/public API origin으로 유지하고, 공개 asset URL만 `https://s-nowk.com/media/*`로 통일했다.
@@ -100,16 +106,11 @@
 - `http://s-nowk.com`은 아직 `200`으로 응답하므로, 다음 단계에서 Tunnel/Cloudflare 기준 `http -> https` 강제가 필요하다.
 
 현재 확정 범위
-- 현재 범위는 `P0-027-DNS-1`, 즉 Cloudflare DNS를 `A 레코드`가 아니라 `Tunnel CNAME + Proxy` 기준으로 고정하고 관련 문서/설정 기대치를 정리하는 것이다.
-- 이번 단계의 목표는 실제 운영 중인 hostname inventory와 `cloudflared ingress`를 다시 맞추고, 어떤 호스트를 계속 공개할지 정책을 문서와 설정에 동일하게 반영하는 것이다.
-- 이어지는 `P0-028-DEP-3`는 Tunnel 기준 HTTPS 강제와 canonical host redirect를 닫는 단계다.
+- 현재 범위는 `P0-028-DEP-3`, 즉 Tunnel 기준으로 공개 host의 `http -> https` 강제와 canonical host redirect를 닫는 것이다.
+- 이번 단계의 목표는 Cloudflare/Tunnel이 전달하는 scheme header를 기준으로 `s-nowk`, `stock`, `portainer`의 HTTP 요청을 HTTPS로 올리고 외부 응답을 검증하는 것이다.
 - `LE`나 `Cloudflare Origin` 기반 direct origin HTTPS는 현재 공인 IP 변동성 때문에 1차 범위에서 제외하고, Tunnel edge HTTPS를 유지하는 방향으로 정리한다.
 
 세부 단계
-- [ ] DNS-01 Cloudflare Tunnel CNAME 정책 정리
-  - [ ] DNS-01-1 `README`, `WORK_PROGRESS`와 운영 기준에서 `A 레코드` 기대치를 제거하고 `CNAME + Proxy`로 고정
-  - [ ] DNS-01-2 현재 Cloudflare DNS record와 `cloudflared ingress` hostname inventory를 다시 확인
-  - [ ] DNS-01-3 `s-nowk`, `blog`, `www`, `stock`, `media`, `portainer` 공개 유지 정책 확정
 - [ ] HTTPS-01 Tunnel 기준 HTTPS/redirect 정리
   - [ ] HTTPS-01-1 Cloudflare/Tunnel 경유 요청의 scheme 전달 헤더 기준 확인
   - [ ] HTTPS-01-2 `http -> https`와 canonical host redirect 적용
@@ -126,5 +127,5 @@
 - `/media` 공개 경로는 대표 도메인 아래에 유지하되, media admin/public API origin은 `media.s-nowk.com/api/*`로 분리해도 괜찮다.
 
 다음 시작 지점
-- `DNS-01-1`
-- 다음 구현은 `A 레코드` 기대치를 걷고 현재 Cloudflare Tunnel `CNAME + Proxy` 기준으로 문서와 운영 정책을 다시 고정하는 것이다.
+- `HTTPS-01-1`
+- 다음 구현은 Cloudflare/Tunnel이 전달하는 scheme header를 확인하고 `http -> https` redirect를 실제로 적용하는 것이다.
