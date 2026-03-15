@@ -46,9 +46,15 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
 - `https://media.s-nowk.com/api/*`: media admin/public API origin
 - 공용 edge(`nginx`, `cloudflared`)는 루트 `s-nowk/infra`, blog 앱/DB compose는 `blog/infra/compose`에서 분리 운영
 - 공개 DNS는 공인 IP `A`가 아니라 Cloudflare Tunnel target `CNAME + Proxy` 기준으로 유지한다.
+- `cloudflared`는 edge network의 `nginx:80`으로 직접 연결하고, host의 `8080`은 loopback debug/origin 포트로만 둔다.
+- host bind는 공개 노출용이 아니라 loopback 운영 포트로만 유지한다.
+  - `127.0.0.1:8080 -> nginx`
+  - `127.0.0.1:8082 -> media-api`
+  - `127.0.0.1:3331 -> media mysql`
+  - `127.0.0.1:9100/9101 -> minio api/console`
 
 프론트 데이터 연동 원칙
-- 현재 관리자 화면은 실제 API를 사용하고, 공개 화면은 mock 기반 UI/SEO까지 완료된 상태다.
+- 현재 관리자 화면과 공개 화면 모두 실제 API를 사용한다.
 - 공개 화면의 실제 데이터 연동은 `Server Component fetch/DAL` + `searchParams` + `Next.js API proxy(Route Handler)` 기준으로 진행한다.
 - 검색/필터의 source of truth는 URL query string으로 유지하고, 서버 원본 데이터는 가능한 한 서버에서 가져온다.
 - 클라이언트 재검증이 실제로 필요할 때만 `SWR`를 제한적으로 사용한다.
@@ -141,7 +147,7 @@ Deploy
 - [x] P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트
 
 Ops
-- [ ] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
+- [x] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
 - [ ] P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
 - [ ] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
 
