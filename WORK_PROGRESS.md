@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)`
+- `P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)`
 
 최근 완료 작업
+- `P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)` 완료
+- 완료 범위
+  - `infra/scripts/backup-blog-db.sh`로 `mysql_blog` 기준 SQL dump + gzip + sha256 생성 경로 정리
+  - `infra/scripts/backup-media-storage.sh`로 `media_minio_data` volume archive + sha256 생성 경로 정리
+  - `infra/BACKUP.md`에 백업, 검증, 수동 복구 절차 문서화
+  - 실제 스크립트를 실행해 dump/archive 생성, checksum 검증, archive listing까지 확인
 - `P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인` 완료
 - 완료 범위
   - root edge에서 `cloudflared -> nginx`를 `host.docker.internal:8080`이 아니라 edge network의 `nginx:80` direct 연결 기준으로 정리
@@ -122,9 +128,13 @@
   - `127.0.0.1:8082 -> media-api`
   - `127.0.0.1:3331 -> media mysql`
   - `127.0.0.1:9100/9101 -> minio api/console`
+- 최소 백업 경로는 아래처럼 정리돼 있다.
+  - `infra/scripts/backup-blog-db.sh -> infra/backups/blog-db`
+  - `infra/scripts/backup-media-storage.sh -> infra/backups/media-storage`
+- 최근 실행 기준으로 blog DB dump와 media storage archive는 모두 checksum 검증이 통과했다.
 
 현재 확정 범위
-- 현재 범위는 `P0-030-OPS-2`, 즉 blog DB dump와 media storage를 최소한 수동 백업 가능한 상태로 정리하는 것이다.
+- 현재 범위는 `P0-031-E2E-1`, 즉 외부 기준으로 관리자 로그인부터 작성, 발행, 이미지 업로드, 공개 확인까지 한 번에 검증하는 것이다.
 - `LE`나 `Cloudflare Origin` 기반 direct origin HTTPS는 현재 공인 IP 변동성 때문에 1차 범위에서 제외하고, Tunnel edge HTTPS를 유지하는 방향으로 계속 간다.
 
 세부 단계
@@ -132,17 +142,22 @@
   - [x] OPS-01-1 외부 공개 진입 포트와 Cloudflare/Tunnel 경로 정리
   - [x] OPS-01-2 DB/내부 서비스 포트가 외부에 직접 노출되지 않는지 확인
   - [x] OPS-01-3 운영 기준 문서 반영
-- [ ] OPS-02 최소 백업 기준 확인
-  - [ ] OPS-02-1 blog DB dump 경로와 media 볼륨 백업 기준 정리
-  - [ ] OPS-02-2 수동 복구 가능 기준 확인
-  - [ ] OPS-02-3 다음 시작 지점을 `P0-031-E2E-1`로 전환
+- [x] OPS-02 최소 백업 기준 확인
+  - [x] OPS-02-1 blog DB dump 경로와 media 볼륨 백업 기준 정리
+  - [x] OPS-02-2 수동 복구 가능 기준 확인
+  - [x] OPS-02-3 다음 시작 지점을 `P0-031-E2E-1`로 전환
+- [ ] E2E-01 외부 환경 작성/발행/업로드/공개 검증
+  - [ ] E2E-01-1 관리자 로그인과 작성 경로 검증
+  - [ ] E2E-01-2 이미지 업로드와 발행 경로 검증
+  - [ ] E2E-01-3 공개 화면 반영과 정리 기준 확인
 
 계획 메모
 - 현재 운영은 direct origin 노출이 아니라 Cloudflare Tunnel edge가 공개 진입점이다.
 - 공인 IP가 계속 바뀔 수 있으므로 `A 레코드 + 고정 origin` 방향은 1차 운영 기준으로 맞지 않는다.
 - 따라서 `P0-027`과 `P0-028`은 `CNAME to Tunnel + Proxy`와 edge HTTPS 강제 기준으로 정리하는 편이 현재 운영 방식과 맞다.
 - `/media` 공개 경로는 대표 도메인 아래에 유지하되, media admin/public API origin은 `media.s-nowk.com/api/*`로 분리해도 괜찮다.
+- `P0-031`은 실제 브라우저 대신 cookie jar와 HTTP 호출 기준으로 관리자 로그인, 글 작성, 발행, 업로드, 공개 반영을 확인해도 된다.
 
 다음 시작 지점
-- `OPS-02-1`
-- 다음 구현은 blog DB dump와 media storage volume을 수동 백업 가능한 기준으로 정리하는 것이다.
+- `E2E-01-1`
+- 다음 구현은 외부 기준 관리자 로그인과 작성 경로를 먼저 확인하는 것이다.

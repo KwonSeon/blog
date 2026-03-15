@@ -52,6 +52,10 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
   - `127.0.0.1:8082 -> media-api`
   - `127.0.0.1:3331 -> media mysql`
   - `127.0.0.1:9100/9101 -> minio api/console`
+- 최소 백업 기준은 아래처럼 유지한다.
+  - `infra/scripts/backup-blog-db.sh -> infra/backups/blog-db`
+  - `infra/scripts/backup-media-storage.sh -> infra/backups/media-storage`
+  - 복구 절차와 검증 기준은 `infra/BACKUP.md`에 정리한다.
 
 프론트 데이터 연동 원칙
 - 현재 관리자 화면과 공개 화면 모두 실제 API를 사용한다.
@@ -148,7 +152,7 @@ Deploy
 
 Ops
 - [x] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
-- [ ] P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
+- [x] P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
 - [ ] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
 
 Backend
