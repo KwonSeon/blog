@@ -94,6 +94,7 @@ export function toProjectListViewModel(project: PublicProjectListItem): Project 
     tags: buildProjectTags(project),
     status: resolveProjectStatus(project),
     demoUrl: project.serviceUrl ?? undefined,
+    repoUrl: undefined,
     detailUrl: `/projects/${project.slug}`,
   };
 }
@@ -107,6 +108,7 @@ export function toProjectDetailViewModel(project: PublicProjectDetail): Project 
     tags: buildProjectTags(project),
     status: resolveProjectStatus(project),
     demoUrl: project.serviceUrl ?? undefined,
+    repoUrl: project.repoUrl ?? undefined,
     detailUrl: `/projects/${project.slug}`,
   };
 }

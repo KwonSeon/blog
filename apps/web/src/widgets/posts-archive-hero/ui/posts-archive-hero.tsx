@@ -1,25 +1,19 @@
 import Link from "next/link";
-import { POST_CATEGORY_OPTIONS } from "@/src/entities/post";
 import { Container, SurfaceCard } from "@/src/shared/ui";
 
 interface PostsArchiveHeroProps {
   q: string;
-  selectedCategory: string;
-  selectedCategoryLabel: string;
   selectedLang: string;
   totalCount: number;
 }
 
 export function PostsArchiveHero({
   q,
-  selectedCategory,
-  selectedCategoryLabel,
   selectedLang,
   totalCount,
 }: PostsArchiveHeroProps) {
   const buildPostsHref = (nextParams: {
     q?: string;
-    category?: string;
     lang?: string;
   }) => {
     const query = new URLSearchParams();
@@ -27,10 +21,7 @@ export function PostsArchiveHero({
     if (nextParams.q) {
       query.set("q", nextParams.q);
     }
-    if (nextParams.category) {
-      query.set("category", nextParams.category);
-    }
-    if (nextParams.lang && nextParams.lang !== "ko") {
+    if (nextParams.lang) {
       query.set("lang", nextParams.lang);
     }
 
@@ -51,9 +42,9 @@ export function PostsArchiveHero({
               검색 유입으로 들어온 글도, 카테고리별 아카이브도 같은 흐름으로 탐색합니다
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
-              튜토리얼, 시스템 메모, 개발 기록, 회고를 한 화면에서 탐색할 수 있게
-              정리합니다. 이번 단계는 공개 글 목록의 검색/필터 UI 구조를 먼저 잡고, 이후
-              상세 화면과 API 연동으로 확장할 수 있게 만드는 것이 목표입니다.
+              검색 유입으로 들어온 글과 공개 아카이브를 같은 흐름으로 탐색할 수 있게
+              정리합니다. 실제 공개 API 기준으로 제목과 요약 검색, 언어 조건, 결과
+              grid를 서버 렌더 중심으로 다시 조립합니다.
             </p>
 
             <form
@@ -82,32 +73,28 @@ export function PostsArchiveHero({
 
             <div className="mt-6 flex flex-wrap gap-2">
               <Link
-                href={buildPostsHref({ q, lang: selectedLang })}
+                href={buildPostsHref({ q })}
                 className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm transition ${
-                  selectedCategory
-                    ? "border-border bg-background text-muted-foreground hover:bg-secondary/60"
-                    : "border-primary/20 bg-primary/10 text-primary"
+                  !selectedLang
+                    ? "border-primary/20 bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:bg-secondary/60"
                 }`}
               >
-                전체
+                전체 언어
               </Link>
-              {POST_CATEGORY_OPTIONS.map((category) => (
-                <Link
-                  key={category.value}
-                  href={buildPostsHref({
-                    q,
-                    category: category.value,
-                    lang: selectedLang,
-                  })}
-                  className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm transition ${
-                    selectedCategory === category.value
-                      ? "border-primary/20 bg-primary/10 text-primary"
-                      : "border-border bg-background text-muted-foreground hover:bg-secondary/60"
-                  }`}
-                >
-                  {category.label}
-                </Link>
-              ))}
+              <Link
+                href={buildPostsHref({
+                  q,
+                  lang: "ko",
+                })}
+                className={`inline-flex min-h-10 items-center rounded-full border px-4 text-sm transition ${
+                  selectedLang === "ko"
+                    ? "border-primary/20 bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:bg-secondary/60"
+                }`}
+              >
+                한국어
+              </Link>
             </div>
           </div>
 
@@ -116,9 +103,9 @@ export function PostsArchiveHero({
               Archive Summary
             </p>
             <p className="mt-4 text-base leading-7 text-foreground">
-              글 목록은 홈의 최신 글 섹션보다 탐색 밀도가 높아야 합니다. 검색어,
-              카테고리, 언어 기준을 한 화면에서 확인하고 결과 grid로 자연스럽게
-              내려가도록 조립합니다.
+              글 목록은 홈의 최신 글 섹션보다 탐색 밀도가 높아야 합니다. 검색어와
+              언어 조건을 한 화면에서 확인하고 결과 grid로 자연스럽게 내려가도록
+              조립합니다.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-2xl bg-secondary/70 px-4 py-4">
@@ -130,8 +117,10 @@ export function PostsArchiveHero({
                 <p className="mt-2 text-sm text-foreground">{q || "없음"}</p>
               </div>
               <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                <p className="text-xs text-muted-foreground">현재 카테고리</p>
-                <p className="mt-2 text-sm text-foreground">{selectedCategoryLabel}</p>
+                <p className="text-xs text-muted-foreground">현재 언어</p>
+                <p className="mt-2 text-sm text-foreground">
+                  {selectedLang ? selectedLang.toUpperCase() : "전체"}
+                </p>
               </div>
             </div>
           </SurfaceCard>

@@ -74,7 +74,7 @@ export function ProjectCard({
           </p>
         </div>
 
-        <ProjectTagList tags={project.tags} />
+        {project.tags.length > 0 ? <ProjectTagList tags={project.tags} /> : null}
 
         <div className="mt-auto flex flex-wrap items-center gap-4 text-sm">
           <Link

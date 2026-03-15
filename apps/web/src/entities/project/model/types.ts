@@ -9,6 +9,7 @@ export interface Project {
   status: ProjectStatus;
   coverImage?: string;
   demoUrl?: string;
+  repoUrl?: string;
   detailUrl: string;
   featured?: boolean;
 }

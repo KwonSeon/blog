@@ -6,11 +6,7 @@ import {
   ProjectTagList,
   PROJECT_STATUS_LABELS,
 } from "@/src/entities/project";
-import {
-  getMockPostsByProjectSlug,
-  getMockProjectBySlug,
-  mockPosts,
-} from "@/src/shared/lib/mock/home-data";
+import { getProjectDetailPageData } from "@/src/shared/lib/api/public-page-data";
 import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 import {
   CTAButton,
@@ -29,7 +25,8 @@ export async function generateMetadata({
   params,
 }: ProjectDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getMockProjectBySlug(slug);
+  const data = await getProjectDetailPageData(slug);
+  const project = data?.project;
 
   if (!project) {
     return {
@@ -60,18 +57,17 @@ export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
   const { slug } = await params;
-  const project = getMockProjectBySlug(slug);
+  const data = await getProjectDetailPageData(slug);
+  const project = data?.project;
 
   if (!project) {
     notFound();
   }
 
-  const relatedPosts = getMockPostsByProjectSlug(project.slug);
-  const suggestedPosts =
-    relatedPosts.length > 0
-      ? relatedPosts.slice(0, 3)
-      : mockPosts.filter((post) => post.slug !== project.slug).slice(0, 2);
+  const suggestedPosts = data.relatedPosts;
+  const hasDirectlyMatchedPosts = data.hasDirectlyMatchedPosts;
   const isExternalDemoUrl = Boolean(project.demoUrl?.startsWith("http"));
+  const isExternalRepoUrl = Boolean(project.repoUrl?.startsWith("http"));
 
   return (
     <>
@@ -143,6 +139,15 @@ export default async function ProjectDetailPage({
                           서비스 바로가기
                         </CTAButton>
                       ) : null}
+                      {project.repoUrl ? (
+                        <CTAButton
+                          href={project.repoUrl}
+                          variant="outline"
+                          external={isExternalRepoUrl}
+                        >
+                          저장소 보기
+                        </CTAButton>
+                      ) : null}
                       <CTAButton href="/projects" variant="outline">
                         프로젝트 목록
                       </CTAButton>
@@ -180,7 +185,7 @@ export default async function ProjectDetailPage({
             headingId="project-related-posts-heading"
             title="관련 글"
             description={
-              relatedPosts.length > 0
+              hasDirectlyMatchedPosts
                 ? "이 프로젝트와 연결된 설계 메모, 구현 기록, 운영 회고를 이어서 읽을 수 있게 정리합니다."
                 : "직접 연결된 글은 아직 적지만, 현재 공개 중인 설계 기록과 개발 메모를 먼저 읽어볼 수 있습니다."
             }

@@ -5,14 +5,12 @@ import { Container, SectionHeader, SurfaceCard } from "@/src/shared/ui";
 interface PostsResultsSectionProps {
   posts: Post[];
   q: string;
-  selectedCategoryLabel: string;
   selectedLang: string;
 }
 
 export function PostsResultsSection({
   posts,
   q,
-  selectedCategoryLabel,
   selectedLang,
 }: PostsResultsSectionProps) {
   return (
@@ -21,17 +19,16 @@ export function PostsResultsSection({
         <SectionHeader
           headingId="posts-list-heading"
           title="글 목록"
-          description="검색어, 카테고리, 발행 흐름을 기준으로 결과를 비교할 수 있게 정리합니다."
+          description="검색어와 언어 조건을 기준으로 공개 글 결과를 비교할 수 있게 정리합니다."
         />
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border bg-secondary/20 px-5 py-4 text-sm text-muted-foreground">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>결과 {posts.length}개</span>
             <span>검색어: {q || "없음"}</span>
-            <span>카테고리: {selectedCategoryLabel}</span>
-            <span>언어: {selectedLang}</span>
+            <span>언어: {selectedLang ? selectedLang.toUpperCase() : "전체"}</span>
           </div>
-          {q || selectedCategoryLabel !== "전체" ? (
+          {q || selectedLang ? (
             <Link
               href="/posts"
               className="font-medium text-primary transition-colors hover:text-primary/80"
@@ -60,7 +57,7 @@ export function PostsResultsSection({
               조건에 맞는 글이 아직 없습니다
             </h2>
             <p className="mt-4 text-base leading-8 text-muted-foreground">
-              검색어를 줄이거나 카테고리를 전체로 되돌리면 더 많은 글을 볼 수 있습니다.
+              검색어를 줄이거나 언어 조건을 해제하면 더 많은 글을 볼 수 있습니다.
               공개 글 상세와 검색 API는 이후 단계에서 계속 확장할 예정입니다.
             </p>
             <div className="mt-8 flex items-center justify-center">

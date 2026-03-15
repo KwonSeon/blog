@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ProjectCard } from "@/src/entities/project";
+import { getProjectsPageData } from "@/src/shared/lib/api/public-page-data";
 import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
-import { mockProjects } from "@/src/shared/lib/mock/home-data";
 import { CTAButton, Container, SectionHeader, SurfaceCard } from "@/src/shared/ui";
 
 export const metadata: Metadata = buildPublicMetadata({
@@ -12,7 +12,9 @@ export const metadata: Metadata = buildPublicMetadata({
   keywords: ["프로젝트 아카이브", "서비스 랜딩", "포트폴리오", "개발 실험"],
 });
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const { projects, totalCount } = await getProjectsPageData();
+
   return (
     <>
       <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="projects-page-heading">
@@ -54,8 +56,8 @@ export default function ProjectsPage() {
               </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                 <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                  <p className="text-xs text-muted-foreground">목록 역할</p>
-                  <p className="mt-2 text-sm text-foreground">프로젝트 탐색과 상태 비교</p>
+                  <p className="text-xs text-muted-foreground">공개 프로젝트</p>
+                  <p className="mt-2 text-sm text-foreground">{totalCount}개</p>
                 </div>
                 <div className="rounded-2xl bg-secondary/70 px-4 py-4">
                   <p className="text-xs text-muted-foreground">상세 역할</p>
@@ -76,11 +78,11 @@ export default function ProjectsPage() {
           <SectionHeader
             headingId="project-list-heading"
             title="프로젝트 목록"
-            description="운영 상태, 기술 태그, 상세 링크, 서비스 진입 흐름을 같은 카드 언어로 비교할 수 있게 정리합니다."
+            description="공개 프로젝트 API 기준으로 상세 링크와 서비스 진입 흐름을 같은 카드 언어로 비교할 수 있게 정리합니다."
           />
 
           <div className="grid gap-6 lg:grid-cols-2">
-            {mockProjects.map((project, index) => (
+            {projects.map((project, index) => (
               <ProjectCard
                 key={project.id}
                 project={project}

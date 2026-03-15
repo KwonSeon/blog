@@ -50,10 +50,12 @@ export function PostCard({ post, className }: PostCardProps) {
           <span aria-hidden="true">발행</span>
           <time dateTime={post.publishedAt}>{formattedDate}</time>
         </span>
-        <span className="inline-flex items-center gap-1">
-          <span aria-hidden="true">읽기</span>
-          {post.readingTime}
-        </span>
+        {post.readingTime ? (
+          <span className="inline-flex items-center gap-1">
+            <span aria-hidden="true">읽기</span>
+            {post.readingTime}
+          </span>
+        ) : null}
         {post.relatedProjectSlug && post.relatedProjectTitle ? (
           <Link
             href={`/projects/${post.relatedProjectSlug}`}
@@ -65,7 +67,7 @@ export function PostCard({ post, className }: PostCardProps) {
         ) : null}
       </div>
 
-      <PostTagList tags={post.tags} className="mt-5" />
+      {post.tags.length > 0 ? <PostTagList tags={post.tags} className="mt-5" /> : null}
     </article>
   );
 }

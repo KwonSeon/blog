@@ -4,11 +4,8 @@ import { HomeHero } from "@/src/widgets/home-hero";
 import { HomePostsSection } from "@/src/widgets/home-posts";
 import { HomeProjectsSection } from "@/src/widgets/home-projects";
 import { PromoSlot } from "@/src/shared/ui";
-import {
-  heroData,
-  mockPosts,
-  mockProjects,
-} from "@/src/shared/lib/mock/home-data";
+import { heroData } from "@/src/shared/lib/mock/home-data";
+import { getHomePageData } from "@/src/shared/lib/api/public-page-data";
 import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 
 export const metadata: Metadata = buildPublicMetadata({
@@ -18,7 +15,14 @@ export const metadata: Metadata = buildPublicMetadata({
   keywords: ["홈", "프로젝트 허브", "블로그 홈"],
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const {
+    projects,
+    posts,
+    projectTotalCount,
+    postTotalCount,
+  } = await getHomePageData();
+
   return (
     <>
       <HomeHero
@@ -26,13 +30,17 @@ export default function HomePage() {
         subheadline={heroData.subheadline}
         description={heroData.description}
         currentFocus={heroData.currentFocus}
-        stats={heroData.stats}
+        stats={{
+          ...heroData.stats,
+          projects: projectTotalCount,
+          posts: postTotalCount,
+        }}
       />
-      <HomeProjectsSection projects={mockProjects} />
+      <HomeProjectsSection projects={projects} />
       <div className="border-y border-border bg-secondary/25 py-7">
         <PromoSlot size="leaderboard" showPlaceholder />
       </div>
-      <HomePostsSection posts={mockPosts} />
+      <HomePostsSection posts={posts} />
       <HomeCTA />
     </>
   );

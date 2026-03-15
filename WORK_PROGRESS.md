@@ -129,13 +129,13 @@
 - [ ] PUBLIC-API-02 proxy/data 계층 추가
   - [x] PUBLIC-API-02-1 projects/posts 공개 read용 Route Handler proxy 추가
   - [x] PUBLIC-API-02-2 public API client와 view model mapper 추가
-  - [ ] PUBLIC-API-02-3 에러 fallback과 빈 결과 처리 기준 정리
+  - [x] PUBLIC-API-02-3 에러 fallback과 빈 결과 처리 기준 정리
 - [ ] PUBLIC-API-03 공개 route 실제 API 전환
-  - [ ] PUBLIC-API-03-1 홈과 프로젝트 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
-  - [ ] PUBLIC-API-03-2 글 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
-  - [ ] PUBLIC-API-03-3 관련 글/관련 프로젝트 흐름을 실제 응답 기준으로 재조립
+  - [x] PUBLIC-API-03-1 홈과 프로젝트 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
+  - [x] PUBLIC-API-03-2 글 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
+  - [x] PUBLIC-API-03-3 관련 글/관련 프로젝트 흐름을 실제 응답 기준으로 재조립
 - [ ] PUBLIC-API-04 클라이언트 상태와 SEO 보강
-  - [ ] PUBLIC-API-04-1 글 목록 filter/search 상태를 URL query 중심으로 정리하고 필요 시 shared UI 상태만 제한적 `Zustand` 도입
+  - [x] PUBLIC-API-04-1 글 목록 filter/search 상태를 URL query 중심으로 정리하고 필요 시 shared UI 상태만 제한적 `Zustand` 도입
   - [ ] PUBLIC-API-04-2 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환
   - [ ] PUBLIC-API-04-3 metadata, not-found, loading fallback 기준 정리
 - [ ] PUBLIC-API-05 검증 및 문서 반영
@@ -153,5 +153,5 @@
 - 공개 화면이 실제 API 기준으로 전환돼야 이후 `P0-026-DEP-2`, `P0-031-E2E-1`도 의미 있는 검증이 된다.
 
 다음 시작 지점
-- `PUBLIC-API-02-3`
-- 다음 구현은 공개 route에서 실제 API를 붙일 때 필요한 에러 fallback과 빈 결과 처리 기준을 먼저 정리하는 것이다.
+- `PUBLIC-API-04-2`
+- 다음 구현은 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환하는 것이다.

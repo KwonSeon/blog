@@ -7,10 +7,7 @@ import {
   PostRelatedProjectCta,
   PostTagList,
 } from "@/src/entities/post";
-import {
-  getMockPostDetailBySlug,
-  getMockProjectBySlug,
-} from "@/src/shared/lib/mock/home-data";
+import { getPostDetailPageData } from "@/src/shared/lib/api/public-page-data";
 import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
 import {
   CTAButton,
@@ -28,7 +25,8 @@ export async function generateMetadata({
   params,
 }: PostDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getMockPostDetailBySlug(slug);
+  const data = await getPostDetailPageData(slug);
+  const post = data?.post;
 
   if (!post) {
     return {
@@ -59,15 +57,14 @@ export async function generateMetadata({
 
 export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { slug } = await params;
-  const post = getMockPostDetailBySlug(slug);
+  const data = await getPostDetailPageData(slug);
+  const post = data?.post;
 
   if (!post) {
     notFound();
   }
 
-  const relatedProject = post.relatedProjectSlug
-    ? getMockProjectBySlug(post.relatedProjectSlug)
-    : undefined;
+  const relatedProject = data.relatedProject;
   const formattedDate = new Date(post.publishedAt).toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "long",
@@ -91,13 +88,17 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                     <p className="text-xs text-muted-foreground">발행일</p>
                     <p className="mt-2 text-sm text-foreground">{formattedDate}</p>
                   </div>
-                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                    <p className="text-xs text-muted-foreground">읽기 시간</p>
-                    <p className="mt-2 text-sm text-foreground">{post.readingTime}</p>
-                  </div>
+                  {post.readingTime ? (
+                    <div className="rounded-2xl bg-secondary/70 px-4 py-4">
+                      <p className="text-xs text-muted-foreground">읽기 시간</p>
+                      <p className="mt-2 text-sm text-foreground">{post.readingTime}</p>
+                    </div>
+                  ) : null}
                 </div>
 
-                <PostTagList tags={post.tags} className="mt-6" />
+                {post.tags.length > 0 ? (
+                  <PostTagList tags={post.tags} className="mt-6" />
+                ) : null}
               </SurfaceCard>
             </div>
 
