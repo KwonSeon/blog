@@ -1,6 +1,6 @@
 # s-nowk blog 플랫폼
 
-Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배포 + Cloudflare DNS(필요 시 Tunnel) + Nginx 라우팅으로 **검색 유입(SEO)과 프로젝트 체험(랜딩)**을 동시에 만족하는 개인 블로그/프로젝트 플랫폼.
+Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배포 + Cloudflare Tunnel CNAME + Nginx 라우팅으로 **검색 유입(SEO)과 프로젝트 체험(랜딩)**을 동시에 만족하는 개인 블로그/프로젝트 플랫폼.
 
 ## 한 줄 요약
 검색 유입과 프로젝트 체험을 동시에 만족하는 개인 블로그/프로젝트 플랫폼을 만든다.
@@ -30,7 +30,7 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
 - External Media Service: `s-nowk/media` (`media_db`, `media_assets`, object storage)
 - Reverse Proxy: Nginx
 - Infra: Docker Compose (로컬/홈서버)
-- DNS/CDN: Cloudflare (고정 IP 없으면 Tunnel 선택)
+- DNS/CDN: Cloudflare Tunnel(CNAME) + Proxy
 
 라우팅 전략(선택지)
 - (A) 단일 도메인 + 경로 분리: /(web), /api(api), /media(assets)
@@ -41,9 +41,11 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
 현재 운영 기준
 - `https://s-nowk.com`: blog 대표 주소
 - `https://s-nowk.com/api/*`: blog API
+- `https://s-nowk.com/media/*`: media public content
 - `https://blog.s-nowk.com`: `https://s-nowk.com`으로 리다이렉트
-- `https://media.s-nowk.com`: 별도 media 서비스
+- `https://media.s-nowk.com/api/*`: media admin/public API origin
 - 공용 edge(`nginx`, `cloudflared`)는 루트 `s-nowk/infra`, blog 앱/DB compose는 `blog/infra/compose`에서 분리 운영
+- 공개 DNS는 공인 IP `A`가 아니라 Cloudflare Tunnel target `CNAME + Proxy` 기준으로 유지한다.
 
 프론트 데이터 연동 원칙
 - 현재 관리자 화면은 실제 API를 사용하고, 공개 화면은 mock 기반 UI/SEO까지 완료된 상태다.
@@ -130,13 +132,13 @@ SEO
 
 Deploy
 - [x] P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck
-- [ ] P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)
+- [x] P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)
 
 DNS
-- [ ] P0-027-DNS-1 Cloudflare DNS 연결(A 레코드) + Proxy 정책 확정
+- [ ] P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정
 
 Deploy
-- [ ] P0-028-DEP-3 HTTPS 적용(LE 또는 Cloudflare Origin) + 리다이렉트
+- [ ] P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트
 
 Ops
 - [ ] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
