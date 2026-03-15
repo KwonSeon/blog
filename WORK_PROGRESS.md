@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck`
+- `P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)`
 
 최근 완료 작업
+- `P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck` 완료
+- 완료 범위
+  - blog 전용 base/dev/prod compose와 root edge compose를 분리하고, 공용 `nginx`/`cloudflared`와 blog 앱/DB의 운영 경계를 정리
+  - `s-nowk.com`을 blog 대표 주소로 고정하고 `blog.s-nowk.com` redirect, `s-nowk.com/api/*` blog API 연결, `stock.s-nowk.com/api/*` stock API 연결 기준 정리
+  - `mysql_blog`, `blog_api`, `blog_web`, `s-nowk-nginx` healthcheck와 `service_healthy` 기반 `depends_on` 조건 보강
+  - `blog/apps/api`에서 `./gradlew --no-daemon test` 통과, compose config 검증 통과, 실제 컨테이너 `healthy` 확인
 - `P0-023-SEO-2 sitemap.xml / robots.txt 제공` 완료
 - 완료 범위
   - `public-routes` helper로 공개 route inventory와 제외 경로 기준 정리
@@ -74,6 +80,9 @@
   - 공개 프로젝트 상세 `GET /api/projects/{slug}`
 
 현재 확인된 상태
+- 공개 홈, 프로젝트 목록/상세, 글 목록/상세 route와 metadata/OG/sitemap/robots 구조는 이미 있다.
+- 공개 route의 실제 데이터 소스는 아직 `shared/lib/mock/home-data.ts`이며, 홈/프로젝트/글 목록/상세와 sitemap slug source of truth도 같은 mock 데이터를 사용하고 있다.
+- 백엔드에는 공개 프로젝트 목록/상세 `GET /api/projects`, `GET /api/projects/{slug}`와 공개 글 목록/상세/검색 API가 이미 있다.
 - `apps/web`에는 `/admin/login`, `/admin`, `/admin/posts/new`가 있고 관리자 인증 뒤 새 글 작성까지 한 번 이어지는 흐름이 완성됐다.
 - `apps/web/src/shared/lib/auth`에는 `requestAdminLogin`, `admin-session` helper가 있고 세션은 `localStorage` 기준으로 관리된다.
 - `apps/web/src/widgets/admin-login-form`, `admin-login-shell`, `admin-session-guard`, `admin-post-editor`, `admin-post-editor-shell`, `admin-media-upload-panel`이 나뉘어 있어 로그인, 보호 라우트, editor, upload 표현 책임이 분리되어 있다.
@@ -89,61 +98,60 @@
 - 공개 홈, 프로젝트 목록/상세, 글 목록/상세는 모두 `buildPublicMetadata` helper 또는 `generateMetadata` 기반 title/description/canonical/OG 구조를 갖고 있다.
 - root layout에는 `applicationName`, `authors`, `creator`, `keywords`, 기본 openGraph/twitter fallback이 들어가 있다.
 - 글 목록은 query-param이 붙을 때 canonical을 `/posts`로 유지하면서 `robots: noindex, follow`를 내려 중복 색인 기준을 먼저 정리했다.
-- 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아, 이번 단계 OG는 우선 title/description/text fallback 중심으로 정리됐다.
-- 현재 공개 route inventory는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`로 고정돼 있고, `sitemap.xml`과 `robots.txt`도 제공된다.
-- 공개 slug source of truth는 `mockProjects`, `mockPostDetails`라서 sitemap도 같은 mock 데이터를 기준으로 생성한다.
-- 현재 `blog/infra/compose/docker-compose.yml`은 `mysql_blog`, `flyway_blog`, `blog_api`, `blog_web`만 담는 blog 전용 base compose로 정리됐다.
-- 현재 루트 `s-nowk/infra/compose/docker-compose.yml`은 공용 edge base로 분리됐고, `nginx`는 shared network를 기준으로 blog 컨테이너에 붙는 구조로 옮기고 있다.
-- compose 서비스 다수에는 `restart: unless-stopped`가 있지만, healthcheck는 아직 없고 dev/prod 분리는 이제 base/dev/prod override 뼈대까지 들어온 상태다.
-- 따라서 다음 단계는 SEO가 아니라 운영 배포 구성을 분리하고 healthcheck를 붙이는 작업에 가깝다.
-- 현재 공용 edge/runtime 성격의 파일은 루트 `s-nowk/infra`로 옮기고, blog 전용 서비스 compose는 `blog/infra` 아래에 남기는 방향이 맞다.
-- 현재 compose에는 blog web/api 서비스 정의가 들어왔고, 남은 과제는 prod에서 root edge와 blog 서비스가 shared network로 만나는 조건을 정리하는 것이다.
-- 현재 blog compose는 `name: blog`로 고정했고, 내부 기동 순서는 `mysql_blog -> flyway_blog -> blog_api -> blog_web` 기준 `depends_on` 조건으로 정리 중이다.
-- root edge compose는 `name: edge`로 고정했고, prod에서는 shared network `s-nowk-edge`를 먼저 만든 뒤 blog prod 서비스가 여기에 붙고, 마지막에 `cloudflared`가 붙는 순서로 보는 편이 맞다.
-- 현재 blog 전용 env는 `blog/infra/compose/.env`와 `.env.example` 기준으로 정리했고, stock 서비스용 env는 `stock/infra/compose/.env`와 `.env.example`로 분리했다.
-- 공용 edge용 env도 루트 `s-nowk/infra/compose/.env`와 `.env.example`로 따로 두는 방향으로 정리했다.
-- 루트 `s-nowk/infra` 디렉터리는 실제로 생성됐고, 공용 `nginx`, `cloudflared` 설정은 그쪽에서 별도 compose 파일로 관리하는 구조를 잡기 시작했다.
-- 즉 현재 blog 운영 경계는 blog 서비스 compose와 공용 edge compose는 분리됐고, 남은 일은 dev/prod override, healthcheck, shared network/depends_on 기준을 보강하는 것이다.
-- `media` 저장소는 이미 `infra/compose/.env.example`, `.env.prod.example`, `docker-compose.yml` 구조를 쓰고 있어, 루트 infra도 비슷한 운영 예시 파일 구조를 따라가는 편이 일관된다.
+- 현재 공개 mock data에는 `coverMediaAssetId`가 포함돼 있지 않아 OG는 우선 title/description/text fallback 중심으로 정리돼 있다.
+- 공개 route inventory는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`로 고정돼 있고, `sitemap.xml`과 `robots.txt`도 제공된다.
+- 현재 실제 운영 기준은 `https://s-nowk.com` blog 대표 주소, `https://s-nowk.com/api/*` blog API, `https://stock.s-nowk.com/api/*` stock API, `https://media.s-nowk.com` media 공개 주소다.
+- `blog.s-nowk.com`은 대표 주소가 아니라 `https://s-nowk.com`으로 리다이렉트되는 보조 진입점이다.
+- stock 프론트는 브라우저 기준 `/api`를 사용하고, `stock-api.s-nowk.com` 공개 진입은 제거된 상태다.
+- `blog/infra/compose/docker-compose.yml`은 `mysql_blog`, `flyway_blog`, `blog_api`, `blog_web`만 담는 blog 전용 base compose로 정리됐고, healthcheck와 `service_healthy` 기반 `depends_on`도 붙어 있다.
+- 루트 `s-nowk/infra/compose`는 공용 edge base로 분리됐고, `nginx`/`cloudflared`는 shared network 기준으로 blog와 stock 서비스에 붙는다.
+- 다음 공개 API 연동은 `Server Component fetch/DAL` + `searchParams` + `Next.js API proxy(Route Handler)`를 기본 전략으로 잡고 진행한다.
+- 검색/필터의 source of truth는 URL query string으로 유지하고, 서버 원본 데이터는 가능한 한 서버에서 가져오는 편이 맞다.
+- 클라이언트 재검증이 실제로 필요할 때만 `SWR`를 제한적으로 검토하고, `Zustand`는 query string/props로 표현되지 않는 shared UI interaction 상태가 생길 때만 도입한다.
+- 제한적 `Zustand` 도입 후보는 모바일 필터 패널 열림/닫힘, 검색 입력 debounced draft 값, 결과 toolbar와 filter panel이 공유해야 하는 정렬 preset 정도다.
+- 관리자 목록/조회 화면은 SEO보다 상호작용과 최신화가 중요하므로 `SWR`를 기본 read-fetch 계층으로 가져가는 편이 맞다.
+- 향후 인증 확장은 `Spring`을 source of truth로 두고, 프론트는 `Next.js Route Handler + HttpOnly cookie`로 붙인 뒤 `Auth.js`를 프론트 세션/guard 통합 계층으로 올리는 순서가 맞다.
 
 현재 확정 범위
-- blog 저장소의 다음 범위는 운영용 compose를 dev/prod 기준으로 분리하고 restart/healthcheck를 붙이는 것이다.
-- 이번 단계의 목표는 현재 단일 compose를 운영 관점에서 재정리하고, blog web/api/nginx/mysql/flyway 기준 기동 구조를 명확히 하는 것이다.
-- 우선순위는 dev/prod 파일 분리, blog 관련 서비스 경계 명확화, healthcheck 추가, restart 정책 재검토다.
-- stock 관련 서비스는 `stock/infra/compose`로 분리하는 방향을 잡았고, blog 작업 범위에서는 blog 운영 구성과 공용 edge 구성을 먼저 닫는 편이 맞다.
-- nginx는 현재 blog와 stock 도메인을 함께 다루고 있으므로, compose 분리 전에 어떤 파일이 blog 전용이고 어떤 파일이 공용 edge인지 기준을 먼저 고정해야 한다.
-- 현재 기준으로 blog 전용 compose 후보는 `mysql_blog`, `flyway_blog`, 이후 추가될 `blog_api`, `blog_web`이고, `nginx`, `cloudflared`, 공용 compose 진입 파일은 루트 `s-nowk/infra`로 이동하는 공용 edge 후보로 보는 편이 자연스럽다.
-- blog 서비스는 `blog/infra/compose/docker-compose.yml` base 위에 `docker-compose.dev.yml`, `docker-compose.prod.yml` override를 두고, 공용 edge는 루트 `s-nowk/infra/compose`에서 별도 base/prod 파일로 관리하는 편이 맞다.
-- `dev`는 로컬 개발 기준이라 blog 쪽에서 localhost port binding과 dev용 public URL만 열고, `cloudflared`와 공개 도메인 edge는 기본 범위에서 제외하는 편이 맞다.
-- `prod`는 blog web/api가 shared network로 공용 `nginx`에 붙고, 공용 edge 쪽은 루트 `docker-compose.prod.yml`에서 `cloudflared`를 따로 올리는 편이 맞다.
-- 공용 edge 범위는 루트 `s-nowk/infra`가 소유하고, blog 저장소는 blog 앱 컨테이너, DB, migration, blog 전용 override를 유지하는 방향으로 정리하는 편이 안전하다.
-- compose로 강제 가능한 의존 순서는 blog 내부까지이고, root edge와 blog prod의 교차 의존은 별도 compose 프로젝트라 `depends_on` 대신 shared network와 기동 순서 문서화로 다루는 편이 맞다.
+- blog 저장소의 다음 범위는 `P0-025-FE-PUB-5`, 즉 공개 화면의 데이터 소스를 mock에서 실제 public API로 전환하는 것이다.
+- 이번 단계의 목표는 `/`, `/projects`, `/projects/[slug]`, `/posts`, `/posts/[slug]`를 실제 공개 API 기준으로 다시 조립하면서도 현재 SEO/SSR 구조를 유지하는 것이다.
+- 우선순위는 Next.js API proxy 경로 기준 고정, mock 타입과 실제 응답 차이 정리, 공개 목록/상세 데이터 흐름 교체, sitemap/slug source 전환이다.
+- 브라우저 공개 요청은 same-origin Next.js Route Handler proxy로 모으고, 공개 데이터는 서버 fetch를 우선 사용한다.
+- blog 저장소 기준 직접 수정 범위는 주로 `apps/web/app/(public)`, `apps/web/app/api`, `src/shared/lib/api`, `src/shared/lib/seo/public-routes.ts`와 view model mapper 계층이다. `src/shared/store`는 실제 shared UI 상태가 확인될 때만 추가한다.
+- 현재 단계에서 같이 고정하는 후속 기준은 관리자 목록/조회 같은 read-heavy 화면에 `SWR`를 기본 read-fetch 계층으로 적용하는 것이다.
+- 다음 단계가 끝나면 그 이후 주제는 `P0-026-DEP-2`, 즉 공개 경로와 reverse proxy 책임 정리로 다시 이어간다.
 
 세부 단계
-- [ ] DEPLOY-01 운영 compose 목표/경계 정리
-  - [x] DEPLOY-01-1 README 기준 운영 compose 분리 목표 다시 확인
-  - [x] DEPLOY-01-2 현재 compose/nginx/env에서 blog 관련 서비스 경계 정리
-  - [x] DEPLOY-01-3 dev/prod 파일 분리와 공용 edge 유지 범위 결정
-- [ ] DEPLOY-02 compose 파일 분리
-  - [x] DEPLOY-02-1 blog 전용 compose 초안 추가
-  - [x] DEPLOY-02-2 dev/prod override 또는 별도 파일 구조 정리
-  - [x] DEPLOY-02-3 blog web/api/mysql/flyway 의존 순서 정리
-- [ ] DEPLOY-03 restart/healthcheck 보강
-  - [x] DEPLOY-03-1 blog web/api/nginx healthcheck 추가
-  - [x] DEPLOY-03-2 restart 정책과 depends_on 조건 정리
-  - [x] DEPLOY-03-3 운영 환경 변수와 예시 파일 정리
-- [ ] DEPLOY-04 검증 및 문서 반영
-  - [ ] DEPLOY-04-1 compose config 또는 기동 검증
-  - [ ] DEPLOY-04-2 README, WORK_PROGRESS 완료 상태 반영
-  - [ ] DEPLOY-04-3 다음 라우팅 작업 기준 정리
+- [ ] PUBLIC-API-01 공개 API 연동 기준 정리
+  - [ ] PUBLIC-API-01-1 공개 API 응답 스펙과 현재 mock/view model 차이 정리
+  - [ ] PUBLIC-API-01-2 Next.js API proxy 경로와 same-origin 호출 기준 정리
+  - [ ] PUBLIC-API-01-3 URL query source of truth와 제한적 `Zustand` 도입 조건 정리
+- [ ] PUBLIC-API-02 proxy/data 계층 추가
+  - [ ] PUBLIC-API-02-1 projects/posts 공개 read용 Route Handler proxy 추가
+  - [ ] PUBLIC-API-02-2 public API client와 view model mapper 추가
+  - [ ] PUBLIC-API-02-3 에러 fallback과 빈 결과 처리 기준 정리
+- [ ] PUBLIC-API-03 공개 route 실제 API 전환
+  - [ ] PUBLIC-API-03-1 홈과 프로젝트 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
+  - [ ] PUBLIC-API-03-2 글 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
+  - [ ] PUBLIC-API-03-3 관련 글/관련 프로젝트 흐름을 실제 응답 기준으로 재조립
+- [ ] PUBLIC-API-04 클라이언트 상태와 SEO 보강
+  - [ ] PUBLIC-API-04-1 글 목록 filter/search 상태를 URL query 중심으로 정리하고 필요 시 shared UI 상태만 제한적 `Zustand` 도입
+  - [ ] PUBLIC-API-04-2 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환
+  - [ ] PUBLIC-API-04-3 metadata, not-found, loading fallback 기준 정리
+- [ ] PUBLIC-API-05 검증 및 문서 반영
+  - [ ] PUBLIC-API-05-1 public route, proxy route, `npm run lint`, `npm run build` 검증
+  - [ ] PUBLIC-API-05-2 README, WORK_PROGRESS 완료 상태 반영
+  - [ ] PUBLIC-API-05-3 다음 시작 지점을 `P0-026-DEP-2`로 전환
 
 계획 메모
-- 배포 단계는 코드 구현보다 인프라 경계 정리가 먼저라서, compose 파일을 바로 쪼개기 전에 현재 공용 edge와 blog 전용 서비스 범위를 먼저 고정하는 편이 안전하다.
-- 현재 stack은 stock과 blog가 같이 묶여 있으므로, blog 전용 배포 기준을 정리할 때 기존 stock 동작을 깨지 않게 파일 분리 전략을 먼저 세워야 한다.
-- 특히 공용 infra를 `blog/infra`에 남겨두는 방향이 아니라 루트 `s-nowk/infra`로 승격하는 방향을 먼저 전제로 잡아야 이후 분리가 덜 꼬인다.
-- healthcheck는 단순 추가보다 서비스별 readiness 기준이 필요하므로, web/api/nginx에 어떤 확인 경로를 쓸지 함께 정리해야 한다.
-- 즉 다음 구현은 서비스별 health/readiness 기준을 실제로 붙이고, restart와 env 예시를 운영 기준으로 보강하는 단계로 바로 이어가면 된다.
+- 현재 공개 MVP의 빈 곳은 UI/SEO/배포가 아니라 공개 프론트와 실제 public API 사이의 마지막 연결이다.
+- 관리자 화면은 이미 실제 API를 쓰고 있으므로, 이번 단계는 공개 화면 read path를 같은 방식으로 통일하는 작업에 가깝다.
+- 기본은 `Server Component + searchParams + Route Handler`이고, `SWR`는 클라이언트 재검증이 필요할 때만, `Zustand`는 shared UI interaction 상태가 확인될 때만 도입하는 편이 공식 흐름에 가깝다.
+- 반대로 관리자 목록/조회는 `SWR`를 먼저 검토하는 편이 자연스럽다. 이후 `/admin/posts`, `/admin/projects` 같은 read-heavy 화면에서 같은 기준을 재사용한다.
+- proxy 계층에는 응답 정규화와 에러 매핑을 넣고, 필요 시 `zod`로 응답 계약 검증을 추가하는 편이 이후 라우팅/DNS 작업에서도 덜 흔들린다.
+- 인증 로드맵도 같은 원칙으로 가져간다. P1에서는 Spring 기반 일반 사용자 인증과 refresh/cookie 기준을 먼저 닫고, 그 다음 프론트 세션 계층으로 `Auth.js`를 얹는 편이 책임 분리가 명확하다.
+- 공개 화면이 실제 API 기준으로 전환돼야 이후 `P0-026-DEP-2`, `P0-031-E2E-1`도 의미 있는 검증이 된다.
 
 다음 시작 지점
-- `DEPLOY-04-1`
-- 다음 구현은 compose config와 실제 기동 상태를 다시 검증하고 README/WORK_PROGRESS 완료 상태를 반영하는 것이다.
+- `PUBLIC-API-01-1`
+- 다음 구현은 공개 API 응답 스펙과 현재 mock/view model 차이를 먼저 정리하는 것이다.

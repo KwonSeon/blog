@@ -38,6 +38,28 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
 
 기본은 A를 우선 적용, 필요 시 B로 확장.
 
+현재 운영 기준
+- `https://s-nowk.com`: blog 대표 주소
+- `https://s-nowk.com/api/*`: blog API
+- `https://blog.s-nowk.com`: `https://s-nowk.com`으로 리다이렉트
+- `https://media.s-nowk.com`: 별도 media 서비스
+- 공용 edge(`nginx`, `cloudflared`)는 루트 `s-nowk/infra`, blog 앱/DB compose는 `blog/infra/compose`에서 분리 운영
+
+프론트 데이터 연동 원칙
+- 현재 관리자 화면은 실제 API를 사용하고, 공개 화면은 mock 기반 UI/SEO까지 완료된 상태다.
+- 공개 화면의 실제 데이터 연동은 `Server Component fetch/DAL` + `searchParams` + `Next.js API proxy(Route Handler)` 기준으로 진행한다.
+- 검색/필터의 source of truth는 URL query string으로 유지하고, 서버 원본 데이터는 가능한 한 서버에서 가져온다.
+- 클라이언트 재검증이 실제로 필요할 때만 `SWR`를 제한적으로 사용한다.
+- 관리자 목록/조회 화면은 SEO보다 상호작용과 최신화가 중요하므로 `SWR`를 기본 read-fetch 계층으로 사용한다.
+- `Zustand`는 query string이나 props로 표현하기 어려운 shared UI interaction 상태가 생길 때만 제한적으로 도입한다.
+  예: 모바일 필터 패널 열림/닫힘, 검색 입력의 debounced draft 값, 여러 client component가 공유해야 하는 정렬 preset 상태
+- proxy 계층은 same-origin 진입점, 응답 정규화, 에러 매핑을 담당하고, 필요 시 `zod`로 응답 계약 검증을 추가한다.
+
+인증 확장 원칙
+- 인증의 source of truth는 `Spring`이 유지하고, 프론트는 `Next.js Route Handler + HttpOnly cookie` 기반 세션으로 붙인다.
+- 브라우저 JS와 `Zustand`, `localStorage`에는 access token / refresh token 원문을 저장하지 않는다.
+- `Auth.js`는 즉시 도입 대상이 아니라, 일반 사용자 인증과 OIDC 기준이 정리된 뒤 프론트 세션/guard 통합 계층으로 붙이는 후속 계획으로 둔다.
+
 ## 핵심 설계 결정
 콘텐츠/내비게이션
 - 홈 화면에서 프로젝트 섹션과 블로그 섹션을 분리 노출
@@ -100,31 +122,32 @@ Frontend
 - [x] P0-019-FE-ADM-1 관리자 로그인 화면
 - [x] P0-020-FE-ADM-2 마크다운 에디터(작성/미리보기/발행)
 - [x] P0-021-FE-ADM-3 이미지 업로드(presign) + 본문 삽입
+- [ ] P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)
 
 SEO
 - [x] P0-022-SEO-1 메타/OG 적용(글/프로젝트)
 - [x] P0-023-SEO-2 sitemap.xml / robots.txt 제공
 
 Deploy
-- [ ] P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck
-- [ ] P0-025-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)
+- [x] P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck
+- [ ] P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)
 
 DNS
-- [ ] P0-026-DNS-1 Cloudflare DNS 연결(A 레코드) + Proxy 정책 확정
+- [ ] P0-027-DNS-1 Cloudflare DNS 연결(A 레코드) + Proxy 정책 확정
 
 Deploy
-- [ ] P0-027-DEP-3 HTTPS 적용(LE 또는 Cloudflare Origin) + 리다이렉트
+- [ ] P0-028-DEP-3 HTTPS 적용(LE 또는 Cloudflare Origin) + 리다이렉트
 
 Ops
-- [ ] P0-028-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
-- [ ] P0-029-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
-- [ ] P0-030-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
+- [ ] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
+- [ ] P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
+- [ ] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
 
 Backend
-- [ ] P1-001-AUTH-1 회원가입/로그인(일반 사용자) API + USER 권한 모델
+- [ ] P1-001-AUTH-1 회원가입/로그인(일반 사용자) API + USER 권한 모델 + refresh/cookie 기준 정리
 
 Frontend
-- [ ] P1-002-AUTH-2 프론트 로그인/회원가입 UI + 토큰/세션 처리
+- [ ] P1-002-AUTH-2 Auth.js 연동 + 프론트 로그인/회원가입 UI + 세션 처리
 
 DB
 - [ ] P1-003-REA-1 좋아요 테이블/인덱스 설계 + 마이그레이션
@@ -230,7 +253,7 @@ SEO
 - [ ] P2-018-I18N-2 hreflang/sitemap 다국어 확장
 
 Backend
-- [ ] P2-019-SEC-1 인증 고도화(Refresh 토큰/회전/기기 관리)
+- [ ] P2-019-SEC-1 인증 고도화(Spring auth/OIDC + Refresh 토큰 회전/기기 관리)
 
 Deploy
 - [ ] P2-020-DEP-1 프로젝트 서브도메인 분리 옵션 적용
