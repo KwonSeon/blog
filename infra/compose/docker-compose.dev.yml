@@ -1,0 +1,23 @@
+services:
+  mysql_blog:
+    ports:
+      - "127.0.0.1:${BLOG_DB_PORT:-3307}:3306"
+
+  blog_api:
+    environment:
+      SPRING_PROFILES_ACTIVE: ${BLOG_API_PROFILE:-dev}
+    ports:
+      - "127.0.0.1:${BLOG_API_PORT:-8080}:8080"
+
+  blog_web:
+    build:
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
+        NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
+      NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    ports:
+      - "127.0.0.1:${BLOG_WEB_PORT:-3000}:3000"

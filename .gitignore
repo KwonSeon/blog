@@ -15,9 +15,6 @@ apps/api/src/main/generated
 .env.*
 apps/api/.env
 apps/api/.env.*
-infra/compose/cloudflared/*.json
-infra/compose/cloudflared/config.yml
-infra/compose/nginx.conf
 
 # IntelliJ IDEA
 .idea/

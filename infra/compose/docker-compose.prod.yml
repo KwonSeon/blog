@@ -1,0 +1,26 @@
+services:
+  blog_api:
+    environment:
+      SPRING_PROFILES_ACTIVE: ${BLOG_API_PROFILE:-prod}
+    networks:
+      - default
+      - edge
+
+  blog_web:
+    build:
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://s-nowk.com/api}
+        NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-https://media.s-nowk.com/api}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://s-nowk.com}
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://s-nowk.com/api}
+      NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-https://media.s-nowk.com/api}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://s-nowk.com}
+    networks:
+      - default
+      - edge
+
+networks:
+  edge:
+    external: true
+    name: ${EDGE_SHARED_NETWORK:-s-nowk-edge}
