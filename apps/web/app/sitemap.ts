@@ -10,8 +10,18 @@ function toAbsoluteUrl(path: string) {
   return `${siteConfig.url.replace(/\/$/, "")}${path}`;
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const staticEntries: MetadataRoute.Sitemap = getStaticPublicPathEntries().map(
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [
+    staticPathEntries,
+    projectPathEntries,
+    postPathEntries,
+  ] = await Promise.all([
+    getStaticPublicPathEntries(),
+    getPublicProjectPaths(),
+    getPublicPostPaths(),
+  ]);
+
+  const staticEntries: MetadataRoute.Sitemap = staticPathEntries.map(
     (entry) => ({
       url: toAbsoluteUrl(entry.path),
       lastModified: new Date(entry.lastModified),
@@ -22,14 +32,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }),
   );
 
-  const projectEntries: MetadataRoute.Sitemap = getPublicProjectPaths().map((entry) => ({
+  const projectEntries: MetadataRoute.Sitemap = projectPathEntries.map((entry) => ({
     url: toAbsoluteUrl(entry.path),
     lastModified: new Date(entry.lastModified),
     changeFrequency: "weekly",
     priority: 0.8,
   }));
 
-  const postEntries: MetadataRoute.Sitemap = getPublicPostPaths().map((entry) => ({
+  const postEntries: MetadataRoute.Sitemap = postPathEntries.map((entry) => ({
     url: toAbsoluteUrl(entry.path),
     lastModified: new Date(entry.lastModified),
     changeFrequency: "monthly",

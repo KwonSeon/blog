@@ -122,7 +122,7 @@ Frontend
 - [x] P0-019-FE-ADM-1 관리자 로그인 화면
 - [x] P0-020-FE-ADM-2 마크다운 에디터(작성/미리보기/발행)
 - [x] P0-021-FE-ADM-3 이미지 업로드(presign) + 본문 삽입
-- [ ] P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)
+- [x] P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)
 
 SEO
 - [x] P0-022-SEO-1 메타/OG 적용(글/프로젝트)

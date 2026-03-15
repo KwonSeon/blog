@@ -10,9 +10,14 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)`
+- `P0-026-DEP-2 Nginx 라우팅(/ -> web, /api -> api, /media -> storage)`
 
 최근 완료 작업
+- `P0-025-FE-PUB-5 공개 화면 실제 API 연동(mock -> public API, Server fetch + searchParams + Route Handler)` 완료
+- 완료 범위
+  - 공개 프로젝트/글 route를 mock 대신 실제 public API 기반 page-data helper와 view model mapper로 전환
+  - projects/posts 공개 read용 Route Handler proxy 추가와 q/lang 중심 검색 흐름, 관련 콘텐츠 fallback, custom not-found/loading 처리 정리
+  - sitemap의 slug source를 실제 public API 기준으로 전환하고 `blog/apps/web`에서 `npm run lint`, `npm run build` 통과
 - `P0-024-DEP-1 운영용 compose 분리(dev/prod) + restart/healthcheck` 완료
 - 완료 범위
   - blog 전용 base/dev/prod compose와 root edge compose를 분리하고, 공용 `nginx`/`cloudflared`와 blog 앱/DB의 운영 경계를 정리
@@ -136,12 +141,12 @@
   - [x] PUBLIC-API-03-3 관련 글/관련 프로젝트 흐름을 실제 응답 기준으로 재조립
 - [ ] PUBLIC-API-04 클라이언트 상태와 SEO 보강
   - [x] PUBLIC-API-04-1 글 목록 filter/search 상태를 URL query 중심으로 정리하고 필요 시 shared UI 상태만 제한적 `Zustand` 도입
-  - [ ] PUBLIC-API-04-2 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환
-  - [ ] PUBLIC-API-04-3 metadata, not-found, loading fallback 기준 정리
+  - [x] PUBLIC-API-04-2 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환
+  - [x] PUBLIC-API-04-3 metadata, not-found, loading fallback 기준 정리
 - [ ] PUBLIC-API-05 검증 및 문서 반영
-  - [ ] PUBLIC-API-05-1 public route, proxy route, `npm run lint`, `npm run build` 검증
-  - [ ] PUBLIC-API-05-2 README, WORK_PROGRESS 완료 상태 반영
-  - [ ] PUBLIC-API-05-3 다음 시작 지점을 `P0-026-DEP-2`로 전환
+  - [x] PUBLIC-API-05-1 public route, proxy route, `npm run lint`, `npm run build` 검증
+  - [x] PUBLIC-API-05-2 README, WORK_PROGRESS 완료 상태 반영
+  - [x] PUBLIC-API-05-3 다음 시작 지점을 `P0-026-DEP-2`로 전환
 
 계획 메모
 - 현재 공개 MVP의 빈 곳은 UI/SEO/배포가 아니라 공개 프론트와 실제 public API 사이의 마지막 연결이다.
@@ -153,5 +158,5 @@
 - 공개 화면이 실제 API 기준으로 전환돼야 이후 `P0-026-DEP-2`, `P0-031-E2E-1`도 의미 있는 검증이 된다.
 
 다음 시작 지점
-- `PUBLIC-API-04-2`
-- 다음 구현은 sitemap과 공개 slug source를 mock에서 실제 데이터 기준으로 전환하는 것이다.
+- `ROUTING-01-1`
+- 다음 구현은 현재 nginx와 cloudflared 기준의 공개 도메인/경로 매핑을 다시 확인하는 것이다.
