@@ -79,6 +79,7 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
         NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
+        NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-http://localhost:8082/api/public/media}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     container_name: blog_web
     depends_on:
@@ -87,6 +88,7 @@ services:
     environment:
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
       NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
+      NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-http://localhost:8082/api/public/media}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       NODE_ENV: production
     expose:

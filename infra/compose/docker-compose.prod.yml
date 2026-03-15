@@ -11,10 +11,12 @@ services:
       args:
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://s-nowk.com/api}
         NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-https://media.s-nowk.com/api}
+        NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-https://s-nowk.com/media}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://s-nowk.com}
     environment:
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-https://s-nowk.com/api}
       NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-https://media.s-nowk.com/api}
+      NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-https://s-nowk.com/media}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://s-nowk.com}
     networks:
       - default

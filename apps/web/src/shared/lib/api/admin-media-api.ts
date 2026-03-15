@@ -61,6 +61,10 @@ function toMediaApiUrl(path: string) {
   return `${runtimeConfig.mediaApiBaseUrl.replace(/\/$/, "")}${path}`;
 }
 
+function toMediaPublicUrl(path: string) {
+  return `${runtimeConfig.mediaPublicBaseUrl.replace(/\/$/, "")}${path}`;
+}
+
 async function requestAdminMediaApi<T>(
   path: string,
   init: RequestInit,
@@ -125,7 +129,7 @@ export function completeAdminMediaUpload(input: AdminMediaUploadCompleteInput) {
 }
 
 export function buildPublicMediaContentUrl(mediaAssetId: number) {
-  return toMediaApiUrl(`/public/media/assets/${mediaAssetId}/content`);
+  return toMediaPublicUrl(`/assets/${mediaAssetId}/content`);
 }
 
 export function uploadFileToPresignedUrl({
