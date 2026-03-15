@@ -1,4 +1,5 @@
 export type PostCategory =
+  | "general"
   | "tutorial"
   | "devlog"
   | "retrospective"
@@ -59,6 +60,7 @@ export const ADMIN_POST_STATUS_OPTIONS: Array<{
 ];
 
 export const POST_CATEGORY_LABELS: Record<PostCategory, string> = {
+  general: "아카이브",
   tutorial: "튜토리얼",
   devlog: "개발 기록",
   retrospective: "회고",

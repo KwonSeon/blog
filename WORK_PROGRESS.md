@@ -123,12 +123,12 @@
 
 세부 단계
 - [ ] PUBLIC-API-01 공개 API 연동 기준 정리
-  - [ ] PUBLIC-API-01-1 공개 API 응답 스펙과 현재 mock/view model 차이 정리
-  - [ ] PUBLIC-API-01-2 Next.js API proxy 경로와 same-origin 호출 기준 정리
-  - [ ] PUBLIC-API-01-3 URL query source of truth와 제한적 `Zustand` 도입 조건 정리
+  - [x] PUBLIC-API-01-1 공개 API 응답 스펙과 현재 mock/view model 차이 정리
+  - [x] PUBLIC-API-01-2 Next.js API proxy 경로와 same-origin 호출 기준 정리
+  - [x] PUBLIC-API-01-3 URL query source of truth와 제한적 `Zustand` 도입 조건 정리
 - [ ] PUBLIC-API-02 proxy/data 계층 추가
-  - [ ] PUBLIC-API-02-1 projects/posts 공개 read용 Route Handler proxy 추가
-  - [ ] PUBLIC-API-02-2 public API client와 view model mapper 추가
+  - [x] PUBLIC-API-02-1 projects/posts 공개 read용 Route Handler proxy 추가
+  - [x] PUBLIC-API-02-2 public API client와 view model mapper 추가
   - [ ] PUBLIC-API-02-3 에러 fallback과 빈 결과 처리 기준 정리
 - [ ] PUBLIC-API-03 공개 route 실제 API 전환
   - [ ] PUBLIC-API-03-1 홈과 프로젝트 목록/상세 데이터를 mock에서 실제 API 기준으로 교체
@@ -153,5 +153,5 @@
 - 공개 화면이 실제 API 기준으로 전환돼야 이후 `P0-026-DEP-2`, `P0-031-E2E-1`도 의미 있는 검증이 된다.
 
 다음 시작 지점
-- `PUBLIC-API-01-1`
-- 다음 구현은 공개 API 응답 스펙과 현재 mock/view model 차이를 먼저 정리하는 것이다.
+- `PUBLIC-API-02-3`
+- 다음 구현은 공개 route에서 실제 API를 붙일 때 필요한 에러 fallback과 빈 결과 처리 기준을 먼저 정리하는 것이다.
