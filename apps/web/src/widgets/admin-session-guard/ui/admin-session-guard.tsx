@@ -1,36 +1,20 @@
-"use client";
-
-import { useEffect, useSyncExternalStore } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { getValidAdminSession } from "@/src/shared/lib/auth/admin-session";
+import { redirect } from "next/navigation";
+import { buildAdminLoginPath } from "@/src/shared/lib/auth/admin-path";
+import { readAdminSessionToken } from "@/src/shared/lib/auth/admin-session.server";
 
 interface AdminSessionGuardProps {
   children: React.ReactNode;
+  nextPath: string;
 }
 
-export function AdminSessionGuard({ children }: AdminSessionGuardProps) {
-  const router = useRouter();
-  const pathname = usePathname();
+export async function AdminSessionGuard({
+  children,
+  nextPath,
+}: AdminSessionGuardProps) {
+  const accessToken = await readAdminSessionToken();
 
-  const isAllowed = useSyncExternalStore(
-    () => () => undefined,
-    () => Boolean(getValidAdminSession()),
-    () => false,
-  );
-
-  useEffect(() => {
-    if (!isAllowed) {
-      const next = encodeURIComponent(pathname || "/admin");
-      router.replace(`/admin/login?next=${next}`);
-    }
-  }, [isAllowed, pathname, router]);
-
-  if (!isAllowed) {
-    return (
-      <div className="flex min-h-screen items-center justify-center px-4 text-sm text-muted-foreground">
-        관리자 인증 상태를 확인하는 중입니다.
-      </div>
-    );
+  if (!accessToken) {
+    redirect(buildAdminLoginPath(nextPath));
   }
 
   return <>{children}</>;

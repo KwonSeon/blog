@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { redirect } from "next/navigation";
+import { resolveAdminNextPath } from "@/src/shared/lib/auth/admin-path";
+import { readAdminSessionToken } from "@/src/shared/lib/auth/admin-session.server";
 import { siteConfig } from "@/src/shared/config/site";
 import { AdminLoginForm } from "@/src/widgets/admin-login-form";
 import { AdminLoginShell } from "@/src/widgets/admin-login-shell";
@@ -25,26 +27,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AdminLoginPage() {
+interface AdminLoginPageProps {
+  searchParams: Promise<{
+    next?: string;
+  }>;
+}
+
+export default async function AdminLoginPage({
+  searchParams,
+}: AdminLoginPageProps) {
+  const params = await searchParams;
+  const nextPath = resolveAdminNextPath(params.next);
+  const accessToken = await readAdminSessionToken();
+
+  if (accessToken) {
+    redirect(nextPath);
+  }
+
   return (
     <AdminLoginShell>
-      <Suspense
-        fallback={
-          <div className="grid gap-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">
-              Admin Login
-            </p>
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-              관리자 로그인 상태를 준비하는 중입니다
-            </h2>
-            <p className="text-base leading-8 text-muted-foreground">
-              로그인 form과 인증 상태를 불러오는 동안 잠시만 기다려주세요.
-            </p>
-          </div>
-        }
-      >
-        <AdminLoginForm />
-      </Suspense>
+      <AdminLoginForm nextPath={nextPath} />
     </AdminLoginShell>
   );
 }

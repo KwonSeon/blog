@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 export default function AdminHomePage() {
   return (
-    <AdminSessionGuard>
+    <AdminSessionGuard nextPath="/admin">
       <section className="py-16 sm:py-20 lg:min-h-screen">
         <Container size="wide">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">

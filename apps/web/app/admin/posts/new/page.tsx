@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function AdminNewPostPage() {
   return (
-    <AdminSessionGuard>
+    <AdminSessionGuard nextPath="/admin/posts/new">
       <AdminPostEditor />
     </AdminSessionGuard>
   );
