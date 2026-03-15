@@ -25,6 +25,7 @@ security:
       - "/api/projects/{slug}:GET"
       - "/api/posts:GET"
       - "/api/posts/{slug}:GET"
+      - "/api/health:GET"
       - "/api/admin/auth/login:POST"
   cors:
     allow:

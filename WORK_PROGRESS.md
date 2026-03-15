@@ -129,9 +129,9 @@
   - [x] DEPLOY-02-2 dev/prod override 또는 별도 파일 구조 정리
   - [x] DEPLOY-02-3 blog web/api/mysql/flyway 의존 순서 정리
 - [ ] DEPLOY-03 restart/healthcheck 보강
-  - [ ] DEPLOY-03-1 blog web/api/nginx healthcheck 추가
-  - [ ] DEPLOY-03-2 restart 정책과 depends_on 조건 정리
-  - [ ] DEPLOY-03-3 운영 환경 변수와 예시 파일 정리
+  - [x] DEPLOY-03-1 blog web/api/nginx healthcheck 추가
+  - [x] DEPLOY-03-2 restart 정책과 depends_on 조건 정리
+  - [x] DEPLOY-03-3 운영 환경 변수와 예시 파일 정리
 - [ ] DEPLOY-04 검증 및 문서 반영
   - [ ] DEPLOY-04-1 compose config 또는 기동 검증
   - [ ] DEPLOY-04-2 README, WORK_PROGRESS 완료 상태 반영
@@ -145,5 +145,5 @@
 - 즉 다음 구현은 서비스별 health/readiness 기준을 실제로 붙이고, restart와 env 예시를 운영 기준으로 보강하는 단계로 바로 이어가면 된다.
 
 다음 시작 지점
-- `DEPLOY-03-1`
-- 다음 구현은 blog web/api/nginx에 healthcheck를 추가해 readiness 기준을 명확히 하는 것이다.
+- `DEPLOY-04-1`
+- 다음 구현은 compose config와 실제 기동 상태를 다시 검증하고 README/WORK_PROGRESS 완료 상태를 반영하는 것이다.
