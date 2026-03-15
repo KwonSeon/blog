@@ -138,7 +138,7 @@ DNS
 - [x] P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정
 
 Deploy
-- [ ] P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트
+- [x] P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트
 
 Ops
 - [ ] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인

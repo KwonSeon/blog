@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트`
+- `P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인`
 
 최근 완료 작업
+- `P0-028-DEP-3 Tunnel 기준 HTTPS 강제 + 리다이렉트` 완료
+- 완료 범위
+  - `cloudflared`의 `media.s-nowk.com`도 `nginx`를 통하도록 정리해서 공개 host의 redirect 책임을 `nginx`로 일원화
+  - `nginx`에서 `CF-Visitor`/`X-Forwarded-Proto` 기준 `http -> https` redirect 적용
+  - 외부 기준 `http://s-nowk.com`, `http://stock.s-nowk.com`, `http://media.s-nowk.com`, `http://blog.s-nowk.com`, `http://www.s-nowk.com`이 모두 `301 https://...`로 전환되는 것 확인
+  - `https://s-nowk.com/media/assets/{mediaAssetId}/content`가 계속 `200`으로 응답하는 것 확인
 - `P0-027-DNS-1 Cloudflare DNS 연결(CNAME to Tunnel) + Proxy 정책 확정` 완료
 - 완료 범위
   - 실제 Cloudflare DNS record가 `A 레코드`가 아니라 proxied `CNAME -> 539fabab-e780-4e48-94e3-0ca7c24f1d42.cfargotunnel.com` 기준임을 API로 확인
@@ -103,22 +109,21 @@
 - `blog.s-nowk.com`과 `www.s-nowk.com`은 대표 주소 `https://s-nowk.com`으로 리다이렉트된다.
 - `media.s-nowk.com/api/*`는 media admin/public API origin으로 유지하고, 공개 asset URL만 `https://s-nowk.com/media/*`로 통일했다.
 - 외부 기준 `https://s-nowk.com/media/assets/{mediaAssetId}/content`는 실제 media content를 내려주고 있다.
-- `http://s-nowk.com`은 아직 `200`으로 응답하므로, 다음 단계에서 Tunnel/Cloudflare 기준 `http -> https` 강제가 필요하다.
+- `http://s-nowk.com`, `http://stock.s-nowk.com`, `http://media.s-nowk.com`, `http://blog.s-nowk.com`, `http://www.s-nowk.com`은 모두 `https://...`로 리다이렉트된다.
 
 현재 확정 범위
-- 현재 범위는 `P0-028-DEP-3`, 즉 Tunnel 기준으로 공개 host의 `http -> https` 강제와 canonical host redirect를 닫는 것이다.
-- 이번 단계의 목표는 Cloudflare/Tunnel이 전달하는 scheme header를 기준으로 `s-nowk`, `stock`, `portainer`의 HTTP 요청을 HTTPS로 올리고 외부 응답을 검증하는 것이다.
-- `LE`나 `Cloudflare Origin` 기반 direct origin HTTPS는 현재 공인 IP 변동성 때문에 1차 범위에서 제외하고, Tunnel edge HTTPS를 유지하는 방향으로 정리한다.
+- 현재 범위는 `P0-029-OPS-1`, 즉 외부 공개 포트와 내부 서비스 포트가 의도대로 닫혀 있는지 다시 확인하는 것이다.
+- `LE`나 `Cloudflare Origin` 기반 direct origin HTTPS는 현재 공인 IP 변동성 때문에 1차 범위에서 제외하고, Tunnel edge HTTPS를 유지하는 방향으로 계속 간다.
 
 세부 단계
-- [ ] HTTPS-01 Tunnel 기준 HTTPS/redirect 정리
-  - [ ] HTTPS-01-1 Cloudflare/Tunnel 경유 요청의 scheme 전달 헤더 기준 확인
-  - [ ] HTTPS-01-2 `http -> https`와 canonical host redirect 적용
-  - [ ] HTTPS-01-3 외부 `curl` 기준으로 redirect/HTTPS 응답 재검증
-- [ ] DEPLOY-05 검증 및 문서 반영
-  - [ ] DEPLOY-05-1 `nginx`, `cloudflared`, `blog_web`, `media-api` 상태 재검증
-  - [ ] DEPLOY-05-2 `README`, `WORK_PROGRESS` 완료 상태 반영
-  - [ ] DEPLOY-05-3 다음 시작 지점을 `P0-029-OPS-1`로 전환
+- [ ] OPS-01 공개 포트와 내부 포트 점검
+  - [ ] OPS-01-1 외부 공개 진입 포트와 Cloudflare/Tunnel 경로 정리
+  - [ ] OPS-01-2 DB/내부 서비스 포트가 외부에 직접 노출되지 않는지 확인
+  - [ ] OPS-01-3 운영 기준 문서 반영
+- [ ] OPS-02 최소 백업 기준 확인
+  - [ ] OPS-02-1 blog DB dump 경로와 media 볼륨 백업 기준 정리
+  - [ ] OPS-02-2 수동 복구 가능 기준 확인
+  - [ ] OPS-02-3 다음 시작 지점을 `P0-031-E2E-1`로 전환
 
 계획 메모
 - 현재 운영은 direct origin 노출이 아니라 Cloudflare Tunnel edge가 공개 진입점이다.
@@ -127,5 +132,5 @@
 - `/media` 공개 경로는 대표 도메인 아래에 유지하되, media admin/public API origin은 `media.s-nowk.com/api/*`로 분리해도 괜찮다.
 
 다음 시작 지점
-- `HTTPS-01-1`
-- 다음 구현은 Cloudflare/Tunnel이 전달하는 scheme header를 확인하고 `http -> https` redirect를 실제로 적용하는 것이다.
+- `OPS-01-1`
+- 다음 구현은 Cloudflare/Tunnel 공개 진입과 내부 서비스 포트 노출 범위를 다시 점검하는 것이다.
