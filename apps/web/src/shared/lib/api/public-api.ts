@@ -1,6 +1,6 @@
 import "server-only";
 
-import { runtimeConfig } from "@/src/shared/config/runtime";
+import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
 
 export interface PublicProjectListItem {
   projectId: number;
@@ -65,7 +65,7 @@ interface RequestPublicApiJsonOptions {
 }
 
 function toBackendApiUrl(path: string, searchParams?: URLSearchParams) {
-  const normalizedBaseUrl = runtimeConfig.apiBaseUrl.replace(/\/$/, "");
+  const normalizedBaseUrl = serverRuntimeConfig.blogApiBaseUrl;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const queryString = searchParams?.toString();
 

@@ -77,18 +77,14 @@ services:
       context: ../../apps/web
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
-        NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
-        NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-http://localhost:8082/api/public/media}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     container_name: blog_web
     depends_on:
       blog_api:
         condition: service_healthy
     environment:
-      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080/api}
-      NEXT_PUBLIC_MEDIA_API_BASE_URL: ${NEXT_PUBLIC_MEDIA_API_BASE_URL:-http://localhost:8082/api}
-      NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL: ${NEXT_PUBLIC_MEDIA_PUBLIC_BASE_URL:-http://localhost:8082/api/public/media}
+      BLOG_API_BASE_URL: ${BLOG_API_BASE_URL:-http://blog_api:8080/api}
+      MEDIA_API_BASE_URL: ${MEDIA_API_BASE_URL:-http://host.docker.internal:8082/api}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       NODE_ENV: production
     expose:

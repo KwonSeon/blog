@@ -3,11 +3,6 @@ import type {
   AdminPostStatus,
   AdminPostVisibility,
 } from "@/src/entities/post";
-import { runtimeConfig } from "@/src/shared/config/runtime";
-import {
-  clearAdminSession,
-  getValidAdminSession,
-} from "@/src/shared/lib/auth/admin-session";
 
 interface ErrorResponse {
   message?: string;
@@ -34,22 +29,11 @@ export interface AdminPostUpdateInput {
   coverMediaAssetId?: number;
 }
 
-function toApiUrl(path: string) {
-  return `${runtimeConfig.apiBaseUrl.replace(/\/$/, "")}${path}`;
-}
-
 async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
-  const session = getValidAdminSession();
-
-  if (!session) {
-    throw new Error("관리자 인증이 필요합니다. 다시 로그인하세요.");
-  }
-
-  const response = await fetch(toApiUrl(path), {
+  const response = await fetch(`/admin/api${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
       ...(init.headers ?? {}),
     },
     cache: "no-store",
@@ -58,7 +42,6 @@ async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
   const data = (await response.json().catch(() => null)) as T | ErrorResponse | null;
 
   if (response.status === 401 || response.status === 403) {
-    clearAdminSession();
     throw new Error("관리자 인증이 만료됐습니다. 다시 로그인하세요.");
   }
 

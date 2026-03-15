@@ -1,9 +1,3 @@
-import { runtimeConfig } from "@/src/shared/config/runtime";
-import {
-  clearAdminSession,
-  getValidAdminSession,
-} from "@/src/shared/lib/auth/admin-session";
-
 interface ErrorResponse {
   message?: string;
 }
@@ -57,28 +51,13 @@ interface UploadFileToPresignedUrlInput {
   onProgress?: (percent: number) => void;
 }
 
-function toMediaApiUrl(path: string) {
-  return `${runtimeConfig.mediaApiBaseUrl.replace(/\/$/, "")}${path}`;
-}
-
-function toMediaPublicUrl(path: string) {
-  return `${runtimeConfig.mediaPublicBaseUrl.replace(/\/$/, "")}${path}`;
-}
-
 async function requestAdminMediaApi<T>(
   path: string,
   init: RequestInit,
 ): Promise<T> {
-  const session = getValidAdminSession();
-
-  if (!session) {
-    throw new Error("관리자 인증이 필요합니다. 다시 로그인하세요.");
-  }
-
-  const response = await fetch(toMediaApiUrl(path), {
+  const response = await fetch(`/admin/api/media${path}`, {
     ...init,
     headers: {
-      Authorization: `Bearer ${session.accessToken}`,
       ...(init.headers ?? {}),
     },
     cache: "no-store",
@@ -87,7 +66,6 @@ async function requestAdminMediaApi<T>(
   const data = (await response.json().catch(() => null)) as T | ErrorResponse | null;
 
   if (response.status === 401 || response.status === 403) {
-    clearAdminSession();
     throw new Error("관리자 인증이 만료됐습니다. 다시 로그인하세요.");
   }
 
@@ -129,7 +107,7 @@ export function completeAdminMediaUpload(input: AdminMediaUploadCompleteInput) {
 }
 
 export function buildPublicMediaContentUrl(mediaAssetId: number) {
-  return toMediaPublicUrl(`/assets/${mediaAssetId}/content`);
+  return `/media/assets/${mediaAssetId}/content`;
 }
 
 export function uploadFileToPresignedUrl({
