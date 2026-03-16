@@ -220,7 +220,7 @@ if [[ "$MEDIA_STATUS" != "200" ]]; then
 fi
 
 PUBLIC_POST_URL="$APP_BASE_URL/posts/$POST_SLUG"
-PUBLIC_LIST_URL="$APP_BASE_URL/posts?q=$POST_SLUG"
+PUBLIC_LIST_URL="$APP_BASE_URL/posts"
 
 for attempt in $(seq 1 10); do
   curl -sS "$PUBLIC_POST_URL" -o "$TMP_DIR/public-post.html"
