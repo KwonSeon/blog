@@ -44,6 +44,7 @@ Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배
 - `https://s-nowk.com/media/*`: media public content
 - `https://blog.s-nowk.com`: `https://s-nowk.com`으로 리다이렉트
 - `https://media.s-nowk.com/api/*`: media admin/public API origin
+- `https://media.s-nowk.com/media-assets/*`: presigned upload가 붙는 MinIO public upload path
 - 공용 edge(`nginx`, `cloudflared`)는 루트 `s-nowk/infra`, blog 앱/DB compose는 `blog/infra/compose`에서 분리 운영
 - 공개 DNS는 공인 IP `A`가 아니라 Cloudflare Tunnel target `CNAME + Proxy` 기준으로 유지한다.
 - `cloudflared`는 edge network의 `nginx:80`으로 직접 연결하고, host의 `8080`은 loopback debug/origin 포트로만 둔다.
@@ -153,7 +154,7 @@ Deploy
 Ops
 - [x] P0-029-OPS-1 포트포워딩/방화벽(80/443만) + 내부 포트 차단 확인
 - [x] P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)
-- [ ] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
+- [x] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
 
 Backend
 - [ ] P1-001-AUTH-1 회원가입/로그인(일반 사용자) API + USER 권한 모델 + refresh/cookie 기준 정리

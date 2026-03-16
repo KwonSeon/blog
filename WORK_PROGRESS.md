@@ -10,9 +10,15 @@
 - application 계층 작업은 가능하면 `query -> result -> usecase method` 순서로 기록한다.
 
 현재 작업 주제
-- `P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)`
+- `P1-001-AUTH-1 회원가입/로그인(일반 사용자) API + USER 권한 모델 + refresh/cookie 기준 정리`
 
 최근 완료 작업
+- `P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)` 완료
+- 완료 범위
+  - `infra/scripts/e2e-publish-flow.sh` 기준으로 외부 `https://s-nowk.com` 경로에서 관리자 로그인, presign upload, complete, 글 작성, 발행, 공개 화면 확인까지 한 번에 검증
+  - `blog` admin presign proxy가 내부 `minio` host를 그대로 노출하지 않도록 `https://media.s-nowk.com/media-assets/*` 기준으로 rewrite
+  - root `nginx`에서 `media.s-nowk.com/api/* -> media-api`, `media.s-nowk.com/media-assets/* -> MinIO`로 분리
+  - 임시 관리자 계정, 임시 글, 임시 media asset까지 cleanup되는 것 확인
 - `P0-030-OPS-2 백업 최소 적용(DB 덤프 + MinIO 볼륨)` 완료
 - 완료 범위
   - `infra/scripts/backup-blog-db.sh`로 `mysql_blog` 기준 SQL dump + gzip + sha256 생성 경로 정리
@@ -132,9 +138,12 @@
   - `infra/scripts/backup-blog-db.sh -> infra/backups/blog-db`
   - `infra/scripts/backup-media-storage.sh -> infra/backups/media-storage`
 - 최근 실행 기준으로 blog DB dump와 media storage archive는 모두 checksum 검증이 통과했다.
+- 외부 E2E 기준 `login -> upload -> complete -> create draft -> publish -> public post -> public list`가 모두 성공했다.
+- presigned upload URL은 더 이상 내부 `minio` host가 아니라 `https://media.s-nowk.com/media-assets/*` 기준으로 응답한다.
+- E2E 종료 후 임시 관리자 계정과 임시 공개 글은 DB에 남지 않는다.
 
 현재 확정 범위
-- 현재 범위는 `P0-031-E2E-1`, 즉 외부 기준으로 관리자 로그인부터 작성, 발행, 이미지 업로드, 공개 확인까지 한 번에 검증하는 것이다.
+- 현재 범위는 `P1-001-AUTH-1`, 즉 일반 사용자 인증 모델과 refresh/cookie 기준을 정리하는 것이다.
 - `LE`나 `Cloudflare Origin` 기반 direct origin HTTPS는 현재 공인 IP 변동성 때문에 1차 범위에서 제외하고, Tunnel edge HTTPS를 유지하는 방향으로 계속 간다.
 
 세부 단계
@@ -146,10 +155,10 @@
   - [x] OPS-02-1 blog DB dump 경로와 media 볼륨 백업 기준 정리
   - [x] OPS-02-2 수동 복구 가능 기준 확인
   - [x] OPS-02-3 다음 시작 지점을 `P0-031-E2E-1`로 전환
-- [ ] E2E-01 외부 환경 작성/발행/업로드/공개 검증
-  - [ ] E2E-01-1 관리자 로그인과 작성 경로 검증
-  - [ ] E2E-01-2 이미지 업로드와 발행 경로 검증
-  - [ ] E2E-01-3 공개 화면 반영과 정리 기준 확인
+- [x] E2E-01 외부 환경 작성/발행/업로드/공개 검증
+  - [x] E2E-01-1 관리자 로그인과 작성 경로 검증
+  - [x] E2E-01-2 이미지 업로드와 발행 경로 검증
+  - [x] E2E-01-3 공개 화면 반영과 정리 기준 확인
 
 계획 메모
 - 현재 운영은 direct origin 노출이 아니라 Cloudflare Tunnel edge가 공개 진입점이다.
@@ -159,5 +168,5 @@
 - `P0-031`은 실제 브라우저 대신 cookie jar와 HTTP 호출 기준으로 관리자 로그인, 글 작성, 발행, 업로드, 공개 반영을 확인해도 된다.
 
 다음 시작 지점
-- `E2E-01-1`
-- 다음 구현은 외부 기준 관리자 로그인과 작성 경로를 먼저 확인하는 것이다.
+- `AUTH-01-1`
+- 다음 구현은 일반 사용자 회원가입/로그인 모델과 refresh/cookie 기준을 먼저 정리하는 것이다.
