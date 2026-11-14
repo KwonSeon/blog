@@ -54,7 +54,7 @@ export function buildPublicMetadata({
     alternates: {
       canonical: path,
     },
-    robots,
+    robots: new URL(siteConfig.url).hostname.startsWith("blog-dev.") ? {index:false,follow:true} : robots,
     openGraph: {
       title: `${title} | ${siteConfig.name}`,
       description,
