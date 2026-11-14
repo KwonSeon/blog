@@ -1,3 +1,12 @@
+# 2026-11-14 external notifications completed; next: real-time chat
+
+- P2-005 optional Telegram delivery and P2-006 Kakao decision deployed dev then main at `d68c3a5`. CI dev43587869405/main43588223295 succeeded. API236/web14 tests and lint/build passed.
+- Development browser verified default-off status, unconfigured activation400, member/anonymous denial, cross-origin403, retry recovery, mobile390px no overflow. Configured start/stop/consent UI was tested with browser-local mock responses, then restored; no live messages sent. Synthetic editor logged out.
+- V10 applied to dev/production after verified backups. Both remain disabled with queue0. Real MySQL guard contention serialized. Live Telegram credentials, recipient consent and actual delivery roundtrip remain unconfigured/unverified.
+- Production availability182/182 passed, covering the switch. Initial memory gates blocked before changes; only dev app containers were paused about60seconds and restored healthy. Development recreate also briefly returned502 before readiness; no zero-downtime claim for dev.
+- Private production retention fix: repeated reused API references now use the latest drain time only; 17 controller tests passed. Active/immediate rollback remain protected. Infrastructure and credentials remain outside Git.
+- Next ordered implementation: P2-007..010 real-time chat (server, persistence, authenticated protocol/history, UI). Not implemented by this notification release.
+
 # 2026-11-14 roadmap: external notifications
 
 - P2-001..004 deployed dev/main at `7b68c07`. API220/web14 tests and lint/build passed. V9 applied dev then production after verified backups. Real MySQL uniqueness/check/cascade probes passed; browser two-account owner/reply notifications, five concurrent replays→one alert, read/read-all, other-owner404, anonymous401, cross-origin403, private-content hiding and mobile layout passed. Synthetic post/comments/notifications removed; logged out. Production switch120/120 requests succeeded.
