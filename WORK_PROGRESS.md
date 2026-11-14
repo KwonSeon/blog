@@ -1,3 +1,10 @@
+# 2026-11-14 roadmap: external notifications
+
+- P2-001..004 deployed dev/main at `7b68c07`. API220/web14 tests and lint/build passed. V9 applied dev then production after verified backups. Real MySQL uniqueness/check/cascade probes passed; browser two-account owner/reply notifications, five concurrent replays→one alert, read/read-all, other-owner404, anonymous401, cross-origin403, private-content hiding and mobile layout passed. Synthetic post/comments/notifications removed; logged out. Production switch120/120 requests succeeded.
+- P2-005/006 implementation: optional Telegram delivery preparation with explicit enablement and reviewed recipient bindings; Kakao official prerequisites/decision. Neither environment has Telegram/BizMessage credentials. No external message, paid broadcast, subscription or business account registration is authorized or attempted by this implementation work. Live activation remains dependent on configured/consenting recipients.
+
+- Validation: API236 tests, web14 tests/lint/build passed. Dev V10 applied after verified backup `20261114T105851Z-d973878d`; default off and queue0. Two real MySQL guard transactions serialized. Telegram HTTP is mocked; no real sends. Admin browser QA and dev/main rollout follow.
+
 # 2026-11-14 roadmap: member notifications
 
 - P1-025 + requested Astryx skeletons deployed dev/main at `a7a949d`; lint/build/web14 tests, all five slow-response route transitions, reduced motion, mobile/desktop no overflow, retry recovery and visibility checks passed. Production switch90/90 requests succeeded; API reused, web replaced. Temporary QA servers stopped and fixture removed.

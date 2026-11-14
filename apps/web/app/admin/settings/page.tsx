@@ -18,6 +18,7 @@ export default async function Settings() {
         적용됩니다.
       </p>
       <p className="mb-6"><a className="underline" href="/admin/monetization">광고 준비 상태 확인</a></p>
+      <p className="mb-6"><a className="underline" href="/admin/notifications">외부 알림 설정</a></p>
       <BlogSettingsEditor initial={settings} />
     </Container>
   );

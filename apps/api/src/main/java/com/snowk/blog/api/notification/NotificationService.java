@@ -5,6 +5,7 @@ import com.snowk.blog.api.global.exception.BaseException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class NotificationService {
     // Synchronous domain subscriber: inbox insertion commits/rolls back with the comment.
     // MANDATORY prevents an accidental untransactional publisher from creating partial state.
     @EventListener
+    @Order(0)
     @Transactional(propagation = Propagation.MANDATORY)
     public void onComment(CommentCreated event) {
         var rows =

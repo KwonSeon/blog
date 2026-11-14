@@ -222,20 +222,20 @@ Frontend
 - [x] P1-025-PERF-1 성능/UX 개선
 
 DB
-- [ ] P2-001-NOTIF-1 알림 테이블/인덱스 설계 + 마이그레이션
+- [x] P2-001-NOTIF-1 알림 테이블/인덱스 설계 + 마이그레이션
 
 Backend
-- [ ] P2-002-NOTIF-2 도메인 이벤트 발행/구독 구조
-- [ ] P2-003-NOTIF-3 알림 API 구현
+- [x] P2-002-NOTIF-2 도메인 이벤트 발행/구독 구조
+- [x] P2-003-NOTIF-3 알림 API 구현
 
 Frontend
-- [ ] P2-004-NOTIF-4 알림함 UI
+- [x] P2-004-NOTIF-4 알림함 UI
 
 Backend
-- [ ] P2-005-EXT-1 텔레그램 봇 연동
+- [x] P2-005-EXT-1 텔레그램 봇 연동 (선택적 발송 구현; 실제 봇/동의 계정 연결·실발송 검증은 미완료)
 
 Ops
-- [ ] P2-006-EXT-2 카카오 알림 연동 조사/대안 결정
+- [x] P2-006-EXT-2 카카오 알림 연동 조사/대안 결정 — [연동·운영 기준](docs/EXTERNAL-NOTIFICATIONS.md)
 
 Backend
 - [ ] P2-007-CHAT-1 WebSocket/STOMP 서버 설정
