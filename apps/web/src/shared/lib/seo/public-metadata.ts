@@ -15,6 +15,7 @@ interface BuildPublicMetadataInput {
   modifiedTime?: string;
   section?: string;
   tags?: string[];
+  image?: string;
 }
 
 function buildAbsoluteUrl(path: string) {
@@ -37,6 +38,7 @@ export function buildPublicMetadata({
   modifiedTime,
   section,
   tags,
+  image,
 }: BuildPublicMetadataInput): Metadata {
   const resolvedAuthors = authors?.length ? authors : [siteConfig.author.name];
   const resolvedKeywords = dedupeKeywords([
@@ -60,6 +62,7 @@ export function buildPublicMetadata({
       siteName: siteConfig.name,
       locale: siteConfig.seo.locale,
       type,
+      ...(image ? {images:[buildAbsoluteUrl(image)]} : {}),
       ...(type === "article"
         ? {
             authors: resolvedAuthors,
@@ -67,11 +70,13 @@ export function buildPublicMetadata({
             modifiedTime,
             section,
             tags,
+  image,
           }
         : {}),
     },
     twitter: {
-      card: "summary",
+      card: image ? "summary_large_image" : "summary",
+      ...(image ? {images:[buildAbsoluteUrl(image)]} : {}),
       title: `${title} | ${siteConfig.name}`,
       description,
     },

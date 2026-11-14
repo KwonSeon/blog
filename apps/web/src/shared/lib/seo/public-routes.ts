@@ -1,16 +1,16 @@
 import { getPublicRouteInventory } from "@/src/shared/lib/api/public-page-data";
 
-export const STATIC_PUBLIC_PATHS = ["/", "/projects", "/posts"] as const;
+export const STATIC_PUBLIC_PATHS = ["/", "/projects", "/posts", "/subscribe", "/privacy"] as const;
 export const DISALLOWED_ROBOTS_PATHS = ["/admin", "/api/admin", "/proxy"] as const;
 
-const PROJECT_ROUTE_LAST_MODIFIED = "2026-03-14T00:00:00+09:00";
+
 
 export async function getPublicProjectPaths() {
   const { projects } = await getPublicRouteInventory();
 
   return projects.map((project) => ({
     path: `/projects/${project.slug}`,
-    lastModified: project.publishedAt ?? PROJECT_ROUTE_LAST_MODIFIED,
+    lastModified: project.publishedAt ?? undefined,
   }));
 }
 
@@ -19,7 +19,7 @@ export async function getPublicPostPaths() {
 
   return posts.map((post) => ({
     path: `/posts/${post.slug}`,
-    lastModified: post.publishedAt ?? post.updatedAt,
+    lastModified: post.updatedAt ?? post.publishedAt,
   }));
 }
 
@@ -32,15 +32,17 @@ export async function getStaticPublicPathEntries() {
   return [
     {
       path: "/",
-      lastModified: latestPost ?? PROJECT_ROUTE_LAST_MODIFIED,
+      lastModified: latestPost,
     },
     {
       path: "/projects",
-      lastModified: PROJECT_ROUTE_LAST_MODIFIED,
+      lastModified: undefined,
     },
     {
       path: "/posts",
-      lastModified: latestPost ?? PROJECT_ROUTE_LAST_MODIFIED,
+      lastModified: latestPost,
     },
+    {path:"/subscribe", lastModified:"2026-11-14T00:00:00Z"},
+    {path:"/privacy", lastModified:"2026-11-14T00:00:00Z"},
   ];
 }

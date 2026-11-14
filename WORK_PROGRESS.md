@@ -1,3 +1,9 @@
+# 2026-11-14 roadmap: structured data
+
+- Search P1-017..019 deployed to dev/main at `4b145d3`. 209 API tests, 8 web tests, lint/build passed. Real MySQL FULLTEXT plan verified; ngram boolean phrases avoid unrelated partial-token matches. Browser checks covered English/Korean relevance, public/draft filters, 100-row bound, literal wildcard and empty results, and invalid query 400. Removed all 107 synthetic fixtures.
+- Search production switch monitoring: 42 HTTP requests, zero failures. V8 applied after verified backups; no runtime credentials entered Git.
+- Current topic P1-020: truthful BlogPosting/WebSite/Breadcrumb structured data, safe JSON-LD serialization and canonical/sitemap consistency. Public content only; no invented ratings, authors, dates or images.
+
 # 2026-11-14 roadmap: search
 
 - Email subscriptions P1-014..016 deployed to dev and main at `cf49faa`. 205 API tests, 8 web tests, lint/build passed. Browser double opt-in, captured new-post mail, unsubscribe/address removal and mobile layout passed. Eight concurrent real MySQL requests queued exactly one mail; synthetic data and captured mail were removed.

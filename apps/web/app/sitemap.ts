@@ -1,3 +1,4 @@
+import { utcDate } from "@/src/shared/lib/seo/structured-data";
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/src/shared/config/site";
 import {
@@ -24,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = staticPathEntries.map(
     (entry) => ({
       url: toAbsoluteUrl(entry.path),
-      lastModified: new Date(entry.lastModified),
+      lastModified: utcDate(entry.lastModified) ? new Date(utcDate(entry.lastModified)!) : undefined,
       changeFrequency:
         entry.path === "/" ? "daily" : entry.path === "/posts" ? "daily" : "weekly",
       priority:
@@ -34,14 +35,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const projectEntries: MetadataRoute.Sitemap = projectPathEntries.map((entry) => ({
     url: toAbsoluteUrl(entry.path),
-    lastModified: new Date(entry.lastModified),
+    lastModified: utcDate(entry.lastModified) ? new Date(utcDate(entry.lastModified)!) : undefined,
     changeFrequency: "weekly",
     priority: 0.8,
   }));
 
   const postEntries: MetadataRoute.Sitemap = postPathEntries.map((entry) => ({
     url: toAbsoluteUrl(entry.path),
-    lastModified: new Date(entry.lastModified),
+    lastModified: utcDate(entry.lastModified) ? new Date(utcDate(entry.lastModified)!) : undefined,
     changeFrequency: "monthly",
     priority: 0.76,
   }));

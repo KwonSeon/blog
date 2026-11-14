@@ -1,3 +1,8 @@
+import { Breadcrumbs } from "@/src/shared/ui/breadcrumbs";
+import { JsonLd } from "@/src/shared/ui/json-ld";
+import { siteConfig } from "@/src/shared/config/site";
+import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
+import { absolutePublicUrl } from "@/src/shared/lib/seo/structured-data";
 import { ContentComments } from "@/src/widgets/content-comments";
 import { ContentViews } from "@/src/widgets/content-views";
 import { ContentLike } from "@/src/widgets/content-like";
@@ -15,10 +20,8 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const data = await getProjectDetailPageData(slug);
-  return {
-    title: data?.project.title ?? "프로젝트",
-    description: data?.project.description,
-  };
+  if (!data) return {title:"프로젝트를 찾을 수 없음",robots:{index:false,follow:false}};
+  return buildPublicMetadata({title:data.project.title,description:data.project.description,path:`/projects/${slug}`,image:data.project.coverImage});
 }
 export default async function Detail({
   params,
@@ -38,6 +41,8 @@ export default async function Detail({
   const story = (await storyResponse.json()) as { contentMd: string };
   return (
     <Container className="py-16">
+      <Breadcrumbs items={[{name:"홈",path:"/"},{name:"프로젝트",path:"/projects"},{name:project.title,path:`/projects/${slug}`}]} />
+      <JsonLd data={{"@context":"https://schema.org","@type":"WebPage",url:absolutePublicUrl(siteConfig.url,`/projects/${slug}`),name:project.title,description:project.description,about:{"@type":"CreativeWork",name:project.title,description:project.description,...(project.demoUrl?{url:project.demoUrl}:{}),...(project.repoUrl?{sameAs:project.repoUrl}:{})}}} />
       <ProjectDetailHero project={project} />
       <div className="mt-12 grid gap-6 md:grid-cols-2">
         <SurfaceCard padding="lg">

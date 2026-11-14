@@ -10,6 +10,7 @@ export interface Post {
   category: PostCategory;
   tags: string[];
   publishedAt: string;
+  updatedAt?: string;
   readingTime: string;
   coverUrl?: string;
   relatedProjectSlug?: string;

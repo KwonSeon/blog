@@ -203,11 +203,11 @@ Backend
 - [x] P1-016-SUB-3 새 글 발행 메일 발송
 
 DB
-- [ ] P1-017-SEARCH-1 FULLTEXT 인덱스 + 마이그레이션
+- [x] P1-017-SEARCH-1 FULLTEXT 인덱스 + 마이그레이션
 
 Backend
-- [ ] P1-018-SEARCH-2 검색 API 개선
-- [ ] P1-019-SEARCH-3 검색 로그 저장
+- [x] P1-018-SEARCH-2 검색 API 개선
+- [x] P1-019-SEARCH-3 검색 로그 저장
 
 Frontend
 - [ ] P1-020-SEO-3 구조화 데이터 적용

@@ -109,9 +109,7 @@ export async function getPostDetailPageData(slug: string) {
 export async function getPublicRouteInventory() {
   const [projectResponse, postResponse] = await Promise.all([
     listPublicProjects(),
-    listPublicPosts({
-      lang: "ko",
-    }),
+    listPublicPosts(),
   ]);
 
   return {

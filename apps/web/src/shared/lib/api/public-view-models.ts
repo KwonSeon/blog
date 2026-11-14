@@ -130,6 +130,7 @@ export function toPostListViewModel(post: PublicPostListItem): Post {
     category: DEFAULT_POST_CATEGORY,
     tags: buildPostTags(post),
     publishedAt,
+    updatedAt: post.updatedAt,
     readingTime: formatReadingTime(`${post.title} ${post.excerpt}`),
   };
 }
@@ -147,6 +148,7 @@ export function toPostDetailViewModel(post: PublicPostDetail): PostDetail {
     category: DEFAULT_POST_CATEGORY,
     tags: buildPostTags(post),
     publishedAt,
+    updatedAt: post.updatedAt,
     readingTime: formatReadingTime(
       `${post.title} ${post.excerpt} ${post.contentMd}`,
     ),
