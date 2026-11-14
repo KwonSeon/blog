@@ -74,6 +74,15 @@ public class CommentService {
                 .isEmpty()) throw error(CommonErrorStatus.RESOURCE_NOT_FOUND);
     }
 
+    // JDBC drivers return DATETIME/DATE as either java.time or legacy java.sql types.
+    static LocalDateTime dateTime(Object value) {
+        return value instanceof LocalDateTime local ? local : ((Timestamp) value).toLocalDateTime();
+    }
+
+    static LocalDate date(Object value) {
+        return value instanceof LocalDate local ? local : ((java.sql.Date) value).toLocalDate();
+    }
+
     private Item item(Map<String, Object> r, List<String> subjects, boolean editor) {
         boolean deleted = r.get("deleted_at") != null,
                 owner = subjects.contains(r.get("identity_subject").toString());
@@ -83,10 +92,7 @@ public class CommentService {
                 ((Number) r.get("depth")).intValue(),
                 deleted ? "삭제된 댓글" : r.get("display_name").toString(),
                 deleted ? "" : r.get("body").toString(),
-                ((Timestamp) r.get("created_at"))
-                        .toLocalDateTime()
-                        .toInstant(ZoneOffset.UTC)
-                        .toString(),
+                dateTime(r.get("created_at")).toInstant(ZoneOffset.UTC).toString(),
                 deleted,
                 !deleted && owner,
                 !deleted && (owner || editor));
@@ -157,7 +163,7 @@ public class CommentService {
                 now.toLocalDate());
         jdbc.queryForList(
                 "SELECT identity_subject FROM comment_rate_limits WHERE identity_subject=? FOR"
-                    + " UPDATE",
+                        + " UPDATE",
                 subject);
     }
 
@@ -166,9 +172,9 @@ public class CommentService {
                 jdbc.queryForMap(
                         "SELECT * FROM comment_rate_limits WHERE identity_subject=?", subject);
         LocalDateTime now = LocalDateTime.now(clock),
-                last = ((Timestamp) r.get("last_write")).toLocalDateTime(),
-                minute = ((Timestamp) r.get("minute_start")).toLocalDateTime();
-        var day = ((java.sql.Date) r.get("day_start")).toLocalDate();
+                last = dateTime(r.get("last_write")),
+                minute = dateTime(r.get("minute_start"));
+        var day = date(r.get("day_start"));
         int minuteCount = ((Number) r.get("minute_count")).intValue(),
                 dayCount = ((Number) r.get("day_count")).intValue();
         if (now.isBefore(last.plusSeconds(3))) throw error(CommonErrorStatus.TOO_MANY_REQUESTS);
@@ -305,7 +311,7 @@ public class CommentService {
         if (r.get("deleted_at") == null)
             jdbc.update(
                     "UPDATE comments SET body='',display_name='',deleted_at=?,updated_at=? WHERE"
-                        + " comment_id=?",
+                            + " comment_id=?",
                     LocalDateTime.now(clock),
                     LocalDateTime.now(clock),
                     comment);
