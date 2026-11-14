@@ -10,6 +10,14 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 class SearchDiagnosticsTest {
     @Test
+    void requiresContiguousTermsAndDoesNotForwardSearchOperators() {
+        assertEquals("+\"한국어\" +\"Spring\"", SearchTerms.booleanPhrase("한국어 Spring"));
+        assertEquals("+\"hello\"", SearchTerms.booleanPhrase("+hello* -"));
+        assertEquals("", SearchTerms.booleanPhrase("%"));
+        assertEquals("", SearchTerms.booleanPhrase("a"));
+    }
+
+    @Test
     void validatesSearchInputWithoutTreatingWildcardsAsSyntax() {
         assertThrows(RuntimeException.class, () -> new ListPublicPostsQuery("a".repeat(81), null));
         assertThrows(RuntimeException.class, () -> new ListPublicPostsQuery("hello\nworld", null));
@@ -27,9 +35,9 @@ class SearchDiagnosticsTest {
                                 ""));
         db.execute(
                 "CREATE TABLE search_daily_stats(search_day DATE,language_bucket"
-                    + " VARCHAR(8),length_bucket VARCHAR(8),result_bucket VARCHAR(8),requests"
-                    + " BIGINT,PRIMARY"
-                    + " KEY(search_day,language_bucket,length_bucket,result_bucket))");
+                        + " VARCHAR(8),length_bucket VARCHAR(8),result_bucket VARCHAR(8),requests"
+                        + " BIGINT,PRIMARY"
+                        + " KEY(search_day,language_bucket,length_bucket,result_bucket))");
         var service = new SearchDiagnostics(db, true);
         service.record(new ListPublicPostsQuery("private@example.test", "ko"), 0);
         service.record(new ListPublicPostsQuery("different@other.test", "ko"), 0);

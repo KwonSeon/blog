@@ -52,11 +52,12 @@ public class PostPublicQueryRepositoryImpl implements PostPublicQueryRepository 
 
     @SuppressWarnings("unchecked")
     private List<Post> indexed(ListPublicPostsQuery query) {
+        String filter = com.snowk.blog.api.search.SearchTerms.booleanPhrase(query.q());
+        if (filter.isEmpty()) return List.of();
         String score = "MATCH(title,excerpt,content_md) AGAINST(:term IN NATURAL LANGUAGE MODE)";
         String sql =
                 "SELECT * FROM posts WHERE visibility='PUBLIC' AND status='PUBLISHED' AND "
-                        + score
-                        + ">0"
+                        + "MATCH(title,excerpt,content_md) AGAINST(:filter IN BOOLEAN MODE)>0"
                         + (query.hasLang() ? " AND lang=:lang" : "")
                         + " ORDER BY "
                         + score
@@ -65,6 +66,7 @@ public class PostPublicQueryRepositoryImpl implements PostPublicQueryRepository 
                 entityManager
                         .createNativeQuery(sql, Post.class)
                         .setParameter("term", query.q())
+                        .setParameter("filter", filter)
                         .setMaxResults(100);
         if (query.hasLang()) nativeQuery.setParameter("lang", query.lang());
         return nativeQuery.getResultList();
