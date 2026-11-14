@@ -1,3 +1,10 @@
+# 2026-11-14 roadmap: comments
+
+- Views P1-006/007/008 completed through dev/main/production at `3d236c7`; 182 API tests and browser dedup/privacy checks passed, deployment monitoring 36/36 requests succeeded.
+- Current scope P1-009..013: adjacency-based replies without a product depth limit, flat keyset pagination assembled into a tree without recursive API queries, authenticated writes, owner edits and owner/editor soft deletion.
+- Abuse controls: database-serialized per-member write budgets, short write spacing, duplicate-text rejection, bounded plain text and idempotent create keys. Signed Identity aliases retain ownership; public responses never reveal account subjects.
+- Feature branch `feature/roadmap-comments`; tests and dev rollout precede main promotion.
+
 # 2026-11-14 roadmap: content views
 
 - Likes (P1-003/004/005): dev and main CI passed; production `8670ab3` deployed. Synthetic member browser checks covered save/cancel/refresh, 8 concurrent requests, private/draft rejection and 390px layout. Test likes were removed.

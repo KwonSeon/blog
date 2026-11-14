@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum CommonErrorStatus implements ErrorCode {
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, "COMMON429", "잠시 후 다시 작성해 주세요."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "허용되지 않은 요청입니다."),
     SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "COMMON503", "일시적으로 사용할 수 없습니다."),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),

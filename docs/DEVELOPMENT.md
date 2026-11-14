@@ -100,3 +100,12 @@ The browser uses /api/community/reactions through a no-store, same-origin BFF. P
 - V5 adds independent post/project deduplication tables. Parent row locks serialize duplicates and deletion/publication races, lifetime `view_count` increments atomically and `updated_at` stays unchanged. Hourly retention deletes keys older than yesterday; lifetime totals persist. Parent deletion cascades keys.
 - Counts are approximate browser/day engagement, not authenticated unique people. Cookie resets, multiple devices and deliberate automated requests through the BFF can inflate them; this is not an anti-fraud metric. Concurrent first visits before a new cookie is received can also use distinct identifiers.
 - Apply the additive V5 migration after a DB backup before deployment, then approve the production schema fingerprint. Never log or commit runtime signing keys.
+
+
+## Comments (P1-009 through P1-013)
+
+- V6 stores parent IDs and depth without a product depth cap. Public reads use indexed 50-row keyset pages, not recursive/N+1 queries. IDs and cursors are decimal strings. The web builds the loaded tree iteratively; visual indentation stops at three levels while reply links retain ancestry.
+- Writes require shared Identity. Only owners (including signed merged subjects) edit; owners and explicitly bound local editors may soft-delete. Public responses omit Identity subjects and emails. Deleted bodies/names are erased and replies remain. Parent FK uses SET NULL to avoid recursive delete chains; deleting the content cascades its comments directly. MySQL's cascade depth restriction is documented at https://dev.mysql.com/doc/refman/8.4/en/ansi-diff-foreign-keys.html.
+- Each member's write budget is serialized in SQL: 3-second spacing, 10 writes/minute, 100/day. Duplicate text within five minutes is rejected. Create UUIDs make network retries idempotent; reusing a key for different content conflicts. Limits are per canonical account, not a global spam/identity-abuse guarantee. Editing cannot reassign ownership or parent IDs.
+- Text is plain, bounded to 2,000 UTF-16 units and rendered through React escaping. BFF accepts only same-origin writes, retains HttpOnly credentials, bounds input and forwards Retry-After on throttling. Astryx TextArea/Button handle input, loading and focus; failures preserve drafts.
+- Validation covers concurrent retries, ownership/merge aliases, moderator binding, private targets, cross-content replies, budgets, large IDs, pagination, soft deletion, content cascade and a 20,000-item client tree.
