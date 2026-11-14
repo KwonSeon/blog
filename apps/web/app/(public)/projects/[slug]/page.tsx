@@ -1,3 +1,4 @@
+import { ContentViews } from "@/src/widgets/content-views";
 import { ContentLike } from "@/src/widgets/content-like";
 import { PostMarkdown } from "@/src/entities/post";
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
@@ -71,7 +72,7 @@ export default async function Detail({
           <PostMarkdown content={story.contentMd} />
         </section>
       )}
-      <ContentLike kind="projects" id={project.id} path={`/projects/${slug}`} />
+      <ContentViews kind="projects" id={project.id} /><ContentLike kind="projects" id={project.id} path={`/projects/${slug}`} />
       <section className="mt-16">
         <h2 className="text-2xl font-semibold mb-6">
           {hasDirectlyMatchedPosts ? "관련 글" : "최근 기록"}

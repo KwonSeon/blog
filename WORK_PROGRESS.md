@@ -1,3 +1,10 @@
+# 2026-11-14 roadmap: content views
+
+- Likes (P1-003/004/005): dev and main CI passed; production `8670ab3` deployed. Synthetic member browser checks covered save/cancel/refresh, 8 concurrent requests, private/draft rejection and 390px layout. Test likes were removed.
+- P1-006/007/008: public-only daily browser view deduplication, signed BFF ingestion, atomic lifetime totals and short identifier retention. No IP/account identity is stored.
+- Views validation and dev rollout are in progress; main promotion follows development browser verification.
+- Next ordered topic after views: comments (P1-009 through P1-013).
+
 # 2026-11-14 roadmap: content likes
 
 - P1-001/002 are fulfilled by shared Identity/OIDC instead of the historical Auth.js plan.

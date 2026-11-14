@@ -90,3 +90,13 @@ Apply V4__content_likes.sql before this release. Separate post/project tables us
 Desired-state PUT is idempotent. A parent-row lock serializes writes and preserves the existing aggregate count; content updated_at does not change for reactions. Signed merged_subjects allow reading a previous account's like and collapse its duplicates onto the canonical subject when that member next interacts. Historical duplicates are not globally rewritten at account-merge time.
 
 The browser uses /api/community/reactions through a no-store, same-origin BFF. Production edge must route /api/community/ to the web; direct Spring mutation endpoints require Bearer authentication. Login return paths are restricted to local post/project detail paths and carried inside the signed SSO transaction. Astryx ToggleButton exposes pressed/loading states; failed requests retain the last confirmed state.
+
+
+## Content views (P1-006/007/008)
+
+- Public, published posts and active projects expose counts. GET never increments. A visible detail page sends POST after two seconds; failed metrics do not block content.
+- The same browser/content is counted once per UTC day. An HttpOnly, SameSite cookie expires at UTC midnight. Only a daily HMAC hash reaches SQL, never an IP, raw cookie or account ID. DNT=1 / Sec-GPC=1 requests read counts without recording or setting the visitor cookie.
+- BFF enforces same-origin writes and signs kind, exact decimal ID, daily visitor hash and timestamp with `BLOG_VIEW_SIGNING_SECRET` (separate random secret per environment, >=32 characters, provided to API and web outside Git). API verifies HMAC and a 120-second window; missing configuration fails closed. Direct unsigned API writes are rejected.
+- V5 adds independent post/project deduplication tables. Parent row locks serialize duplicates and deletion/publication races, lifetime `view_count` increments atomically and `updated_at` stays unchanged. Hourly retention deletes keys older than yesterday; lifetime totals persist. Parent deletion cascades keys.
+- Counts are approximate browser/day engagement, not authenticated unique people. Cookie resets, multiple devices and deliberate automated requests through the BFF can inflate them; this is not an anti-fraud metric. Concurrent first visits before a new cookie is received can also use distinct identifiers.
+- Apply the additive V5 migration after a DB backup before deployment, then approve the production schema fingerprint. Never log or commit runtime signing keys.
