@@ -52,3 +52,11 @@ Do not put real environment values or QA account credentials in this document. P
 - Development CI/CD deployed the exact successful dev SHA. Production main and production services were not promoted.
 - Real Google/Kakao provider accounts and a request originating outside Korea were not tested.
 - The owner's editor binding requires an existing verified development Identity account. Do not create credentials or auto-grant editor access based on an unverified email.
+
+## Publishing and data-driven projects
+
+Projects are database records, not a compiled catalogue. `/admin/projects` manages names, slugs, summaries, service/repository links, visibility and activity. Adding or editing a project does not require rebuilding the web application. Repository links do not clone code or grant repository access. A private source repository may remain unlinked while the service's introduction is public.
+
+Project stories store long-form Markdown and shared Media image references in `project_stories`. Apply `infra/compose/migrations/blog/V2__project_stories.sql` before starting this API revision. Development DB backup and migration were performed separately; production remains unchanged. Both the public project and story endpoints require PUBLIC + ACTIVE. Images remain public URLs: upload only screenshots approved for public viewing, even while a project is private.
+
+The post editor offers formatting controls, an unsaved-change indicator and browser unload protection. Preview and public rendering share react-markdown with GFM support; raw HTML is skipped. Save supports publishing and returning an existing post to a draft.

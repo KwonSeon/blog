@@ -19,7 +19,7 @@ export function PostsResultsSection({
         <SectionHeader
           headingId="posts-list-heading"
           title="글 목록"
-          description="검색어와 언어 조건을 기준으로 공개 글 결과를 비교할 수 있게 정리합니다."
+          description="관심 있는 기록을 골라 읽어보세요."
         />
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-border bg-secondary/20 px-5 py-4 text-sm text-muted-foreground">
@@ -58,7 +58,6 @@ export function PostsResultsSection({
             </h2>
             <p className="mt-4 text-base leading-8 text-muted-foreground">
               검색어를 줄이거나 언어 조건을 해제하면 더 많은 글을 볼 수 있습니다.
-              공개 글 상세와 검색 API는 이후 단계에서 계속 확장할 예정입니다.
             </p>
             <div className="mt-8 flex items-center justify-center">
               <Link

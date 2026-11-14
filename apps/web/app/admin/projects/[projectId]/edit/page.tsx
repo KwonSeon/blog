@@ -1,3 +1,4 @@
+import { ProjectStoryEditor } from "@/src/widgets/project-story-editor";
 import { notFound, redirect } from "next/navigation";
 import { editorToken } from "@/src/shared/lib/auth/session";
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
@@ -20,11 +21,21 @@ export default async function Edit({
   );
   if (res.status === 404) notFound();
   if (!res.ok) throw new Error("프로젝트를 불러오지 못했습니다.");
+  const storyResponse = await fetch(
+    `${serverRuntimeConfig.blogApiBaseUrl}/admin/projects/${projectId}/story`,
+    { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
+  );
+  if (!storyResponse.ok) throw new Error("상세 소개를 불러오지 못했습니다.");
+  const story = (await storyResponse.json()) as { contentMd: string };
   return (
     <Container size="narrow" className="py-12">
       <h1 className="text-3xl font-semibold mb-8">프로젝트 수정</h1>
       <ProjectEditor
         initial={parseApiJson(await res.text()) as ManagedProject}
+      />
+      <ProjectStoryEditor
+        projectId={projectId}
+        initialContent={story.contentMd}
       />
     </Container>
   );

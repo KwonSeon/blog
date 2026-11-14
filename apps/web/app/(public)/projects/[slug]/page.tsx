@@ -1,3 +1,5 @@
+import { PostMarkdown } from "@/src/entities/post";
+import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
 import { notFound } from "next/navigation";
 import { getProjectDetailPageData } from "@/src/shared/lib/api/public-page-data";
 import { ProjectDetailHero } from "@/src/entities/project";
@@ -24,6 +26,13 @@ export default async function Detail({
   const data = await getProjectDetailPageData(slug);
   if (!data) notFound();
   const { project, relatedPosts, hasDirectlyMatchedPosts } = data;
+  const storyResponse = await fetch(
+    `${serverRuntimeConfig.blogApiBaseUrl}/public/projects/${encodeURIComponent(slug)}/story`,
+    { cache: "no-store" },
+  );
+  if (!storyResponse.ok)
+    throw new Error("프로젝트 소개를 불러오지 못했습니다.");
+  const story = (await storyResponse.json()) as { contentMd: string };
   return (
     <Container className="py-16">
       <ProjectDetailHero project={project} />
@@ -56,6 +65,11 @@ export default async function Detail({
           </div>
         </SurfaceCard>
       </div>
+      {story.contentMd && (
+        <section className="mt-12 max-w-3xl">
+          <PostMarkdown content={story.contentMd} />
+        </section>
+      )}
       <section className="mt-16">
         <h2 className="text-2xl font-semibold mb-6">
           {hasDirectlyMatchedPosts ? "관련 글" : "최근 기록"}

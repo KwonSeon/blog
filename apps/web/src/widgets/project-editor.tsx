@@ -53,7 +53,7 @@ export function ProjectEditor({ initial }: { initial?: ManagedProject }) {
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message ?? "저장하지 못했습니다.");
-      router.push("/admin/projects");
+      router.push(initial ? "/admin/projects" : `/admin/projects/${data.projectId}/edit`);
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : "저장하지 못했습니다.");
