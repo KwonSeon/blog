@@ -565,15 +565,15 @@ export function AdminPostEditor({
   }
 
   function handleSaveCurrentStatus() {
-    startTransition(() => {
-      void submitEditor(editorState.status);
+    startTransition(async () => {
+      await submitEditor(editorState.status);
     });
   }
 
   function handlePublish() {
     updateField("status", "PUBLISHED");
-    startTransition(() => {
-      void submitEditor("PUBLISHED");
+    startTransition(async () => {
+      await submitEditor("PUBLISHED");
     });
   }
 
@@ -594,7 +594,7 @@ export function AdminPostEditor({
 
           <div className="mt-8 grid gap-5">
             <FormField
-              label="slug"
+              label="글 주소"
               name="slug"
               value={editorState.slug}
               onChange={(event) => updateField("slug", event.target.value)}
@@ -650,7 +650,7 @@ export function AdminPostEditor({
                 disabled={isPending}
               />
               <FormField
-                label="coverMediaAssetId"
+                label="대표 이미지 번호"
                 name="coverMediaAssetId"
                 value={editorState.coverMediaAssetId}
                 onChange={(event) =>
@@ -696,7 +696,7 @@ export function AdminPostEditor({
             <AdminMediaUploadPanel
               eyebrow="Inline Image"
               title="본문 이미지 업로드와 삽입"
-              description="업로드 완료 후 `post-inline` namespace 기준 이미지를 markdown 본문 현재 caret 위치에 삽입합니다."
+              description="본문에 넣을 사진을 선택해 업로드하세요."
               fileInputRef={inlineFileInputRef}
               onFileChange={handleInlineFileChange}
               onPickFile={() => inlineFileInputRef.current?.click()}
@@ -726,7 +726,7 @@ export function AdminPostEditor({
             >
               <div className="mt-5 grid gap-5 md:grid-cols-2">
                 <FormField
-                  label="이미지 alt 텍스트"
+                  label="사진 설명"
                   name="inlineImageAlt"
                   value={inlineImageAlt}
                   onChange={(event) => setInlineImageAlt(event.target.value)}
@@ -776,7 +776,7 @@ export function AdminPostEditor({
               Preview
             </p>
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-              markdown preview pane
+              미리보기
             </h2>
             <p className="mt-4 text-base leading-8 text-muted-foreground">
               입력 중인 markdown을 그대로 렌더링해 발행 전 읽기 흐름을
@@ -788,7 +788,7 @@ export function AdminPostEditor({
                 <PostMarkdown content={deferredContentMd} />
               ) : (
                 <p className="text-sm leading-7 text-muted-foreground">
-                  본문을 입력하면 여기에 preview가 렌더링됩니다.
+                  본문을 입력하면 미리보기가 표시됩니다.
                 </p>
               )}
             </div>
@@ -828,7 +828,7 @@ export function AdminPostEditor({
 
             <div className="mt-6 grid gap-3 rounded-2xl bg-secondary/35 px-4 py-4 text-sm text-muted-foreground">
               <p>현재 상태: {savedPost?.status ?? editorState.status}</p>
-              <p>저장된 postId: {savedPost?.postId ?? "없음"}</p>
+              <p>글 번호: {savedPost?.postId ?? "없음"}</p>
               <p>
                 최근 수정 시각: {formatDateTime(savedPost?.updatedAt ?? null)}
               </p>

@@ -119,7 +119,7 @@ export function AdminMediaUploadPanel({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         onChange={onFileChange}
         className="sr-only"
         tabIndex={-1}
@@ -133,13 +133,13 @@ export function AdminMediaUploadPanel({
             {selectedFileName ?? "선택된 이미지가 없습니다."}
           </p>
           <div className="mt-3 grid gap-1 text-xs text-muted-foreground">
-            <p>namespace: {state.namespace}</p>
-            <p>content-type: {state.contentType || "없음"}</p>
-            <p>size: {formatFileSize(state.sizeBytes)}</p>
-            <p>phase: {formatUploadPhase(state.phase)}</p>
-            <p>progress: {state.progressPercent}%</p>
+
+
+            <p>파일 크기: {formatFileSize(state.sizeBytes)}</p>
+            <p>상태: {formatUploadPhase(state.phase)}</p>
+            <p>진행률: {state.progressPercent}%</p>
             <p>
-              mediaAssetId: {state.mediaAssetId ? state.mediaAssetId : "없음"}
+              이미지 번호: {state.mediaAssetId ? state.mediaAssetId : "없음"}
             </p>
           </div>
         </div>
