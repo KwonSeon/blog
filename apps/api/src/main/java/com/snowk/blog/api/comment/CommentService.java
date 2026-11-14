@@ -2,8 +2,10 @@ package com.snowk.blog.api.comment;
 
 import com.snowk.blog.api.global.error.CommonErrorStatus;
 import com.snowk.blog.api.global.exception.BaseException;
+import com.snowk.blog.api.notification.CommentCreated;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Service;
@@ -20,13 +22,19 @@ import java.util.*;
 public class CommentService {
     private final JdbcTemplate jdbc;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
     @Autowired
-    public CommentService(JdbcTemplate jdbc) {
-        this(jdbc, Clock.systemUTC());
+    public CommentService(JdbcTemplate jdbc, ApplicationEventPublisher events) {
+        this(jdbc, Clock.systemUTC(), events);
     }
 
     public CommentService(JdbcTemplate jdbc, Clock clock) {
+        this(jdbc, clock, ignored -> {});
+    }
+
+    public CommentService(JdbcTemplate jdbc, Clock clock, ApplicationEventPublisher events) {
+        this.events = events;
         this.jdbc = jdbc;
         this.clock = clock;
     }
@@ -275,8 +283,9 @@ public class CommentService {
                     return ps;
                 },
                 holder);
-        return item(
-                row(t, id, Objects.requireNonNull(holder.getKey()).longValue()), subjects, false);
+        long commentId = Objects.requireNonNull(holder.getKey()).longValue();
+        events.publishEvent(new CommentCreated(commentId, subjects));
+        return item(row(t, id, commentId), subjects, false);
     }
 
     @Transactional

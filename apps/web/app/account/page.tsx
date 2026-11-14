@@ -17,6 +17,7 @@ export default async function Account() {
         <div className="flex flex-wrap gap-4">
           {token ? (
             <>
+              <CTAButton href="/account/notifications">알림함</CTAButton>
               <AdminLogoutButton />
               {editor ? (
                 <CTAButton href="/admin">글 관리</CTAButton>

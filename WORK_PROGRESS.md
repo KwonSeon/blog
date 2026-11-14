@@ -1,3 +1,9 @@
+# 2026-11-14 roadmap: member notifications
+
+- P1-025 + requested Astryx skeletons deployed dev/main at `a7a949d`; lint/build/web14 tests, all five slow-response route transitions, reduced motion, mobile/desktop no overflow, retry recovery and visibility checks passed. Production switch90/90 requests succeeded; API reused, web replaced. Temporary QA servers stopped and fixture removed.
+- API220 tests and web14/lint/build passed. H2 constant-set CHECK expressions retained a closed DDL session; the isolated test datasource now keeps that session alive, with constraints intact. Real development MySQL V9 applied after a verified private backup.
+- Current P2-001..004: durable in-app comment/reply notifications using signed Identity subjects and aliases, transactional domain events, owner-scoped list/unread/read APIs, cursor pagination and accessible inbox. No external messages in this step. Runtime editor bindings are the only mapping from local content author to Identity recipient.
+
 # 2026-11-14 roadmap: performance and UX
 
 - P1-024 deployed dev/main at `2cc10d8`. CI passed, development browser/origin healthy. Main controller recorded the tools-only revision without restarting either app container; exact start times/restart counts unchanged. Daily03:20 backup and Sunday04:20 isolated-restore LaunchAgents registered. First launchd backup and restore commands both exit0.

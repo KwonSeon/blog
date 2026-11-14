@@ -143,3 +143,11 @@ Public parsed API reads and detail view models use request-scoped React cache, s
 Individual browser timings are diagnostic samples, not field Core Web Vitals or a measured percentage speedup. Reference: [Next data fetching](https://nextjs.org/docs/app/getting-started/fetching-data).
 
 Route loading files provide Astryx Skeleton layouts for home, posts, post detail, projects and project detail. They follow administrator list/grid and home-section settings through the public layout; arbitrary content lengths/images cannot guarantee zero layout shift. Decorative shapes are hidden from assistive technology, one status label announces loading, and reduced-motion disables animation. No artificial delay is present in the application; QA delays ran only in a temporary loopback proxy.
+
+## Member inbox
+
+V9 adds in-app comment/reply notifications with recipient+comment uniqueness, inbox/unread/retention indexes and comment-delete cascade. A synchronous Spring domain subscriber participates in the comment transaction (MANDATORY): delivery failure rolls back the comment, and replay does not duplicate the inbox item. There is no external delivery or historical backfill in this step.
+
+Replies notify the undeleted parent comment's signed Identity subject. Post comments notify subjects explicitly bound to that local author; projects have no individual owner column and notify bound editors. Canonical and signed merged actor subjects suppress self notifications; incoming recipient IDs are never accepted. Lists/read operations are recipient scoped including signed aliases, dynamically filter public published/active content and undeleted comments, expose no account IDs or copied comment bodies, and use private/no-store responses. IDs/cursors are strings.
+
+Lists use descending keyset pages of50. Read-all is bounded by the page snapshot ID so later arrivals stay unread; the response returns the current unread count. The inbox supports refresh/retry/read/read-all/more and Astryx skeletons. Notifications older than90days are hidden immediately and deleted in hourly batches of1000. API and browser synthetic-account checks precede promotion.
