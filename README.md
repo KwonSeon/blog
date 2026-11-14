@@ -215,7 +215,7 @@ Frontend
 - [x] P1-022-ADS-2 AdSense 스크립트/광고 슬롯
 
 Ops
-- [ ] P1-023-OPS-1 운영 모니터링 최소
+- [x] P1-023-OPS-1 운영 모니터링 최소
 - [ ] P1-024-OPS-2 백업 자동화 강화
 
 Frontend

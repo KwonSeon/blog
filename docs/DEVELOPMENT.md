@@ -131,3 +131,7 @@ The report covers public/origin HTTP responses, expected health JSON, redirects,
 The private Mac mini launch agent runs every five minutes. It records local health and incident/recovery transitions; external notification channels are not configured or sent by this task.
 
 The existing `npm test` discovery runs `tests/operations.test.mjs`, which executes the repository Python standard-library regression suite. This requires Python3 for local web test runs and uses the existing CI runner toolchain; no additional workflow or package dependency is required.
+
+## Backup operations
+
+See [backup and isolated restore](../infra/BACKUP.md). Runtime schedules, configuration, dumps and restore results stay outside Git. Operations tests cover corruption, traversal, failed-backup retention and insufficient-memory guards.

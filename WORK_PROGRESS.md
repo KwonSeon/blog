@@ -1,3 +1,10 @@
+# 2026-11-14 roadmap: automated backups
+
+- P1-023 deployed dev/main at `b1481c1`; both five-minute monitors registered and healthy (dev 8 checks, production 13). Local failure/recovery records only; no external alert delivery configured.
+- Current P1-024: private scheduled SQL backups for Blog/shared Identity/Media and a read-only object volume archive, integrity manifests, retention after successful backup, and isolated restore rehearsal. Online DB/object archives are not a cross-service point-in-time snapshot.
+
+- Backup and actual isolated restore passed: Blog 21 tables, shared Media 2, shared Identity 12; 233 archive files (53,776,952 bytes) extracted/hash checked. Temporary DB/volume absent after cleanup. MySQL image lacks mysqlcheck; use SQL CHECK TABLE and wait for the final mysqld process rather than its temporary initializer. Operations regression suite13/13; web test entry14/14. Scheduling follows dev/main CI.
+
 # 2026-11-14 roadmap: operations monitoring
 
 - P1-021/022 implementation deployed dev/main at `47d1d92`. Public about/contact/editorial/privacy links and editor-only advertising readiness screen validated; mobile overflow absent. Web tests13/13, lint/build and CI passed. Existing public publisher ID is private runtime configuration; source has no account identifier. Advertising remains disabled: actual site approval, slot and published/tested consent messages are not complete.
