@@ -579,13 +579,14 @@ export function AdminPostEditor({
 
   return (
     <AdminPostEditorShell
+      editing={Boolean(initialPost)}
       editor={
         <SurfaceCard padding="lg">
           <p className="text-xs uppercase tracking-[0.24em] text-primary">
             Editor Inputs
           </p>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-            새 글 작성
+            {initialPost ? "글 수정" : "새 글 작성"}
           </h2>
           <p className="mt-4 text-base leading-8 text-muted-foreground">
             markdown 본문과 공개 설정을 한 화면에서 조정하고, 저장 후 바로
@@ -762,9 +763,7 @@ export function AdminPostEditor({
             ) : null}
 
             <FormMessage>
-              최초 저장은 `POST`, 이후 수정은 `PUT`, 발행 전환은 `PATCH /status`
-              흐름으로 처리합니다. media 업로드는 presign -&gt; object storage
-              PUT -&gt; complete 순서로 분리해 호출합니다.
+              내용을 확인한 뒤 저장해 주세요. 발행 상태의 글을 저장하면 공개 화면에도 수정 내용이 반영됩니다.
             </FormMessage>
           </div>
         </SurfaceCard>

@@ -1,6 +1,6 @@
 import { ActionButton } from "@/src/shared/ui/action-button";
 import Link from "next/link";
-import { Container, SurfaceCard } from "@/src/shared/ui";
+import { Container, SurfaceCard, FormField } from "@/src/shared/ui";
 
 interface PostsArchiveHeroProps {
   q: string;
@@ -52,18 +52,9 @@ export function PostsArchiveHero({
             <form
               action="/posts"
               method="get"
-              className="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+              className="mt-8 grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
             >
-              <label className="sr-only" htmlFor="posts-search-input">
-                글 검색
-              </label>
-              <input
-                id="posts-search-input"
-                name="q"
-                defaultValue={q}
-                placeholder="제목이나 요약으로 글 찾기"
-                className="min-h-12 rounded-full border border-border bg-background px-5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
-              />
+              <FormField label="글 검색" type="search" name="q" defaultValue={q} placeholder="제목이나 요약으로 글 찾기" />
               <input type="hidden" name="lang" value={selectedLang} />
               <ActionButton
                 type="submit"
@@ -107,7 +98,7 @@ export function PostsArchiveHero({
             <p className="mt-4 text-base leading-7 text-foreground">
               검색어와 언어를 선택해 원하는 기록을 찾아보세요.
             </p>
-            <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="mt-8 grid items-end gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-2xl bg-secondary/70 px-4 py-4">
                 <p className="text-xs text-muted-foreground">공개 글 수</p>
                 <p className="mt-2 text-sm text-foreground">{totalCount}개</p>

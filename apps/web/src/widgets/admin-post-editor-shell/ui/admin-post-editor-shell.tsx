@@ -2,11 +2,13 @@ import Link from "next/link";
 import { CTAButton, Container, SurfaceCard } from "@/src/shared/ui";
 
 interface AdminPostEditorShellProps {
+  editing?: boolean;
   editor: React.ReactNode;
   preview: React.ReactNode;
 }
 
 export function AdminPostEditorShell({
+  editing = false,
   editor,
   preview,
 }: AdminPostEditorShellProps) {
@@ -20,7 +22,7 @@ export function AdminPostEditorShell({
                 Admin Editor
               </p>
               <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                새로운 기록을 작성하세요
+                {editing ? "기록을 수정하세요" : "새로운 기록을 작성하세요"}
               </h1>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
                 사진과 함께 이야기를 작성하고, 미리보기로 확인한 뒤 발행하세요.
