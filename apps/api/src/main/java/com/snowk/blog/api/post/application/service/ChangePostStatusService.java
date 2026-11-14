@@ -1,5 +1,6 @@
 package com.snowk.blog.api.post.application.service;
 
+import com.snowk.blog.api.newsletter.NewsletterPublisher;
 import com.snowk.blog.api.global.error.CommonErrorStatus;
 import com.snowk.blog.api.global.exception.BaseException;
 import com.snowk.blog.api.post.application.command.ChangePostStatusCommand;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ChangePostStatusService implements ChangePostStatusUseCase {
 
     private final PostRepositoryPort postRepositoryPort;
+    private final NewsletterPublisher newsletterPublisher;
 
     @Override
     public ChangePostStatusResult changePostStatus(ChangePostStatusCommand command) {
@@ -29,12 +31,14 @@ public class ChangePostStatusService implements ChangePostStatusUseCase {
         Post post = postRepositoryPort.findById(command.postId())
             .orElseThrow(() -> new BaseException(PostErrorStatus.POST_NOT_FOUND));
 
+        boolean wasPublic = NewsletterPublisher.publicPost(post);
         if (command.status() == PostStatus.PUBLISHED) {
             post.publish();
         } else {
             post.unpublish();
         }
 
+        if (!wasPublic) newsletterPublisher.firstPublication(post);
         return toChangeStatusResult(post);
     }
 

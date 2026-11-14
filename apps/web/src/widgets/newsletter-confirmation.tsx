@@ -1,0 +1,9 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import { Button } from "@astryxdesign/core/Button";
+export function NewsletterConfirmation({ action }: { action: "confirm" | "unsubscribe" }) {
+  const [token, setToken] = useState<string | null>(null), [busy, setBusy] = useState(false), [done, setDone] = useState(false), [error, setError] = useState(""); const lock = useRef(false);
+  useEffect(() => { const t = new URLSearchParams(window.location.hash.slice(1)).get("token"); const timer = setTimeout(() => setToken(t && /^[A-Za-z0-9_-]{43}$/.test(t) ? t : ""), 0); return () => clearTimeout(timer); }, []);
+  async function submit() { if (!token || lock.current) return; lock.current = true; setBusy(true); setError(""); try { const r = await fetch(`/api/community/newsletter/${action}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) }); if (!r.ok) { setError(r.status === 400 ? "유효하지 않거나 만료된 링크입니다. 구독 페이지에서 다시 신청해 주세요." : "처리하지 못했습니다. 잠시 후 다시 눌러 주세요."); return; } setDone(true); window.history.replaceState(null, "", window.location.pathname); } catch { setError("처리하지 못했습니다. 다시 시도해 주세요."); } finally { lock.current = false; setBusy(false); } }
+  return <div className="space-y-5">{done ? <p role="status">{action === "confirm" ? "구독이 완료됐습니다. 앞으로 발행되는 새 글을 이메일로 알려드립니다." : "구독을 해지하고 이메일 주소를 삭제했습니다."}</p> : token === "" ? <p role="alert">메일에 포함된 전체 링크로 방문해 주세요.</p> : <><p>{action === "confirm" ? "아래 버튼을 누르면 이메일 구독을 확인합니다." : "아래 버튼을 누르면 새 글 알림을 중단하고 이메일 주소를 삭제합니다."}</p><Button label={action === "confirm" ? "구독 확인" : "구독 해지"} size="lg" isLoading={busy} isDisabled={!token || busy} onClick={() => void submit()} /></>}{error && <p role="alert">{error}</p>}<a className="text-sm underline" href="/subscribe">구독 안내로 돌아가기</a></div>;
+}

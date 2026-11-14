@@ -1,5 +1,6 @@
 package com.snowk.blog.api.post.application.service;
 
+import com.snowk.blog.api.newsletter.NewsletterPublisher;
 import com.snowk.blog.api.global.error.CommonErrorStatus;
 import com.snowk.blog.api.global.exception.BaseException;
 import com.snowk.blog.api.post.application.command.CreatePostCommand;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreatePostService implements CreatePostUseCase {
 
     private final PostRepositoryPort postRepositoryPort;
+    private final NewsletterPublisher newsletterPublisher;
 
     @Override
     public CreatePostResult createPost(CreatePostCommand command) {
@@ -46,6 +48,7 @@ public class CreatePostService implements CreatePostUseCase {
             )
         );
 
+        newsletterPublisher.firstPublication(savedPost);
         return toCreateResult(savedPost);
     }
 

@@ -1,5 +1,6 @@
 package com.snowk.blog.api.post.application.service;
 
+import com.snowk.blog.api.newsletter.NewsletterPublisher;
 import com.snowk.blog.api.global.error.CommonErrorStatus;
 import com.snowk.blog.api.global.exception.BaseException;
 import com.snowk.blog.api.post.application.command.UpdatePostCommand;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpdatePostService implements UpdatePostUseCase {
 
     private final PostRepositoryPort postRepositoryPort;
+    private final NewsletterPublisher newsletterPublisher;
 
     @Override
     public UpdatePostResult updatePost(UpdatePostCommand command) {
@@ -26,6 +28,7 @@ public class UpdatePostService implements UpdatePostUseCase {
         }
 
         Post post = findPost(command.postId());
+        boolean wasPublic = NewsletterPublisher.publicPost(post);
         validateDuplicateSlug(post, command.slug());
         post.update(
             command.slug(),
@@ -37,6 +40,7 @@ public class UpdatePostService implements UpdatePostUseCase {
             command.coverMediaAssetId()
         );
 
+        if (!wasPublic) newsletterPublisher.firstPublication(post);
         return toUpdateResult(post);
     }
 

@@ -30,6 +30,7 @@ export function SiteHeader({title=siteConfig.name,githubUrl=siteConfig.social.gi
                 {item.label}
               </Link>
             ))}
+            <Link href="/subscribe" className="px-3 py-2 text-sm">구독</Link>
             <Link href="/account" className="px-3 py-2 text-sm">
               내 계정
             </Link>

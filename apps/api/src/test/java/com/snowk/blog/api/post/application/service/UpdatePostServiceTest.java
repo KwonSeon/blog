@@ -29,6 +29,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class UpdatePostServiceTest {
+    @org.mockito.Mock private com.snowk.blog.api.newsletter.NewsletterPublisher newsletterPublisher;
 
     @Mock
     private PostRepositoryPort postRepositoryPort;

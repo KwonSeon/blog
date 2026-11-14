@@ -1,3 +1,11 @@
+# 2026-11-14 roadmap: email subscriptions
+
+- Comments P1-009..013 completed through dev/main/production at `139d0d0`. 193 API tests, 8 web tests and browser registration/reply/edit/moderation checks passed; eight concurrent browser retries produced one comment. QA comments were removed.
+- Fixed actual MySQL driver datetime mapping and write-lock upgrade deadlocks before promotion. Actual MySQL probes passed 40-level parent deletion and 24 concurrent guard transactions.
+- First production comments attempt hit Docker VM memory pressure. Candidates stayed unrouted; old active release was retained. Retired drained historical blog containers, bounded new candidate memory and added a >=1792MiB VM headroom gate + failed-candidate cleanup. Safety tests11/11. After successful retry, 32/32 internal/external stability checks passed. Earlier timeout evidence is retained privately; do not claim incident-free deployment.
+- Current topic P1-014..016: double opt-in email subscriptions, explicit unsubscribe, durable new-public-post delivery. Reuse existing Resend credentials only in private runtime; development delivery goes exclusively to shared Mailpit.
+- Requirements: generic subscribe responses, short-lived confirmation tokens stored hashed, encrypted queued token payloads, abuse limits, no historical-post blast, opt-out before dispatch, idempotent provider retries, no real-recipient test sends.
+
 # 2026-11-14 roadmap: comments
 
 - Views P1-006/007/008 completed through dev/main/production at `3d236c7`; 182 API tests and browser dedup/privacy checks passed, deployment monitoring 36/36 requests succeeded.
