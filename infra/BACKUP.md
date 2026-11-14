@@ -11,7 +11,7 @@ python3 tools/backup.py --config /private/path/config.json restore-drill
 | Configuration | Meaning |
 | --- | --- |
 | `output_dir` | Absolute private output directory outside source control |
-| `databases` | Objects with existing `container` and `database` identifiers |
+| `databases` | Objects with existing `container`/`database`; optional `disable_fulltext_stopwords` preserves the Blog search-index setting |
 | `archive.volume` | Optional existing object-storage Docker volume |
 | `mysql_image`, `archive_image` | Pinned local `sha256:` image IDs |
 | `memory_container` | Running container used to read Docker VM available memory |

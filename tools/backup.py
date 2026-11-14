@@ -177,6 +177,9 @@ def backup(cfg, root):
             container, database = ident(target['container']), ident(target['database'], DB)
             raw, compressed = staging / 'dump.tmp.sql', staging / (database + '.sql.gz')
             with raw.open('xb') as output:
+                if target.get('disable_fulltext_stopwords', False):
+                    output.write(b'SET SESSION innodb_ft_enable_stopword=OFF;\n')
+                    output.flush()
                 docker(cfg, 'exec', container, 'sh', '-c',
                        'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" exec mysqldump -uroot '
                        '--single-transaction --quick --no-tablespaces --set-gtid-purged=OFF '
