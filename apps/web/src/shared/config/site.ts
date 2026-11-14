@@ -26,7 +26,7 @@ export const siteConfig = {
     ],
   },
   social: {
-    github: "",
+    github: "https://github.com/KwonSeon",
     email: "",
   },
 } as const;

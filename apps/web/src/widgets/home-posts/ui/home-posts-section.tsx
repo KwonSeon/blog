@@ -15,12 +15,13 @@ export function HomePostsSection({ posts }: HomePostsSectionProps) {
         <SectionHeader
           headingId="home-posts-heading"
           title="최신 글"
-          description="튜토리얼, 시스템 프로그래밍 메모, 설계 기록, 회고를 분리된 텍스트 영역으로 보여줍니다."
+          description="개발 과정에서 배운 것과 오래 남기고 싶은 이야기."
           viewAllHref="/posts"
           viewAllLabel="전체 글 보기"
         />
 
-        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+        {!posts.length && <p className="py-8 text-muted-foreground">첫 번째 글을 준비하고 있습니다.</p>}
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {posts.map((post, index) => (
             <PostCard
               key={post.id}

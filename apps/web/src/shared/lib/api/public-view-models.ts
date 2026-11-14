@@ -1,3 +1,4 @@
+import {safeProjectUrl} from "@/src/shared/lib/projects";
 import type { Post, PostDetail } from "@/src/entities/post";
 import type { Project, ProjectStatus } from "@/src/entities/project";
 import type {
@@ -94,7 +95,7 @@ export function toProjectListViewModel(
     description: project.summary,
     tags: buildProjectTags(project),
     status: resolveProjectStatus(project),
-    demoUrl: project.serviceUrl ?? undefined,
+    demoUrl: safeProjectUrl(project.serviceUrl),
     repoUrl: undefined,
     detailUrl: `/projects/${project.slug}`,
   };
@@ -110,8 +111,8 @@ export function toProjectDetailViewModel(
     description: project.summary,
     tags: buildProjectTags(project),
     status: resolveProjectStatus(project),
-    demoUrl: project.serviceUrl ?? undefined,
-    repoUrl: project.repoUrl ?? undefined,
+    demoUrl: safeProjectUrl(project.serviceUrl),
+    repoUrl: safeProjectUrl(project.repoUrl),
     detailUrl: `/projects/${project.slug}`,
   };
 }

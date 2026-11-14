@@ -1,243 +1,71 @@
-import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PostCard } from "@/src/entities/post";
-import {
-  ProjectDetailHero,
-  ProjectTagList,
-  PROJECT_STATUS_LABELS,
-} from "@/src/entities/project";
 import { getProjectDetailPageData } from "@/src/shared/lib/api/public-page-data";
-import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
-import {
-  CTAButton,
-  Container,
-  SectionHeader,
-  SurfaceCard,
-} from "@/src/shared/ui";
-
-interface ProjectDetailPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
+import { ProjectDetailHero } from "@/src/entities/project";
+import { PostCard } from "@/src/entities/post";
+import { Container, SurfaceCard, CTAButton } from "@/src/shared/ui";
 export async function generateMetadata({
   params,
-}: ProjectDetailPageProps): Promise<Metadata> {
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const data = await getProjectDetailPageData(slug);
-  const project = data?.project;
-
-  if (!project) {
-    return {
-      title: "프로젝트를 찾을 수 없음",
-      robots: {
-        index: false,
-        follow: false,
-      },
-    };
-  }
-
-  return buildPublicMetadata({
-    title: project.title,
-    description: project.description,
-    path: `/projects/${project.slug}`,
-    type: "website",
-    keywords: [
-      project.title,
-      PROJECT_STATUS_LABELS[project.status],
-      ...project.tags,
-      "프로젝트 상세",
-      "서비스 랜딩",
-    ],
-  });
+  return {
+    title: data?.project.title ?? "프로젝트",
+    description: data?.project.description,
+  };
 }
-
-export default async function ProjectDetailPage({
+export default async function Detail({
   params,
-}: ProjectDetailPageProps) {
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const data = await getProjectDetailPageData(slug);
-  const project = data?.project;
-
-  if (!project) {
-    notFound();
-  }
-
-  const suggestedPosts = data.relatedPosts;
-  const hasDirectlyMatchedPosts = data.hasDirectlyMatchedPosts;
-  const isExternalDemoUrl = Boolean(project.demoUrl?.startsWith("http"));
-  const isExternalRepoUrl = Boolean(project.repoUrl?.startsWith("http"));
-
+  if (!data) notFound();
+  const { project, relatedPosts, hasDirectlyMatchedPosts } = data;
   return (
-    <>
-      <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="project-detail-heading">
-        <Container>
-          <div className="grid gap-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
-              <ProjectDetailHero project={project} headingId="project-detail-heading" />
-
-              <SurfaceCard padding="lg">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                  Summary
-                </p>
-                <p className="mt-4 text-base leading-7 text-foreground">
-                  이 프로젝트는 홈 화면에서 요약 카드로 보여주던 항목을 상세 단위로
-                  확장하는 첫 공개 화면입니다. 서비스 진입 CTA와 기술 정보, 배경 설명을
-                  단계적으로 붙여갈 수 있는 구조로 조립합니다.
-                </p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                    <p className="text-xs text-muted-foreground">현재 상태</p>
-                    <p className="mt-2 text-sm text-foreground">
-                      {PROJECT_STATUS_LABELS[project.status]}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl bg-secondary/70 px-4 py-4">
-                    <p className="text-xs text-muted-foreground">진입 흐름</p>
-                    <p className="mt-2 text-sm text-foreground">
-                      상세 확인 후 서비스 링크 또는 후속 관련 글 탐색
-                    </p>
-                  </div>
-                </div>
-              </SurfaceCard>
-            </div>
-
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
-              <SurfaceCard as="article" padding="lg">
-                <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                  Overview
-                </p>
-                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                  프로젝트 개요
-                </h2>
-                <div className="mt-5 space-y-4 text-base leading-8 text-muted-foreground">
-                  <p>
-                    {project.title}는 공개 홈에서 방문자가 바로 탐색할 수 있도록 정리한
-                    대표 프로젝트 중 하나입니다.
-                  </p>
-                  <p>{project.description}</p>
-                  <p>
-                    상세 화면에서는 이후 구현 배경, 문제 정의, 주요 화면 흐름, 관련 글
-                    연결까지 자연스럽게 이어질 수 있도록 정보 블록을 분리합니다.
-                  </p>
-                </div>
-              </SurfaceCard>
-
-              <div className="grid gap-6">
-                <aside>
-                  <SurfaceCard padding="lg">
-                    <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                      Service Links
-                    </p>
-                    <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                      서비스 링크
-                    </h2>
-                    <div className="mt-5 flex flex-col gap-3">
-                      {project.demoUrl ? (
-                        <CTAButton href={project.demoUrl} external={isExternalDemoUrl}>
-                          서비스 바로가기
-                        </CTAButton>
-                      ) : null}
-                      {project.repoUrl ? (
-                        <CTAButton
-                          href={project.repoUrl}
-                          variant="outline"
-                          external={isExternalRepoUrl}
-                        >
-                          저장소 보기
-                        </CTAButton>
-                      ) : null}
-                      <CTAButton href="/projects" variant="outline">
-                        프로젝트 목록
-                      </CTAButton>
-                    </div>
-                  </SurfaceCard>
-                </aside>
-
-                <aside>
-                  <SurfaceCard padding="lg">
-                    <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                      Tech Info
-                    </p>
-                    <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                      기술 정보
-                    </h2>
-                    <ProjectTagList
-                      tags={project.tags}
-                      className="mt-5"
-                      tagClassName="text-sm"
-                    />
-                  </SurfaceCard>
-                </aside>
-              </div>
-            </div>
+    <Container className="py-16">
+      <ProjectDetailHero project={project} />
+      <div className="mt-12 grid gap-6 md:grid-cols-2">
+        <SurfaceCard padding="lg">
+          <h2 className="text-2xl font-semibold">프로젝트 소개</h2>
+          <p className="mt-5 whitespace-pre-wrap leading-8 text-muted-foreground">
+            {project.description || "프로젝트 소개를 준비하고 있습니다."}
+          </p>
+        </SurfaceCard>
+        <SurfaceCard padding="lg">
+          <h2 className="text-2xl font-semibold">프로젝트 링크</h2>
+          <p className="my-5 leading-7 text-muted-foreground">
+            서비스를 사용해 보거나 저장소에서 구현과 문서를 살펴보세요.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {project.demoUrl && (
+              <CTAButton href={project.demoUrl} external>
+                서비스 방문
+              </CTAButton>
+            )}
+            {project.repoUrl && (
+              <CTAButton href={project.repoUrl} external variant="secondary">
+                Git 저장소 보기
+              </CTAButton>
+            )}
+            {!project.demoUrl && !project.repoUrl && (
+              <p>등록된 링크가 없습니다.</p>
+            )}
           </div>
-        </Container>
+        </SurfaceCard>
+      </div>
+      <section className="mt-16">
+        <h2 className="text-2xl font-semibold mb-6">
+          {hasDirectlyMatchedPosts ? "관련 글" : "최근 기록"}
+        </h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          {relatedPosts.map((p) => (
+            <PostCard key={p.id} post={p} />
+          ))}
+        </div>
       </section>
-
-      <section
-        className="border-t border-border bg-secondary/20 py-16 sm:py-20"
-        aria-labelledby="project-related-posts-heading"
-      >
-        <Container>
-          <SectionHeader
-            headingId="project-related-posts-heading"
-            title="관련 글"
-            description={
-              hasDirectlyMatchedPosts
-                ? "이 프로젝트와 연결된 설계 메모, 구현 기록, 운영 회고를 이어서 읽을 수 있게 정리합니다."
-                : "직접 연결된 글은 아직 적지만, 현재 공개 중인 설계 기록과 개발 메모를 먼저 읽어볼 수 있습니다."
-            }
-            viewAllHref="/posts"
-            viewAllLabel="전체 글 보기"
-          />
-
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-            {suggestedPosts.map((post, index) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                className={index === 0 ? "md:col-span-2 xl:col-span-1" : undefined}
-              />
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section className="py-16 sm:py-20" aria-labelledby="project-detail-cta-heading">
-        <Container size="narrow">
-          <SurfaceCard padding="lg" className="text-center">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">
-              Next step
-            </p>
-            <h2
-              id="project-detail-cta-heading"
-              className="mt-4 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
-            >
-              다른 프로젝트를 더 둘러보거나, 지금 이 서비스를 바로 확인해보세요
-            </h2>
-            <p className="mt-4 text-base leading-8 text-muted-foreground">
-              프로젝트 상세는 단일 소개 페이지로 끝나지 않고, 다른 공개 프로젝트 탐색과
-              관련 글 읽기 흐름으로 이어져야 합니다. 이후 이 위치에는 배포 상태, 업데이트
-              로그, 추천 프로젝트 CTA도 자연스럽게 붙일 수 있습니다.
-            </p>
-
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <CTAButton href="/projects">다른 프로젝트 보기</CTAButton>
-              {project.demoUrl ? (
-                <CTAButton
-                  href={project.demoUrl}
-                  variant="outline"
-                  external={isExternalDemoUrl}
-                >
-                  이 프로젝트 확인하기
-                </CTAButton>
-              ) : null}
-            </div>
-          </SurfaceCard>
-        </Container>
-      </section>
-    </>
+    </Container>
   );
 }

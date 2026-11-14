@@ -2,7 +2,13 @@
 
 import { ActionButton } from "@/src/shared/ui/action-button";
 
-import { useDeferredValue, useRef, useState, useTransition } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import {
   ADMIN_POST_STATUS_OPTIONS,
   ADMIN_POST_VISIBILITY_OPTIONS,
@@ -217,6 +223,19 @@ export function AdminPostEditor({
   const [inlineUploadState, setInlineUploadState] = useState(() =>
     createInitialAdminMediaUploadState(INLINE_UPLOAD_NAMESPACE),
   );
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    JSON.stringify(editorState),
+  );
+  const dirty = JSON.stringify(editorState) !== savedSnapshot;
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
   const deferredContentMd = useDeferredValue(editorState.contentMd);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
   const inlineFileInputRef = useRef<HTMLInputElement>(null);
@@ -479,7 +498,7 @@ export function AdminPostEditor({
 
       updateField("coverMediaAssetId", String(result.completed.mediaAssetId));
       setSuccessMessage(
-        `커버 이미지 업로드가 완료돼 coverMediaAssetId ${result.completed.mediaAssetId}를 반영했습니다.`,
+        "대표 이미지가 업로드되었습니다. 글을 저장하면 공개 화면에 반영됩니다.",
       );
     } catch (error) {
       setErrorMessage(
@@ -540,12 +559,18 @@ export function AdminPostEditor({
           buildUpdatePayload(),
         );
 
-        if (targetStatus === "PUBLISHED" && nextPost.status !== "PUBLISHED") {
-          nextPost = await changeAdminPostStatus(savedPost.postId, "PUBLISHED");
+        if (nextPost.status !== targetStatus) {
+          nextPost = await changeAdminPostStatus(
+            savedPost.postId,
+            targetStatus,
+          );
         }
       }
 
       setSavedPost(nextPost);
+      setSavedSnapshot(
+        JSON.stringify({ ...editorState, status: nextPost.status }),
+      );
       setEditorState((current) => ({
         ...current,
         status: nextPost.status,
@@ -690,7 +715,7 @@ export function AdminPostEditor({
                 isPending ||
                 isUploadBusy(coverUploadState)
               }
-              successMessage={`mediaAssetId ${coverUploadState.mediaAssetId} 업로드가 완료됐고, \`coverMediaAssetId\` 입력란에 자동 반영할 준비가 끝났습니다.`}
+              successMessage={"대표 이미지 업로드가 완료되었습니다."}
               idleMessage="업로드한 이미지가 대표 이미지로 설정됩니다."
             />
 
@@ -722,7 +747,7 @@ export function AdminPostEditor({
                 isPending ||
                 isUploadBusy(inlineUploadState)
               }
-              successMessage={`mediaAssetId ${inlineUploadState.mediaAssetId} 업로드가 완료됐고, markdown 본문에 content URL을 바로 삽입할 수 있습니다.`}
+              successMessage={"사진을 본문에 삽입했습니다."}
               idleMessage="업로드한 사진을 본문의 커서 위치에 넣을 수 있습니다."
             >
               <div className="mt-5 grid gap-5 md:grid-cols-2">
@@ -744,6 +769,56 @@ export function AdminPostEditor({
               </div>
             </AdminMediaUploadPanel>
 
+            <div
+              className="flex flex-wrap items-center gap-2"
+              role="group"
+              aria-label="본문 서식"
+            >
+              {[
+                { label: "제목", before: "## ", after: "" },
+                { label: "굵게", before: "**", after: "**" },
+                { label: "목록", before: "- ", after: "" },
+                { label: "인용", before: "> ", after: "" },
+                { label: "코드", before: "```\n", after: "\n```" },
+                { label: "링크", before: "[", after: "](https://example.com)" },
+              ].map((tool) => (
+                <ActionButton
+                  key={tool.label}
+                  disabled={isPending}
+                  onClick={() => {
+                    const el = markdownTextareaRef.current;
+                    const start =
+                      el?.selectionStart ?? editorState.contentMd.length;
+                    const end = el?.selectionEnd ?? start;
+                    const text =
+                      editorState.contentMd.slice(start, end) || "내용";
+                    updateField(
+                      "contentMd",
+                      editorState.contentMd.slice(0, start) +
+                        tool.before +
+                        text +
+                        tool.after +
+                        editorState.contentMd.slice(end),
+                    );
+                    requestAnimationFrame(() => {
+                      el?.focus();
+                      el?.setSelectionRange(
+                        start + tool.before.length,
+                        start + tool.before.length + text.length,
+                      );
+                    });
+                  }}
+                >
+                  {tool.label}
+                </ActionButton>
+              ))}
+            </div>
+            <p role="status" className="text-sm text-muted-foreground">
+              {dirty
+                ? "저장하지 않은 변경사항이 있습니다."
+                : "변경사항이 없습니다."}{" "}
+              · {editorState.contentMd.length.toLocaleString()}자
+            </p>
             <FormTextarea
               ref={markdownTextareaRef}
               label="Markdown 본문"
@@ -763,7 +838,8 @@ export function AdminPostEditor({
             ) : null}
 
             <FormMessage>
-              내용을 확인한 뒤 저장해 주세요. 발행 상태의 글을 저장하면 공개 화면에도 수정 내용이 반영됩니다.
+              내용을 확인한 뒤 저장해 주세요. 발행 상태의 글을 저장하면 공개
+              화면에도 수정 내용이 반영됩니다.
             </FormMessage>
           </div>
         </SurfaceCard>

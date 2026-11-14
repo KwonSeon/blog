@@ -33,6 +33,7 @@ export default async function AdminHomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <CTAButton href="/admin/projects" variant="secondary">프로젝트 관리</CTAButton>
             <CTAButton href="/admin/posts/new">새 글 작성</CTAButton>
             <CTAButton href="/" variant="secondary">
               블로그 보기

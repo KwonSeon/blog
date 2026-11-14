@@ -1,47 +1,42 @@
-import type { Metadata } from "next";
-import { HomeCTA } from "@/src/widgets/home-cta";
-import { HomeHero } from "@/src/widgets/home-hero";
+import { Container, CTAButton } from "@/src/shared/ui";
 import { HomePostsSection } from "@/src/widgets/home-posts";
 import { HomeProjectsSection } from "@/src/widgets/home-projects";
-import { PromoSlot } from "@/src/shared/ui";
-import { heroData } from "@/src/shared/lib/mock/home-data";
 import { getHomePageData } from "@/src/shared/lib/api/public-page-data";
-import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
-
-export const metadata: Metadata = buildPublicMetadata({
-  title: "홈",
-  description: "개발 기록과 직접 만든 서비스를 함께 공개하는 블로그 홈 화면입니다.",
-  path: "/",
-  keywords: ["홈", "프로젝트 허브", "블로그 홈"],
-});
-
-export default async function HomePage() {
-  const {
-    projects,
-    posts,
-    projectTotalCount,
-    postTotalCount,
-  } = await getHomePageData();
-
+export const metadata = {
+  title: "개발과 일상의 기록",
+  description:
+    "직접 만드는 서비스, 개발 과정에서 배운 것, 오래 남기고 싶은 기록.",
+};
+export default async function Home() {
+  const { projects, posts } = await getHomePageData();
   return (
     <>
-      <HomeHero
-        headline={heroData.headline}
-        subheadline={heroData.subheadline}
-        description={heroData.description}
-        currentFocus={heroData.currentFocus}
-        stats={{
-          ...heroData.stats,
-          projects: projectTotalCount,
-          posts: postTotalCount,
-        }}
-      />
-      <HomeProjectsSection projects={projects} />
-      <div className="border-y border-border bg-secondary/25 py-7">
-        <PromoSlot size="leaderboard" showPlaceholder />
-      </div>
+      <section className="border-b border-border py-16 sm:py-24">
+        <Container>
+          <p className="text-sm tracking-widest text-primary">S-NOWK JOURNAL</p>
+          <h1 className="mt-5 max-w-3xl text-4xl sm:text-6xl font-semibold tracking-tight leading-tight">
+            만들고, 배우고,
+            <br />
+            기록합니다.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
+            직접 만드는 서비스와 그 과정에서 만난 문제들. 개발의 생각과 경험을
+            차곡차곡 남기는 공간입니다.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <CTAButton href="/posts">모든 글 읽기</CTAButton>
+            <CTAButton
+              href="https://github.com/KwonSeon"
+              external
+              variant="secondary"
+            >
+              GitHub
+            </CTAButton>
+          </div>
+        </Container>
+      </section>
       <HomePostsSection posts={posts} />
-      <HomeCTA />
+      <HomeProjectsSection projects={projects} />
     </>
   );
 }
