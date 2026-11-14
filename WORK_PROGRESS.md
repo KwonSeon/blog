@@ -1,3 +1,11 @@
+# 2026-11-14 member public chat deployed; next: recommendations
+
+- P2-007..010 deployed dev→main→production at `25fad1a`. Exact CI dev43591156345/main43591427495 succeeded. API254/web16 tests plus lint/build passed; final development WebSocket connection/empty history verified.
+- Production switch94/94 HTTP probes passed, with actual promotion inside the sample window. Blog dev API/web only paused about58seconds for capacity and restored healthy; production remained available. No production test messages were created. Anonymous production API401, login entry, noindex/nofollow and empty DB verified.
+- Both environments have correctly encoded UTF-8 lobby titles and zero chat fixtures. Manual MySQL commands must use `--default-character-set=utf8mb4`; CLI's default charset initially corrupted only the SQL-seeded fixture/lobby title, which was corrected and HEX-verified. Real API Korean text passed independently.
+- Private edge/tunnel/runtime config remains outside Git. Controller18 tests cover reused-container drain time and WebSocket route preservation. Telegram remains disabled; production external recipients are unconfigured.
+- Next ordered topic is P2-011 rules-based related-post recommendations, followed by P2-012 embedding preparation. These are not implemented by this chat release.
+
 # 2026-11-14 current: member public chat
 
 - User chose a shared public room for members, replacing the initial private-inquiry assumption. P2-007..010: authenticated shared lobby, persistent paged messages, own/editor deletion, idempotent writes/rate limits, STOMP invalidation plus HTTP recovery, Astryx UI.
