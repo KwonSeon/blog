@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +27,7 @@ export function PostCard({ post, className }: PostCardProps) {
         className,
       )}
     >
+      {post.coverUrl ? <Image src={post.coverUrl} alt={post.title} width={640} height={360} unoptimized className="mb-5 aspect-video w-full rounded-[var(--radius-container)] object-cover" /> : null}
       <div className="mb-3">
         <StatusBadge variant="accent">
           {POST_CATEGORY_LABELS[post.category]}

@@ -7,6 +7,7 @@ function toAbsoluteUrl(path: string) {
 }
 
 export default function robots(): MetadataRoute.Robots {
+  if (new URL(siteConfig.url).hostname.startsWith("blog-dev.")) return {rules:{userAgent:"*",disallow:"/"}};
   return {
     rules: {
       userAgent: "*",

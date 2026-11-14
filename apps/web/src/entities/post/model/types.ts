@@ -11,6 +11,7 @@ export interface Post {
   tags: string[];
   publishedAt: string;
   readingTime: string;
+  coverUrl?: string;
   relatedProjectSlug?: string;
   relatedProjectTitle?: string;
 }

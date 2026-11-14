@@ -90,7 +90,7 @@ export function HomeHero({
               <div className="rounded-2xl bg-secondary/70 px-3 py-4 text-center">
                 <dt className="text-xs text-muted-foreground">글</dt>
                 <dd className="mt-1 text-2xl font-semibold text-foreground">
-                  {stats.posts}+
+                  {stats.posts}
                 </dd>
               </div>
               <div className="rounded-2xl bg-secondary/70 px-3 py-4 text-center">

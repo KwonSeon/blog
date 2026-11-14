@@ -121,6 +121,7 @@ export function toPostListViewModel(post: PublicPostListItem): Post {
 
   return {
     id: String(post.postId),
+    coverUrl: post.coverMediaAssetId ? `/media/assets/${post.coverMediaAssetId}/content` : undefined,
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,
@@ -137,6 +138,7 @@ export function toPostDetailViewModel(post: PublicPostDetail): PostDetail {
 
   return {
     id: String(post.postId),
+    coverUrl: post.coverMediaAssetId ? `/media/assets/${post.coverMediaAssetId}/content` : undefined,
     slug: post.slug,
     title: post.title,
     excerpt: post.excerpt,

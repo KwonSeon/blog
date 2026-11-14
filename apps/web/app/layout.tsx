@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   creator: siteConfig.author.name,
   keywords: [...siteConfig.seo.defaultKeywords],
   robots: {
-    index: true,
+    index: !new URL(siteConfig.url).hostname.startsWith("blog-dev."),
     follow: true,
   },
   openGraph: {

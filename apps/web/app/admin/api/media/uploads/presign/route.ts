@@ -87,7 +87,8 @@ export async function POST(request: Request) {
 
     const payload =
       ((await upstreamResponse
-        .json()
+        .text()
+        .then(parseApiJson)
         .catch(() => null)) as PresignUploadApiResponse | null) ?? null;
 
     if (upstreamResponse.status === 401 || upstreamResponse.status === 403) {
