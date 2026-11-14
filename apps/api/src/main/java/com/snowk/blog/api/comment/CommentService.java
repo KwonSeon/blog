@@ -154,9 +154,10 @@ public class CommentService {
     private void guard(String subject) {
         var now = LocalDateTime.now(clock);
         jdbc.update(
-                "INSERT IGNORE INTO"
+                "INSERT INTO"
                     + " comment_rate_limits(identity_subject,last_write,minute_start,minute_count,day_start,day_count)"
-                    + " VALUES (?, ?, ?, 0, ?, 0)",
+                    + " VALUES (?, ?, ?, 0, ?, 0) ON DUPLICATE KEY UPDATE"
+                    + " identity_subject=identity_subject",
                 subject,
                 now.minusYears(1),
                 now,
