@@ -51,6 +51,13 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             // Bearer 토큰을 읽어 JwtDecoder/JwtAuthenticationConverter로 인증 객체를 구성한다.
             .oauth2ResourceServer(oauth2 -> oauth2
+                .bearerTokenResolver(request -> {
+                    var standard = new org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver().resolve(request);
+                    if (standard != null || !request.getRequestURI().equals("/api/chat/ws")) return standard;
+                    if (request.getCookies() != null) for (var cookie : request.getCookies())
+                        if (cookie.getName().equals("blog.access")) return cookie.getValue();
+                    return null;
+                })
                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticatedUserConverter))
             )
             .authorizeHttpRequests(auth -> auth
@@ -73,7 +80,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+        @org.springframework.beans.factory.annotation.Value("${BLOG_CHAT_ENABLED:false}") boolean chatEnabled,
+        @org.springframework.beans.factory.annotation.Value("${BLOG_CHAT_ORIGIN:}") String chatOrigin
+    ) {
         CorsConfiguration config = new CorsConfiguration();
 
         // 프론트 도메인 허용 목록
@@ -88,6 +98,11 @@ public class SecurityConfig {
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        if (chatEnabled) {
+            CorsConfiguration chat = new CorsConfiguration(config);
+            chat.setAllowedOrigins(List.of(chatOrigin));
+            source.registerCorsConfiguration("/api/chat/ws", chat);
+        }
         source.registerCorsConfiguration("/**", config);
         return source;
     }

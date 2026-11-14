@@ -18,6 +18,7 @@ export default async function Account() {
           {token ? (
             <>
               <CTAButton href="/account/notifications">알림함</CTAButton>
+              <CTAButton href="/chat">회원 채팅</CTAButton>
               <AdminLogoutButton />
               {editor ? (
                 <CTAButton href="/admin">글 관리</CTAButton>

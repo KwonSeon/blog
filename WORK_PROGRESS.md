@@ -1,3 +1,9 @@
+# 2026-11-14 current: member public chat
+
+- User chose a shared public room for members, replacing the initial private-inquiry assumption. P2-007..010: authenticated shared lobby, persistent paged messages, own/editor deletion, idempotent writes/rate limits, STOMP invalidation plus HTTP recovery, Astryx UI.
+- Local API253 tests and web16 tests passed, including real WebSocket cookie handshake, Origin rejection, subscription and forged SEND rejection. Dev V11 applied after verified backup `20261114T112444Z-595e8df7`; no messages. Dev runtime enablement prepared; edge routing and deployed browser QA follow.
+- External notifications documentation revision `73f60eb` is now dev/main/production. Telegram remains disabled; no real sends.
+
 # 2026-11-14 external notifications completed; next: real-time chat
 
 - P2-005 optional Telegram delivery and P2-006 Kakao decision deployed dev then main at `d68c3a5`. CI dev43587869405/main43588223295 succeeded. API236/web14 tests and lint/build passed.
