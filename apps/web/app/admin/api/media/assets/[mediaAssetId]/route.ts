@@ -1,3 +1,4 @@
+import { parseApiJson } from "@/src/shared/lib/api/json";
 import { decodeJwt } from "jose";
 import { editorToken, sameOrigin } from "@/src/shared/lib/auth/session";
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
@@ -16,7 +17,10 @@ async function authorizeAsset(request: Request, id: string) {
     },
   );
   if (!response.ok) return new Response(null, { status: response.status });
-  const asset = await response.json();
+  const asset = parseApiJson(await response.text()) as {
+    uploadedByUserId: string;
+    namespace: string;
+  };
   if (
     String(asset.uploadedByUserId) !== decodeJwt(token).sub ||
     !["post-cover", "post-inline", "project-cover", "project-inline"].includes(

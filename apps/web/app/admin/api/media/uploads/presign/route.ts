@@ -1,3 +1,4 @@
+import { parseApiJson } from "@/src/shared/lib/api/json";
 import { cookies } from "next/headers";
 import { decodeJwt } from "jose";
 import { sameOrigin, cookieOptions } from "@/src/shared/lib/auth/session";
@@ -9,7 +10,7 @@ import {
 } from "@/src/shared/lib/auth/admin-session.server";
 
 interface PresignUploadApiResponse {
-  mediaAssetId?: number;
+  mediaAssetId?: string | number;
   bucket?: string;
   objectKey?: string;
   uploadUrl?: string;
