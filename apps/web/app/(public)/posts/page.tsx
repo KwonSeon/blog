@@ -16,8 +16,8 @@ export async function generateMetadata({
   searchParams,
 }: PostsPageProps): Promise<Metadata> {
   const params = await searchParams;
-  const q = params.q?.trim() ?? "";
-  const lang = params.lang?.trim() ?? "";
+  const q = params.q?.trim().slice(0, 80) ?? "";
+  const lang = /^[a-z]{2,3}(?:-[A-Z]{2})?$/.test(params.lang ?? "") ? params.lang! : "";
   const hasFilters = Boolean(q || lang);
   const description = hasFilters
     ? `${q ? `"${q}" 검색어와 ` : ""}${lang ? `${lang} 언어 조건을 포함해 ` : ""}공개 글 결과를 탐색하는 화면입니다.`
@@ -39,8 +39,8 @@ export async function generateMetadata({
 
 export default async function PostsPage({ searchParams }: PostsPageProps) {
   const params = await searchParams;
-  const q = params.q?.trim() ?? "";
-  const selectedLang = params.lang?.trim() ?? "";
+  const q = params.q?.trim().slice(0, 80) ?? "";
+  const selectedLang = /^[a-z]{2,3}(?:-[A-Z]{2})?$/.test(params.lang ?? "") ? params.lang! : "";
   const settings = await getSiteSettings();
   const { posts, totalCount } = await getPostsPageData({
     q,

@@ -1,9 +1,6 @@
 package com.snowk.blog.api.post.application.query;
 
-public record ListPublicPostsQuery(
-    String q,
-    String lang
-) {
+public record ListPublicPostsQuery(String q, String lang) {
     public ListPublicPostsQuery() {
         this(null, null);
     }
@@ -11,6 +8,10 @@ public record ListPublicPostsQuery(
     public ListPublicPostsQuery {
         q = normalize(q);
         lang = normalize(lang);
+        if ((q != null && (q.length() > 80 || q.codePoints().anyMatch(Character::isISOControl)))
+                || (lang != null && !lang.matches("[a-z]{2,3}(?:-[A-Z]{2})?")))
+            throw new com.snowk.blog.api.global.exception.BaseException(
+                    com.snowk.blog.api.global.error.CommonErrorStatus.BAD_REQUEST);
     }
 
     public boolean hasQuery() {

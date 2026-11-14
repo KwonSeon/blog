@@ -54,7 +54,7 @@ export function PostsArchiveHero({
               method="get"
               className="mt-8 grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
             >
-              <FormField label="글 검색" type="search" name="q" defaultValue={q} placeholder="제목이나 요약으로 글 찾기" />
+              <FormField label="글 검색" type="search" name="q" defaultValue={q} maxLength={80} placeholder="제목·요약·본문 검색 (최대 80자)" />
               <input type="hidden" name="lang" value={selectedLang} />
               <ActionButton
                 type="submit"
@@ -96,7 +96,7 @@ export function PostsArchiveHero({
               Archive Summary
             </p>
             <p className="mt-4 text-base leading-7 text-foreground">
-              검색어와 언어를 선택해 원하는 기록을 찾아보세요.
+              검색어와 언어를 선택해 원하는 기록을 찾아보세요. 검색 결과는 관련도순으로 최대 100개를 표시합니다.
             </p>
             <div className="mt-8 grid items-end gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-2xl bg-secondary/70 px-4 py-4">

@@ -1,3 +1,9 @@
+# 2026-11-14 roadmap: search
+
+- Email subscriptions P1-014..016 deployed to dev and main at `cf49faa`. 205 API tests, 8 web tests, lint/build passed. Browser double opt-in, captured new-post mail, unsubscribe/address removal and mobile layout passed. Eight concurrent real MySQL requests queued exactly one mail; synthetic data and captured mail were removed.
+- Production V7 followed a verified backup; existing Resend configuration remains private. No test mail was sent to real recipients. Production switch monitoring: 30 HTTP requests, zero failures. Production subscription readiness checked separately.
+- Current topic P1-017..019: indexed public post search, bounded relevance results and privacy-conscious aggregate search diagnostics. Preserve public/published filtering, language filters and decimal-string IDs.
+
 # 2026-11-14 roadmap: email subscriptions
 
 - Comments P1-009..013 completed through dev/main/production at `139d0d0`. 193 API tests, 8 web tests and browser registration/reply/edit/moderation checks passed; eight concurrent browser retries produced one comment. QA comments were removed.
