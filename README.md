@@ -238,16 +238,16 @@ Ops
 - [x] P2-006-EXT-2 카카오 알림 연동 조사/대안 결정 — [연동·운영 기준](docs/EXTERNAL-NOTIFICATIONS.md)
 
 Backend
-- [ ] P2-007-CHAT-1 WebSocket/STOMP 서버 설정
+- [x] P2-007-CHAT-1 WebSocket/STOMP 서버 설정
 
 DB
-- [ ] P2-008-CHAT-2 채팅 DB 모델 + 마이그레이션
+- [x] P2-008-CHAT-2 채팅 DB 모델 + 마이그레이션
 
 Backend
-- [ ] P2-009-CHAT-3 채팅 메시지 프로토콜/이력 API
+- [x] P2-009-CHAT-3 채팅 메시지 프로토콜/이력 API
 
 Frontend
-- [ ] P2-010-CHAT-4 실시간 채팅 UI
+- [x] P2-010-CHAT-4 실시간 채팅 UI — [회원 공개 채팅 운영 기준](docs/MEMBER-CHAT.md)
 
 Backend
 - [ ] P2-011-AI-1 연관 글 추천 V1(규칙 기반)

@@ -47,7 +47,7 @@ export function MemberChat(){
     {page.items.length===0?<p className="py-8 text-center text-muted-foreground">아직 대화가 없습니다. 첫 인사를 남겨보세요.</p>:<ol className="space-y-5">{page.items.map(item=><li key={item.id} data-message-id={item.id} className="space-y-2 break-words"><div className="flex flex-wrap items-center gap-3"><strong>{item.author}</strong><time dateTime={item.createdAt} className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString("ko-KR")}</time>{item.canDelete&&<Button label="삭제" size="sm" isDisabled={deleting!==null} isLoading={deleting===item.id} onClick={()=>void remove(item.id)}/>}</div><p className="whitespace-pre-wrap [overflow-wrap:anywhere]">{item.deleted?"삭제된 메시지입니다.":item.body}</p></li>)}</ol>}
     <div ref={bottom}/>
    </div>
-   <form onSubmit={send} className="space-y-3"><FormTextarea label="메시지" value={body} onChange={e=>setBody(e.target.value)} rows={3} maxLength={2000} disabled={sending}/><div className="flex items-center justify-between gap-4"><span className="text-sm text-muted-foreground">{body.length}/2000</span><Button label="보내기" type="submit" variant="primary" isLoading={sending} isDisabled={!body.trim()}/></div></form>
+   <form onSubmit={send} className="space-y-3"><FormTextarea label="메시지" value={body} onChange={e=>setBody(e.target.value)} rows={3} maxLength={2000} disabled={sending}/><div className="flex justify-end"><Button label="보내기" type="submit" variant="primary" isLoading={sending} isDisabled={!body.trim()}/></div></form>
   </>}
   {writeError&&<p role="alert">{writeError}</p>}
   {error&&<Button label="다시 시도" onClick={()=>{setLoading(true);setRevision(v=>v+1);}}/>}

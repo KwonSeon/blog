@@ -1,7 +1,7 @@
 # 2026-11-14 current: member public chat
 
 - User chose a shared public room for members, replacing the initial private-inquiry assumption. P2-007..010: authenticated shared lobby, persistent paged messages, own/editor deletion, idempotent writes/rate limits, STOMP invalidation plus HTTP recovery, Astryx UI.
-- Local API253 tests and web16 tests passed, including real WebSocket cookie handshake, Origin rejection, subscription and forged SEND rejection. Dev V11 applied after verified backup `20261114T112444Z-595e8df7`; no messages. Dev runtime enablement prepared; edge routing and deployed browser QA follow.
+- API253/web16 tests, lint/build passed. Dev CI43590054880 and rollout `f56993d` succeeded; V11 followed verified backup `20261114T112444Z-595e8df7`. Browser two-account delivery~2.9s, eight concurrent retries→one message, owner/editor deletion and other-member404, literal HTML safety, actual socket reconnect, HTTP fallback with sockets blocked, 50+10 disjoint history pages and390px no overflow passed. Removed60 synthetic messages and both test rate rows; anonymous401/cross-origin403 and logout verified. Removed duplicate Astryx character counter; lint/build passed again. Main rollout follows.
 - External notifications documentation revision `73f60eb` is now dev/main/production. Telegram remains disabled; no real sends.
 
 # 2026-11-14 external notifications completed; next: real-time chat
