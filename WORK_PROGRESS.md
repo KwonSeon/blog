@@ -1,3 +1,10 @@
+# 2026-11-14 production deployment preparation
+
+- Added a private main-only CI-gated blue/green controller on the Mac mini; current main is the baseline, dev remains unpromoted.
+- Added schema compatibility gate, readiness checks, graceful Nginx reload, previous-static fallback, route rollback and interrupted-transaction blocking.
+- Isolated same-production-image switch/rollback rehearsal: 195 monitored HTTP requests, zero failures; six safety tests passed. Production routing was unchanged.
+- First dev-to-main promotion still requires compatible DB migration and production shared-Auth configuration review. See docs/DEVELOPMENT.md.
+
 # 2026-11-14 development restart
 
 Current work: latest compatible stack + Astryx components, shared Identity OIDC and Media integration, complete editor/list/edit flow, development-only CI/CD.

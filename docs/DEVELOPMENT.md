@@ -22,7 +22,7 @@ Media objects are public by URL; private blog visibility does not make uploaded 
 
 `.github/workflows/ci.yml` runs web lint/tests/build/production dependency audit and API tests/bootJar on GitHub-hosted runners for main, dev, feature pushes and pull requests. Actions are pinned by commit.
 
-Mac mini deployment is controlled outside the public repository. The local deployment agent checks the exact dev head and a successful `Blog CI` push run, builds images tagged with that SHA, waits for development container health and records the deployed SHA. Failed container health rolls back application images to the previous successful SHA. There are no automatic production jobs and no self-hosted runner exposed to public pull requests.
+Mac mini deployment is controlled outside the public repository. The local deployment agent checks the exact dev head and a successful `Blog CI` push run, builds images tagged with that SHA, waits for development container health and records the deployed SHA. Failed container health rolls back application images to the previous successful SHA. GitHub has no production deployment job or self-hosted runner exposed to public pull requests. A separate local main deployment controller is described below.
 
 Development URL: https://blog-dev.s-nowk.com. Runtime secrets, Compose, local deployment agent and DB remain outside Git. Development web/API bind only loopback; DB has no host port. Cloudflare restricts the development hostname to KR. Actual foreign-origin probing has not been performed.
 
@@ -68,3 +68,17 @@ The post editor offers formatting controls, an unsaved-change indicator and brow
 `blog_settings` stores the displayed blog name, home title/description, optional GitHub link, section order/visibility, grid/list post layout and standard/wide content width. Apply `V3__blog_settings.sql` before this API revision. The development DB was backed up before initialization. No production migration has run.
 
 Layout editing is a local draft until Save. The preview iframe renders the same components at its own desktop/mobile viewport with public content; it is authenticated, noindex and noninteractive. Preview messages are accepted only from the same-origin parent. Public pages read saved settings without caching, so saving needs no rebuild. At least one home section must remain visible. A locked singleton row and revision check reject stale saves (409) instead of overwriting a newer configuration.
+
+## Production release automation (2026-11-14)
+
+A separate Mac mini controller checks main every 180 seconds and requires a successful Blog CI push run for the exact main SHA. The existing production revision is registered as its baseline; installing the controller does not promote dev or replace production containers. Main promotion remains a separate user-requested action.
+
+The controller builds immutable SHA-tagged web/API images, starts a separate release pair with unique names and a distinct Snowflake worker, and checks API health, database-backed public lists and rendered pages. It validates the candidate Nginx configuration before gracefully reloading the existing edge. Web and API upstreams change together. The web calls its own release API. Next.js auth routes reach the web; missing static assets fall back to the previous web release.
+
+After switching, the controller verifies the selected release header and public routes. Failed checks restore the previous route and block retrying that SHA. Old containers remain running for in-flight requests, previous static assets and rollback; cleanup and worker allocation are explicit maintenance tasks. Rollback changes routing, never database state. Interrupted transactions leave a recovery journal and prevent further automatic changes.
+
+A migration fingerprint must match the reviewed production baseline. The controller does not run migrations. The current development V2/V3 schemas and shared-Auth production configuration need separate review before the first promotion. Database changes must remain compatible with both releases during the overlap. An arbitrary incompatible schema or authentication change cannot be made interruption-free by traffic switching alone.
+
+Runtime scripts, configuration, environment values, deployment state and recovery files remain outside Git in the private Mac mini production deployment directory. The local controller supports a read-only check and an explicit rollback command. It runs in the logged-in user's LaunchAgent session and requires Docker to be available.
+
+Verification: six deployment safety tests passed. An isolated loopback Nginx using the current production web/API images completed route switching and rollback while 195 monitored HTTP requests had zero failures. The actual production edge configuration and application containers were not replaced. This rehearsal verifies the routing mechanism, not a live promotion of the development release or every existing browser session.
