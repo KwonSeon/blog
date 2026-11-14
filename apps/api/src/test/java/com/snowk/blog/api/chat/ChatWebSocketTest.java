@@ -29,6 +29,17 @@ class ChatWebSocketTest {
     @MockitoBean ChatService service;
     @Autowired SimpMessagingTemplate template;
     @Autowired SimpUserRegistry users;
+    @Autowired ChatWebSocketConfig sockets;
+    @Autowired org.springframework.context.ApplicationContext context;
+
+    @Test
+    void heartbeatSchedulerCannotBeSelectedForOrdinaryBackgroundJobs() {
+        assertFalse(
+                context.getBeansOfType(org.springframework.scheduling.TaskScheduler.class)
+                        .values()
+                        .contains(sockets.chatHeartbeat()));
+    }
+
     final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
 
     @BeforeEach

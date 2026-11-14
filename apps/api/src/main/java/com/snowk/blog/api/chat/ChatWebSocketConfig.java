@@ -25,16 +25,24 @@ public class ChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final ChatSettings settings;
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
+    // Do not publish this scheduler as a Spring TaskScheduler bean: ordinary scheduled
+    // DB/mail jobs must never be selected onto the broker heartbeat thread.
+    private final ThreadPoolTaskScheduler heartbeat = new ThreadPoolTaskScheduler();
+
     public ChatWebSocketConfig(ChatSettings settings) {
         this.settings = settings;
+        heartbeat.setPoolSize(1);
+        heartbeat.setThreadNamePrefix("chat-heartbeat-");
+        heartbeat.initialize();
     }
 
-    @Bean
     public ThreadPoolTaskScheduler chatHeartbeat() {
-        var scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
-        scheduler.setThreadNamePrefix("chat-heartbeat-");
-        return scheduler;
+        return heartbeat;
+    }
+
+    @jakarta.annotation.PreDestroy
+    public void shutdownHeartbeat() {
+        heartbeat.shutdown();
     }
 
     @Override
