@@ -42,3 +42,13 @@ cd ../api
 ```
 
 Do not put real environment values or QA account credentials in this document. Production promotion remains a separate user request after development stabilization.
+
+## Development verification (2026-11-14)
+
+- API: 148 tests passed. Web: three authentication/ID regression tests, lint and production build passed.
+- Browser: synthetic email verification and registration, central SSO callback, editor access, normal-member denial, global logout and subsequent 401 were exercised.
+- Shared Media: real synthetic PNG presign/PUT/completion succeeded; the returned decimal ID exactly matched the object key. Post creation, publication and editing were exercised.
+- Public detail parsing also preserves 64-bit IDs; ordinary JSON number parsing can otherwise break cover-image URLs even after a successful upload.
+- Development CI/CD deployed the exact successful dev SHA. Production main and production services were not promoted.
+- Real Google/Kakao provider accounts and a request originating outside Korea were not tested.
+- The owner's editor binding requires an existing verified development Identity account. Do not create credentials or auto-grant editor access based on an unverified email.

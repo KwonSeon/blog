@@ -119,7 +119,7 @@ export async function getPublicProject(slug: string) {
     );
   }
 
-  return response.json() as Promise<PublicProjectDetail>;
+  return parseApiJson(await response.text()) as PublicProjectDetail;
 }
 
 export async function listPublicPosts(params?: { q?: string; lang?: string }) {
@@ -159,5 +159,5 @@ export async function getPublicPost(slug: string) {
     throw new Error(`공개 글 상세 요청에 실패했습니다. (${response.status})`);
   }
 
-  return response.json() as Promise<PublicPostDetail>;
+  return parseApiJson(await response.text()) as PublicPostDetail;
 }
