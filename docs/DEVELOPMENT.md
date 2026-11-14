@@ -60,3 +60,11 @@ Projects are database records, not a compiled catalogue. `/admin/projects` manag
 Project stories store long-form Markdown and shared Media image references in `project_stories`. Apply `infra/compose/migrations/blog/V2__project_stories.sql` before starting this API revision. Development DB backup and migration were performed separately; production remains unchanged. Both the public project and story endpoints require PUBLIC + ACTIVE. Images remain public URLs: upload only screenshots approved for public viewing, even while a project is private.
 
 The post editor offers formatting controls, an unsaved-change indicator and browser unload protection. Preview and public rendering share react-markdown with GFM support; raw HTML is skipped. Save supports publishing and returning an existing post to a draft.
+
+## Administration and layout settings
+
+`/admin` is the management dashboard; `/admin/posts`, `/admin/projects` and `/admin/settings` share a responsive navigation shell. Only mapped editors can read management data or save settings.
+
+`blog_settings` stores the displayed blog name, home title/description, optional GitHub link, section order/visibility, grid/list post layout and standard/wide content width. Apply `V3__blog_settings.sql` before this API revision. The development DB was backed up before initialization. No production migration has run.
+
+Layout editing is a local draft until Save. The preview iframe renders the same components at its own desktop/mobile viewport with public content; it is authenticated, noindex and noninteractive. Preview messages are accepted only from the same-origin parent. Public pages read saved settings without caching, so saving needs no rebuild. At least one home section must remain visible. A locked singleton row and revision check reject stale saves (409) instead of overwriting a newer configuration.

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/src/shared/config/site";
 import { Container } from "@/src/shared/ui";
 
-export function SiteFooter() {
+export function SiteFooter({title=siteConfig.name}:{title?:string}) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -10,7 +10,7 @@ export function SiteFooter() {
       <Container>
         <div className="flex flex-col gap-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {currentYear} {siteConfig.name}. All rights reserved.
+            © {currentYear} {title}. All rights reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-4" aria-label="푸터 메뉴">
             {siteConfig.navigation.main.map((item) => (

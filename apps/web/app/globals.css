@@ -88,3 +88,5 @@
 .blog-prose :not(pre) > code { background: var(--secondary); padding: .1rem .3rem; border-radius: .25rem; }
 .blog-prose img { max-width: 100%; height: auto; border-radius: var(--radius-container); }
 .blog-prose table { border-collapse: collapse; width: 100%; }.blog-prose th,.blog-prose td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+
+.blog-layout [data-container-size="default"] { max-width: var(--blog-content-width, 72rem); }

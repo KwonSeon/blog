@@ -4,12 +4,14 @@ import { Container, SectionHeader, SurfaceCard } from "@/src/shared/ui";
 
 interface PostsResultsSectionProps {
   posts: Post[];
+  layout?: "GRID" | "LIST";
   q: string;
   selectedLang: string;
 }
 
 export function PostsResultsSection({
   posts,
+  layout = "GRID",
   q,
   selectedLang,
 }: PostsResultsSectionProps) {
@@ -26,7 +28,9 @@ export function PostsResultsSection({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span>결과 {posts.length}개</span>
             <span>검색어: {q || "없음"}</span>
-            <span>언어: {selectedLang ? selectedLang.toUpperCase() : "전체"}</span>
+            <span>
+              언어: {selectedLang ? selectedLang.toUpperCase() : "전체"}
+            </span>
           </div>
           {q || selectedLang ? (
             <Link
@@ -39,12 +43,25 @@ export function PostsResultsSection({
         </div>
 
         {posts.length > 0 ? (
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          <div
+            data-post-layout={layout}
+            className={
+              layout === "LIST"
+                ? "grid gap-5"
+                : "grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+            }
+          >
             {posts.map((post, index) => (
               <PostCard
                 key={post.id}
                 post={post}
-                className={index === 0 ? "md:col-span-2 xl:col-span-1" : undefined}
+                className={
+                  layout === "LIST"
+                    ? "[&_img]:max-h-56"
+                    : index === 0
+                      ? "md:col-span-2 xl:col-span-1"
+                      : undefined
+                }
               />
             ))}
           </div>
@@ -57,7 +74,8 @@ export function PostsResultsSection({
               조건에 맞는 글이 아직 없습니다
             </h2>
             <p className="mt-4 text-base leading-8 text-muted-foreground">
-              검색어를 줄이거나 언어 조건을 해제하면 더 많은 글을 볼 수 있습니다.
+              검색어를 줄이거나 언어 조건을 해제하면 더 많은 글을 볼 수
+              있습니다.
             </p>
             <div className="mt-8 flex items-center justify-center">
               <Link

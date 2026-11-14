@@ -1,3 +1,4 @@
+import { getSiteSettings } from "@/src/shared/lib/server/site-settings";
 import type { Metadata } from "next";
 import { getPostsPageData } from "@/src/shared/lib/api/public-page-data";
 import { buildPublicMetadata } from "@/src/shared/lib/seo/public-metadata";
@@ -40,6 +41,7 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
   const selectedLang = params.lang?.trim() ?? "";
+  const settings = await getSiteSettings();
   const { posts, totalCount } = await getPostsPageData({
     q,
     lang: selectedLang || undefined,
@@ -53,6 +55,7 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
         totalCount={totalCount}
       />
       <PostsResultsSection
+        layout={settings.postLayout}
         posts={posts}
         q={q}
         selectedLang={selectedLang}

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { siteConfig } from "@/src/shared/config/site";
 import { Container } from "@/src/shared/ui";
 
-export function SiteHeader() {
+export function SiteHeader({title=siteConfig.name,githubUrl=siteConfig.social.github}:{title?:string;githubUrl?:string}) {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
       <Container>
@@ -12,9 +12,9 @@ export function SiteHeader() {
             className="flex items-center gap-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              S
+              {title.slice(0,1).toUpperCase()}
             </span>
-            <span>{siteConfig.name}</span>
+            <span>{title}</span>
           </Link>
 
           <nav
@@ -33,9 +33,9 @@ export function SiteHeader() {
             <Link href="/account" className="px-3 py-2 text-sm">
               내 계정
             </Link>
-            {siteConfig.social.github ? (
+            {githubUrl ? (
               <Link
-                href={siteConfig.social.github}
+                href={githubUrl}
                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 target="_blank"
                 rel="noopener noreferrer"

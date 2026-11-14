@@ -11,7 +11,7 @@ export function HomeProjectsSection({
   const [featuredProject, ...restProjects] = projects;
 
   return (
-    <section className="py-16 sm:py-20" aria-labelledby="home-projects-heading">
+    <section data-home-section="projects" className="py-16 sm:py-20" aria-labelledby="home-projects-heading">
       <Container>
         <SectionHeader
           headingId="home-projects-heading"
