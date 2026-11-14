@@ -1,3 +1,9 @@
+# 2026-11-14 roadmap: site readiness and advertising
+
+- P1-020 deployed dev/main at `01a7043`: WebSite, BlogPosting, visible BreadcrumbList and project WebPage markup; safe JSON serialization, real timestamps/images, public all-language sitemap and canonical URLs. Web tests 11/11 and lint/build passed. Browser verifies schemas, canonical, development noindex and private-content not-found/noindex. Next streamed not-found pages return HTTP 200 with noindex; do not claim page-level 404.
+- Production SEO monitoring: 40 requests, zero failures. API code/config unchanged, so the strengthened private release controller reused the current API; container name, start time and restart count remained identical. Safety tests14/14.
+- Current topic P1-021/022: public about/contact/editorial pages, privacy navigation and opt-in advertising plumbing. Advertising remains off until valid publisher/slot and actual consent-platform setup are ready; do not claim AdSense approval or sufficient production content.
+
 # 2026-11-14 roadmap: structured data
 
 - Search P1-017..019 deployed to dev/main at `4b145d3`. 209 API tests, 8 web tests, lint/build passed. Real MySQL FULLTEXT plan verified; ngram boolean phrases avoid unrelated partial-token matches. Browser checks covered English/Korean relevance, public/draft filters, 100-row bound, literal wildcard and empty results, and invalid query 400. Removed all 107 synthetic fixtures.

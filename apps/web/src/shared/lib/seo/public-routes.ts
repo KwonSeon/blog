@@ -1,6 +1,6 @@
 import { getPublicRouteInventory } from "@/src/shared/lib/api/public-page-data";
 
-export const STATIC_PUBLIC_PATHS = ["/", "/projects", "/posts", "/subscribe", "/privacy"] as const;
+export const STATIC_PUBLIC_PATHS = ["/", "/projects", "/posts", "/subscribe", "/privacy", "/about", "/contact", "/editorial"] as const;
 export const DISALLOWED_ROBOTS_PATHS = ["/admin", "/api/admin", "/proxy"] as const;
 
 
@@ -44,5 +44,8 @@ export async function getStaticPublicPathEntries() {
     },
     {path:"/subscribe", lastModified:"2026-11-14T00:00:00Z"},
     {path:"/privacy", lastModified:"2026-11-14T00:00:00Z"},
+    {path:"/about", lastModified:"2026-11-14T00:00:00Z"},
+    {path:"/contact", lastModified:"2026-11-14T00:00:00Z"},
+    {path:"/editorial", lastModified:"2026-11-14T00:00:00Z"},
   ];
 }

@@ -109,3 +109,14 @@ The browser uses /api/community/reactions through a no-store, same-origin BFF. P
 - Each member's write budget is serialized in SQL: 3-second spacing, 10 writes/minute, 100/day. Duplicate text within five minutes is rejected. Create UUIDs make network retries idempotent; reusing a key for different content conflicts. Limits are per canonical account, not a global spam/identity-abuse guarantee. Editing cannot reassign ownership or parent IDs.
 - Text is plain, bounded to 2,000 UTF-16 units and rendered through React escaping. BFF accepts only same-origin writes, retains HttpOnly credentials, bounds input and forwards Retry-After on throttling. Astryx TextArea/Button handle input, loading and focus; failures preserve drafts.
 - Validation covers concurrent retries, ownership/merge aliases, moderator binding, private targets, cross-content replies, budgets, large IDs, pagination, soft deletion, content cascade and a 20,000-item client tree.
+
+
+## Public pages and advertising readiness
+
+`/about`, `/contact`, `/editorial`, `/privacy` and `/subscribe` are linked in the public footer. `/admin/monetization` requires the explicit editor binding and reports configuration readiness; it does not query or assert Google account approval.
+
+Advertising is disabled by default and always disabled on development/localhost. Private web runtime settings are `BLOG_ADSENSE_CLIENT`, `BLOG_ADSENSE_ARTICLE_SLOT`, `BLOG_ADSENSE_SITE_READY`, `BLOG_ADSENSE_CMP_READY`, and `BLOG_ADSENSE_ENABLED`. All gates must pass before a manually placed article ad loads. A valid production publisher ID exposes the verification metadata and `/ads.txt` independently of ad delivery. No publisher IDs or credentials are hardcoded into source.
+
+Before activation, verify the actual site is ready in AdSense, create the intended display ad unit, and publish/test the Google-certified consent message in Privacy & messaging. Keep Auto ads off when only the explicit article placement is desired. The privacy page offers Google's consent-revocation flow while advertising is enabled. Do not use synthetic IDs against the real ad network or click live ads during QA. Development QA verifies that no ad script or slot is rendered.
+
+External approval and authentic published content remain operational prerequisites, not results of adding these pages. References: [site readiness](https://support.google.com/adsense/answer/7299563), [display ad units](https://support.google.com/adsense/answer/9274025), [Google consent messages](https://support.google.com/adsense/answer/10960768), [consent revocation](https://support.google.com/adsense/answer/10959060).
