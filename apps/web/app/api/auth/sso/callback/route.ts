@@ -2,6 +2,7 @@ import * as oidc from "openid-client";
 import { cookies } from "next/headers";
 import {
   ssoClient,
+  safeReturnPath,
   ssoSettings,
   openTransaction,
   SSO_TRANSACTION_COOKIE,
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
       idTokenExpected: true,
     });
     await saveTokens(tokens);
-    return Response.redirect(new URL("/account", settings.redirectUri), 303);
+    return Response.redirect(new URL(safeReturnPath(transaction.returnTo), settings.redirectUri), 303);
   } catch {
     return Response.json(
       {

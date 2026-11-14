@@ -41,7 +41,12 @@ export function ssoClient() {
   return configuration;
 }
 
+export function safeReturnPath(value: unknown) {
+  return typeof value === "string" && /^\/(posts|projects)\/[A-Za-z0-9_-]{1,150}$/.test(value) ? value : "/account";
+}
+
 type Transaction = {
+  returnTo?: string;
   state: string;
   nonce: string;
   verifier: string;

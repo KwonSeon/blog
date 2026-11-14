@@ -1,3 +1,11 @@
+# 2026-11-14 roadmap: content likes
+
+- P1-001/002 are fulfilled by shared Identity/OIDC instead of the historical Auth.js plan.
+- P1-003/004/005 implementation: authenticated likes for public published posts and active projects, anonymous counts, idempotent desired-state PUT, parent-row locking, cascade cleanup and signed merged-subject reconciliation on interaction.
+- Web: Astryx pressed-state button, pending/error feedback, same-origin BFF and signed allowlisted return path after login.
+- Validation: API tests (including concurrent duplicate writes and member/anonymous authorization), web lint/tests/build passed. Development V4 applied after backup; dev browser verification precedes main promotion.
+- Next ordered topic: P1-006/007/008 view counting. No later roadmap item is marked complete by this change.
+
 # 2026-11-14 production deployment preparation
 
 - Added a private main-only CI-gated blue/green controller on the Mac mini; current main is the baseline, dev remains unpromoted.

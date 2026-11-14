@@ -2,12 +2,13 @@ import * as oidc from "openid-client";
 import { cookies } from "next/headers";
 import {
   ssoClient,
+  safeReturnPath,
   ssoSettings,
   sealTransaction,
   SSO_TRANSACTION_COOKIE,
   SSO_COOKIE_PATH,
 } from "@/src/shared/lib/auth/sso";
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const verifier = oidc.randomPKCECodeVerifier(),
       state = oidc.randomState(),
@@ -22,7 +23,7 @@ export async function GET() {
     });
     (await cookies()).set(
       SSO_TRANSACTION_COOKIE,
-      sealTransaction({ verifier, state, nonce, expires: Date.now() + 300000 }),
+      sealTransaction({ verifier, state, nonce, returnTo: safeReturnPath(new URL(request.url).searchParams.get("next")), expires: Date.now() + 300000 }),
       {
         httpOnly: true,
         secure: true,

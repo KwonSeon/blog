@@ -82,3 +82,11 @@ A migration fingerprint must match the reviewed production baseline. The control
 Runtime scripts, configuration, environment values, deployment state and recovery files remain outside Git in the private Mac mini production deployment directory. The local controller supports a read-only check and an explicit rollback command. It runs in the logged-in user's LaunchAgent session and requires Docker to be available.
 
 Verification: six deployment safety tests passed. An isolated loopback Nginx using the current production web/API images completed route switching and rollback while 195 monitored HTTP requests had zero failures. The actual production edge configuration and application containers were not replaced. This rehearsal verifies the routing mechanism, not a live promotion of the development release or every existing browser session.
+
+## Content likes (P1-003 through P1-005)
+
+Apply V4__content_likes.sql before this release. Separate post/project tables use a unique content/Identity-subject key, subject lookup index and cascading parent FK. Likes belong to central subjects, never local author IDs. Only PUBLIC + PUBLISHED posts and PUBLIC + ACTIVE projects expose counts or accept writes. Anonymous callers receive counts without member identities; ordinary authenticated members may like without editor rights.
+
+Desired-state PUT is idempotent. A parent-row lock serializes writes and preserves the existing aggregate count; content updated_at does not change for reactions. Signed merged_subjects allow reading a previous account's like and collapse its duplicates onto the canonical subject when that member next interacts. Historical duplicates are not globally rewritten at account-merge time.
+
+The browser uses /api/community/reactions through a no-store, same-origin BFF. Production edge must route /api/community/ to the web; direct Spring mutation endpoints require Bearer authentication. Login return paths are restricted to local post/project detail paths and carried inside the signed SSO transaction. Astryx ToggleButton exposes pressed/loading states; failed requests retain the last confirmed state.

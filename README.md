@@ -159,19 +159,19 @@ Ops
 - [x] P0-031-E2E-1 외부 환경 E2E 재검증(작성→발행→업로드→공개)
 
 Backend
-- [ ] P1-001-AUTH-1 회원가입/로그인(일반 사용자) API + USER 권한 모델 + refresh/cookie 기준 정리
+- [x] P1-001-AUTH-1 공통 Identity 회원가입/로그인 + USER/작성자 권한 분리 + HttpOnly refresh/cookie
 
 Frontend
-- [ ] P1-002-AUTH-2 Auth.js 연동 + 프론트 로그인/회원가입 UI + 세션 처리
+- [x] P1-002-AUTH-2 공통 OIDC 연동 + 로그인/회원가입 UI + 세션 처리 (Auth.js 도입 계획 대체)
 
 DB
-- [ ] P1-003-REA-1 좋아요 테이블/인덱스 설계 + 마이그레이션
+- [x] P1-003-REA-1 좋아요 테이블/인덱스 설계 + 마이그레이션
 
 Backend
-- [ ] P1-004-REA-2 좋아요 API 구현
+- [x] P1-004-REA-2 좋아요 API 구현
 
 Frontend
-- [ ] P1-005-REA-3 좋아요 UI(글/프로젝트)
+- [x] P1-005-REA-3 좋아요 UI(글/프로젝트)
 
 DB
 - [ ] P1-006-VIEW-1 조회수 집계 스키마/정책 설계 + 마이그레이션

@@ -45,3 +45,11 @@ test("64-bit IDs survive nested API responses without rounding counts", () => {
   assert.equal(data.content[0].coverMediaAssetId, "123456789123456789");
   assert.equal(data.totalCount, 2);
 });
+
+test("login return paths reject external URLs and encoded redirects", async () => {
+  const { safeReturnPath } = await import("../src/shared/lib/auth/sso.ts");
+  assert.equal(safeReturnPath("/posts/example"), "/posts/example");
+  assert.equal(safeReturnPath("/projects/themappin"), "/projects/themappin");
+  for (const path of ["//evil.example", "https://evil.example", "/posts/../admin", "/posts/%2f%2fevil", "/posts/a?next=evil", null])
+    assert.equal(safeReturnPath(path), "/account");
+});
