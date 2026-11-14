@@ -34,3 +34,7 @@ out/
 
 # Local dev-only Spring config
 apps/api/src/main/resources/application-dev.yaml
+
+# Python operations tooling
+__pycache__/
+*.pyc

@@ -120,3 +120,14 @@ Advertising is disabled by default and always disabled on development/localhost.
 Before activation, verify the actual site is ready in AdSense, create the intended display ad unit, and publish/test the Google-certified consent message in Privacy & messaging. Keep Auto ads off when only the explicit article placement is desired. The privacy page offers Google's consent-revocation flow while advertising is enabled. Do not use synthetic IDs against the real ad network or click live ads during QA. Development QA verifies that no ad script or slot is rendered.
 
 External approval and authentic published content remain operational prerequisites, not results of adding these pages. References: [site readiness](https://support.google.com/adsense/answer/7299563), [display ad units](https://support.google.com/adsense/answer/9274025), [Google consent messages](https://support.google.com/adsense/answer/10960768), [consent revocation](https://support.google.com/adsense/answer/10959060).
+
+
+## Operations monitoring
+
+`python3 tools/monitor.py --config /private/path/monitor.json` performs read-only, bounded probes. Configuration contains an `output` directory, one to twelve named `endpoints` (`url`, optional `headers`, `status`, `json_contains`), optional `containers`, `memory_container`, Docker binary path and deployment `release_file`. Do not put live configuration in Git. Runtime container names follow the release journal automatically.
+
+The report covers public/origin HTTP responses, expected health JSON, redirects, container liveness/health/OOM/restart changes, Docker VM available memory and backup-disk free space. Requests run in four bounded workers; no service restart or deletion occurs. `status.json` is atomic, `history.jsonl` rotates at 10 MiB and local transition events at 1 MiB. Files are mode600 in a mode700 directory. Bodies, request headers and exception messages are never persisted. A nonzero exit means a failed check/configuration. Check the report timestamp and launchd exit status as well as the last health value; stale reports are not proof of health.
+
+The private Mac mini launch agent runs every five minutes. It records local health and incident/recovery transitions; external notification channels are not configured or sent by this task.
+
+The existing `npm test` discovery runs `tests/operations.test.mjs`, which executes the repository Python standard-library regression suite. This requires Python3 for local web test runs and uses the existing CI runner toolchain; no additional workflow or package dependency is required.

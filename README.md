@@ -211,8 +211,8 @@ Backend
 
 Frontend
 - [x] P1-020-SEO-3 구조화 데이터 적용
-- [ ] P1-021-ADS-1 AdSense 준비 페이지
-- [ ] P1-022-ADS-2 AdSense 스크립트/광고 슬롯
+- [x] P1-021-ADS-1 AdSense 준비 페이지
+- [x] P1-022-ADS-2 AdSense 스크립트/광고 슬롯
 
 Ops
 - [ ] P1-023-OPS-1 운영 모니터링 최소

@@ -1,3 +1,10 @@
+# 2026-11-14 roadmap: operations monitoring
+
+- P1-021/022 implementation deployed dev/main at `47d1d92`. Public about/contact/editorial/privacy links and editor-only advertising readiness screen validated; mobile overflow absent. Web tests13/13, lint/build and CI passed. Existing public publisher ID is private runtime configuration; source has no account identifier. Advertising remains disabled: actual site approval, slot and published/tested consent messages are not complete.
+- Production switch monitoring: 36 requests, zero failures. A development privacy-page cold chunk took ~19 seconds once; page completed successfully and loaded zero Google ad scripts. Keep this observation for P1-025 performance checks.
+- Current P1-023: development healthy probes and a safe unavailable-endpoint → recovery rehearsal passed; five operations tests run through the existing web test discovery in CI. A new workflow job was rejected because the Git token lacks workflow scope; the existing workflow file is unchanged. Private deployer now recognizes unchanged API/web trees and runtime for docs/tools-only revisions (15 safety tests); it retains the last distinct app rollback and avoids restarting apps.
+- Scope: bounded periodic public/origin health probes, container/release health and private local failure records. No automatic messages to third parties or destructive remediation.
+
 # 2026-11-14 roadmap: site readiness and advertising
 
 - P1-020 deployed dev/main at `01a7043`: WebSite, BlogPosting, visible BreadcrumbList and project WebPage markup; safe JSON serialization, real timestamps/images, public all-language sitemap and canonical URLs. Web tests 11/11 and lint/build passed. Browser verifies schemas, canonical, development noindex and private-content not-found/noindex. Next streamed not-found pages return HTTP 200 with noindex; do not claim page-level 404.
