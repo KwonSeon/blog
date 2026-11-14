@@ -15,9 +15,14 @@ public class NewsletterGateway {
     private final HttpClient client;
     private final ObjectMapper json = new ObjectMapper();
 
+    @org.springframework.beans.factory.annotation.Autowired
     public NewsletterGateway(NewsletterSettings settings) {
+        this(settings, HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build());
+    }
+
+    NewsletterGateway(NewsletterSettings settings, HttpClient client) {
         this.settings = settings;
-        this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+        this.client = client;
     }
 
     public void send(String id, String recipient, String subject, String text, String unsubscribe)
