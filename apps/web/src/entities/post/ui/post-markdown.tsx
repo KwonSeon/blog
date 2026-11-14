@@ -19,6 +19,11 @@ export function PostMarkdown({
         remarkPlugins={[remarkGfm]}
         skipHtml
         components={{
+          img: ({ src, alt, title }) => (
+            // Arbitrary Markdown images do not have known intrinsic dimensions.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={src} alt={alt ?? ""} title={title} loading="lazy" decoding="async" />
+          ),
           a: ({ href, children }) => (
             <a
               href={href}

@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { parseApiJson } from "./json";
 
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
@@ -59,105 +60,38 @@ interface PublicPostListResponse {
   totalCount: number;
 }
 
-interface RequestPublicApiJsonOptions {
-  searchParams?: URLSearchParams;
-  cache?: RequestCache;
-  next?: NextFetchRequestConfig;
-}
-
-function toBackendApiUrl(path: string, searchParams?: URLSearchParams) {
-  const normalizedBaseUrl = serverRuntimeConfig.blogApiBaseUrl;
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const queryString = searchParams?.toString();
-
-  return queryString
-    ? `${normalizedBaseUrl}${normalizedPath}?${queryString}`
-    : `${normalizedBaseUrl}${normalizedPath}`;
-}
-
-async function requestPublicApiJson<T>(
-  path: string,
-  options: RequestPublicApiJsonOptions = {},
-): Promise<T> {
-  const response = await fetch(toBackendApiUrl(path, options.searchParams), {
-    cache: options.cache ?? "no-store",
-    next: options.next,
-    headers: {
-      Accept: "application/json",
-    },
+// Request-scoped memoization shares parsed data between metadata and the page.
+// No persistent cache: a newly private/unpublished item disappears on the next request.
+const requestPublicApiJson = cache(async (path: string, query = ""): Promise<unknown | null> => {
+  const response = await fetch(`${serverRuntimeConfig.blogApiBaseUrl}${path}${query ? `?${query}` : ""}`, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(8000),
+    headers: { Accept: "application/json" },
   });
-
-  if (!response.ok) {
-    throw new Error(`공개 API 요청에 실패했습니다. (${response.status})`);
-  }
-
-  return parseApiJson(await response.text()) as T;
-}
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`공개 API 요청에 실패했습니다. (${response.status})`);
+  return parseApiJson(await response.text());
+});
 
 export async function listPublicProjects() {
-  const response =
-    await requestPublicApiJson<PublicProjectListResponse>("/projects");
-
-  return response;
+  const result = await requestPublicApiJson("/projects");
+  if (!result) throw new Error("프로젝트 목록을 불러오지 못했습니다.");
+  return result as PublicProjectListResponse;
 }
 
 export async function getPublicProject(slug: string) {
-  const response = await fetch(toBackendApiUrl(`/projects/${slug}`), {
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      `공개 프로젝트 상세 요청에 실패했습니다. (${response.status})`,
-    );
-  }
-
-  return parseApiJson(await response.text()) as PublicProjectDetail;
+  return await requestPublicApiJson(`/projects/${encodeURIComponent(slug)}`) as PublicProjectDetail | null;
 }
 
 export async function listPublicPosts(params?: { q?: string; lang?: string }) {
-  const searchParams = new URLSearchParams();
-
-  if (params?.q) {
-    searchParams.set("q", params.q);
-  }
-
-  if (params?.lang) {
-    searchParams.set("lang", params.lang);
-  }
-
-  const response = await requestPublicApiJson<PublicPostListResponse>(
-    "/posts",
-    {
-      searchParams,
-    },
-  );
-
-  return response;
+  const query = new URLSearchParams();
+  if (params?.q) query.set("q", params.q);
+  if (params?.lang) query.set("lang", params.lang);
+  const result = await requestPublicApiJson("/posts", query.toString());
+  if (!result) throw new Error("글 목록을 불러오지 못했습니다.");
+  return result as PublicPostListResponse;
 }
 
 export async function getPublicPost(slug: string) {
-  const response = await fetch(toBackendApiUrl(`/posts/${slug}`), {
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-
-  if (response.status === 404) {
-    return null;
-  }
-
-  if (!response.ok) {
-    throw new Error(`공개 글 상세 요청에 실패했습니다. (${response.status})`);
-  }
-
-  return parseApiJson(await response.text()) as PublicPostDetail;
+  return await requestPublicApiJson(`/posts/${encodeURIComponent(slug)}`) as PublicPostDetail | null;
 }

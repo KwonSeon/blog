@@ -216,7 +216,7 @@ Frontend
 
 Ops
 - [x] P1-023-OPS-1 운영 모니터링 최소
-- [ ] P1-024-OPS-2 백업 자동화 강화
+- [x] P1-024-OPS-2 백업 자동화 강화
 
 Frontend
 - [ ] P1-025-PERF-1 성능/UX 개선

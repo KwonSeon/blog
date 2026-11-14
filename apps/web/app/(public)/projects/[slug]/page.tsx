@@ -34,7 +34,7 @@ export default async function Detail({
   const { project, relatedPosts, hasDirectlyMatchedPosts } = data;
   const storyResponse = await fetch(
     `${serverRuntimeConfig.blogApiBaseUrl}/public/projects/${encodeURIComponent(slug)}/story`,
-    { cache: "no-store" },
+    { cache: "no-store", signal: AbortSignal.timeout(8000) },
   );
   if (!storyResponse.ok)
     throw new Error("프로젝트 소개를 불러오지 못했습니다.");

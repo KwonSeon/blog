@@ -41,11 +41,10 @@ export default async function PostsPage({ searchParams }: PostsPageProps) {
   const params = await searchParams;
   const q = params.q?.trim().slice(0, 80) ?? "";
   const selectedLang = /^[a-z]{2,3}(?:-[A-Z]{2})?$/.test(params.lang ?? "") ? params.lang! : "";
-  const settings = await getSiteSettings();
-  const { posts, totalCount } = await getPostsPageData({
-    q,
-    lang: selectedLang || undefined,
-  });
+  const [settings, { posts, totalCount }] = await Promise.all([
+    getSiteSettings(),
+    getPostsPageData({ q, lang: selectedLang || undefined }),
+  ]);
 
   return (
     <>

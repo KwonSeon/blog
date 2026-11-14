@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 
 import type { PostDetail } from "@/src/entities/post";
 import type { Project } from "@/src/entities/project";
@@ -46,7 +47,7 @@ export async function getProjectsPageData() {
   };
 }
 
-export async function getProjectDetailPageData(slug: string) {
+export const getProjectDetailPageData = cache(async (slug: string) => {
   const projectResponse = await getPublicProject(slug);
 
   if (!projectResponse) {
@@ -72,7 +73,7 @@ export async function getProjectDetailPageData(slug: string) {
       .filter((post) => post.slug !== slug)
       .slice(0, 3),
   };
-}
+});
 
 export async function getPostsPageData(params?: {
   q?: string;
@@ -86,7 +87,7 @@ export async function getPostsPageData(params?: {
   };
 }
 
-export async function getPostDetailPageData(slug: string) {
+export const getPostDetailPageData = cache(async (slug: string) => {
   const [postResponse, projectResponse] = await Promise.all([
     getPublicPost(slug),
     listPublicProjects(),
@@ -104,7 +105,7 @@ export async function getPostDetailPageData(slug: string) {
     post,
     relatedProject,
   };
-}
+});
 
 export async function getPublicRouteInventory() {
   const [projectResponse, postResponse] = await Promise.all([
