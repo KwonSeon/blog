@@ -90,3 +90,13 @@
 .blog-prose table { border-collapse: collapse; width: 100%; }.blog-prose th,.blog-prose td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
 
 .blog-layout [data-container-size="default"] { max-width: var(--blog-content-width, 72rem); }
+
+/* Loading placeholders follow the same administrator-selected layout as content. */
+.blog-layout[data-post-layout="LIST"] .post-skeleton-grid { grid-template-columns: minmax(0, 1fr); }
+.blog-layout[data-home-order="PROJECTS_FIRST"] .home-skeleton-projects { order: -1; }
+.blog-layout[data-show-hero="false"] .home-skeleton-hero,
+.blog-layout[data-show-posts="false"] .home-skeleton-posts,
+.blog-layout[data-show-projects="false"] .home-skeleton-projects { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .page-skeleton [data-skeleton-shape] { animation: none; }
+}

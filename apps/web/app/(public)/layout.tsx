@@ -14,7 +14,7 @@ export default async function PublicLayout({
 }>) {
   const settings = await getSiteSettings();
   return (
-    <div className="blog-layout" style={layoutStyle(settings)}>
+    <div className="blog-layout" style={layoutStyle(settings)} data-post-layout={settings.postLayout} data-home-order={settings.homeOrder} data-show-hero={settings.showHero} data-show-posts={settings.showPosts} data-show-projects={settings.showProjects}>
       <BlogShell
         header={
           <SiteHeader
