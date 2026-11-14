@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 CREATE TABLE blog_settings (
  id BIGINT NOT NULL PRIMARY KEY,
  site_title VARCHAR(80) NOT NULL,
