@@ -1,26 +1,51 @@
-import { cn } from "@/lib/utils";
-
-interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+"use client";
+import { useState } from "react";
+import { TextInput, type TextInputType } from "@astryxdesign/core/TextInput";
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   containerClassName?: string;
 }
-
 export function FormField({
   label,
   containerClassName,
   className,
-  ...props
-}: FormFieldProps) {
+  value,
+  defaultValue,
+  onChange,
+  type = "text",
+  disabled,
+  required,
+  readOnly,
+  name,
+  placeholder,
+  autoComplete,
+  maxLength,
+  onBlur,
+  onFocus,
+}: Props) {
+  const [local, setLocal] = useState(String(defaultValue ?? ""));
   return (
-    <label className={cn("grid gap-2 text-sm text-foreground", containerClassName)}>
-      <span className="font-medium">{label}</span>
-      <input
-        {...props}
-        className={cn(
-          "min-h-12 rounded-2xl border border-input bg-background px-4 text-base text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60",
-          className,
-        )}
-      />
-    </label>
+    <TextInput
+      label={label}
+      value={String(value ?? local)}
+      onChange={(v, e) => {
+        if (maxLength && v.length > maxLength) return;
+        setLocal(v);
+        onChange?.(e);
+      }}
+      type={type as TextInputType}
+      size="lg"
+      isDisabled={disabled}
+      isRequired={required}
+      isReadOnly={readOnly}
+      htmlName={name}
+      placeholder={placeholder}
+      autoComplete={autoComplete}
+      onBlur={onBlur}
+      onFocus={onFocus}
+      containerClassName={containerClassName}
+      controlClassName={className}
+      width="100%"
+    />
   );
 }

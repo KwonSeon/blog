@@ -1,7 +1,5 @@
-import {
-  FormMessage,
-  SurfaceCard,
-} from "@/src/shared/ui";
+import { ActionButton } from "@/src/shared/ui/action-button";
+import { FormMessage, SurfaceCard } from "@/src/shared/ui";
 import type { AdminMediaUploadState } from "@/src/widgets/admin-post-editor/model/upload";
 
 function formatFileSize(sizeBytes: number | null) {
@@ -81,33 +79,40 @@ export function AdminMediaUploadPanel({
   children,
 }: AdminMediaUploadPanelProps) {
   return (
-    <SurfaceCard padding="md" className="border border-border/80 bg-secondary/25">
+    <SurfaceCard
+      padding="md"
+      className="border border-border/80 bg-secondary/25"
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-primary">{eyebrow}</p>
+          <p className="text-xs uppercase tracking-[0.2em] text-primary">
+            {eyebrow}
+          </p>
           <h3 className="mt-3 text-xl font-semibold tracking-tight text-foreground">
             {title}
           </h3>
-          <p className="mt-3 text-sm leading-7 text-muted-foreground">{description}</p>
+          <p className="mt-3 text-sm leading-7 text-muted-foreground">
+            {description}
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button
+          <ActionButton
             type="button"
             onClick={onPickFile}
             disabled={selectDisabled}
             className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {selectLabel}
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
             type="button"
             onClick={onAction}
             disabled={actionDisabled}
             className="inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {actionLabel}
-          </button>
+          </ActionButton>
         </div>
       </div>
 
@@ -133,18 +138,20 @@ export function AdminMediaUploadPanel({
             <p>size: {formatFileSize(state.sizeBytes)}</p>
             <p>phase: {formatUploadPhase(state.phase)}</p>
             <p>progress: {state.progressPercent}%</p>
-            <p>mediaAssetId: {state.mediaAssetId ? state.mediaAssetId : "없음"}</p>
+            <p>
+              mediaAssetId: {state.mediaAssetId ? state.mediaAssetId : "없음"}
+            </p>
           </div>
         </div>
 
-        <button
+        <ActionButton
           type="button"
           onClick={onReset}
           disabled={resetDisabled}
           className="inline-flex min-h-11 items-center justify-center rounded-full border border-border px-5 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
         >
           선택 해제
-        </button>
+        </ActionButton>
       </div>
 
       {state.errorMessage ? (

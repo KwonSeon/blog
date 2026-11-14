@@ -1,12 +1,7 @@
 import type { AdminMediaNamespace } from "@/src/shared/lib/api/admin-media-api";
 
 export type AdminMediaUploadPhase =
-  | "idle"
-  | "presigning"
-  | "uploading"
-  | "completing"
-  | "success"
-  | "error";
+  "idle" | "presigning" | "uploading" | "completing" | "success" | "error";
 
 export interface AdminMediaUploadState {
   namespace: AdminMediaNamespace;
@@ -15,7 +10,7 @@ export interface AdminMediaUploadState {
   contentType: string;
   sizeBytes: number | null;
   progressPercent: number;
-  mediaAssetId: number | null;
+  mediaAssetId: string | number | null;
   objectKey: string;
   publicUrl: string;
   errorMessage: string;

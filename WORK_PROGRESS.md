@@ -1,3 +1,11 @@
+# 2026-11-14 development restart
+
+Current work: latest compatible stack + Astryx components, shared Identity OIDC and Media integration, complete editor/list/edit flow, development-only CI/CD.
+
+Implementation and boundaries: [development architecture](docs/DEVELOPMENT.md). Earlier progress below is retained as historical context; its local-admin-login and placeholder descriptions are superseded by shared Identity and the new Studio screens.
+
+---
+
 # Blog Work Progress
 
 이 파일은 저장소에 유지하는 현재 작업 기록이다.

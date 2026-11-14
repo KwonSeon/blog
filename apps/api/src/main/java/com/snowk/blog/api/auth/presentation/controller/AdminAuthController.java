@@ -19,8 +19,12 @@ public class AdminAuthController {
 
     private final AdminLoginUseCase adminLoginUseCase;
 
+    @org.springframework.beans.factory.annotation.Value("${BLOG_IDENTITY_ISSUER:}")
+    private String sharedIssuer;
+
     @PostMapping("/login")
     public AdminLoginResponse login(@Valid @RequestBody AdminLoginRequest request) {
+        if (sharedIssuer != null && !sharedIssuer.isBlank()) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.GONE, "Use shared Identity");
         AdminLoginResult result = adminLoginUseCase.login(
             new AdminLoginCommand(request.username(), request.password())
         );

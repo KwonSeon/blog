@@ -1,48 +1,49 @@
 import "server-only";
+import { parseApiJson } from "./json";
 
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
 
 export interface PublicProjectListItem {
-  projectId: number;
+  projectId: string | number;
   slug: string;
   title: string;
   summary: string;
   serviceUrl: string | null;
-  coverMediaAssetId: number | null;
+  coverMediaAssetId: string | number | null;
   publishedAt: string | null;
 }
 
 export interface PublicProjectDetail {
-  projectId: number;
+  projectId: string | number;
   slug: string;
   title: string;
   summary: string;
   serviceUrl: string | null;
   repoUrl: string | null;
-  coverMediaAssetId: number | null;
+  coverMediaAssetId: string | number | null;
   publishedAt: string | null;
 }
 
 export interface PublicPostListItem {
-  postId: number;
+  postId: string | number;
   slug: string;
   title: string;
   excerpt: string;
   lang: string;
-  coverMediaAssetId: number | null;
+  coverMediaAssetId: string | number | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface PublicPostDetail {
-  postId: number;
+  postId: string | number;
   slug: string;
   title: string;
   excerpt: string;
   contentMd: string;
   lang: string;
-  coverMediaAssetId: number | null;
+  coverMediaAssetId: string | number | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -90,11 +91,12 @@ async function requestPublicApiJson<T>(
     throw new Error(`공개 API 요청에 실패했습니다. (${response.status})`);
   }
 
-  return response.json() as Promise<T>;
+  return parseApiJson(await response.text()) as T;
 }
 
 export async function listPublicProjects() {
-  const response = await requestPublicApiJson<PublicProjectListResponse>("/projects");
+  const response =
+    await requestPublicApiJson<PublicProjectListResponse>("/projects");
 
   return response;
 }
@@ -112,16 +114,15 @@ export async function getPublicProject(slug: string) {
   }
 
   if (!response.ok) {
-    throw new Error(`공개 프로젝트 상세 요청에 실패했습니다. (${response.status})`);
+    throw new Error(
+      `공개 프로젝트 상세 요청에 실패했습니다. (${response.status})`,
+    );
   }
 
   return response.json() as Promise<PublicProjectDetail>;
 }
 
-export async function listPublicPosts(params?: {
-  q?: string;
-  lang?: string;
-}) {
+export async function listPublicPosts(params?: { q?: string; lang?: string }) {
   const searchParams = new URLSearchParams();
 
   if (params?.q) {
@@ -132,9 +133,12 @@ export async function listPublicPosts(params?: {
     searchParams.set("lang", params.lang);
   }
 
-  const response = await requestPublicApiJson<PublicPostListResponse>("/posts", {
-    searchParams,
-  });
+  const response = await requestPublicApiJson<PublicPostListResponse>(
+    "/posts",
+    {
+      searchParams,
+    },
+  );
 
   return response;
 }

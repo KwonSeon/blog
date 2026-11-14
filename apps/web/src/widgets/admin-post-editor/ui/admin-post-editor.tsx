@@ -1,5 +1,7 @@
 "use client";
 
+import { ActionButton } from "@/src/shared/ui/action-button";
+
 import { useDeferredValue, useRef, useState, useTransition } from "react";
 import {
   ADMIN_POST_STATUS_OPTIONS,
@@ -60,9 +62,12 @@ function toOptionalPositiveNumber(value: string) {
     return undefined;
   }
 
-  const parsed = Number(trimmed);
+  const parsed = trimmed;
 
-  if (!Number.isFinite(parsed) || parsed <= 0) {
+  if (
+    !/^[1-9][0-9]*$/.test(parsed) ||
+    BigInt(parsed) > BigInt("9223372036854775807")
+  ) {
     return null;
   }
 
@@ -134,7 +139,7 @@ function buildInlineImageTemplate(altText: string) {
 }
 
 function buildInlineImageMarkdown(
-  mediaAssetId: number,
+  mediaAssetId: string | number,
   altText: string,
   fileName: string,
 ) {
@@ -173,14 +178,38 @@ function getUploadButtonLabel(
   }
 }
 
-export function AdminPostEditor() {
-  const [editorState, setEditorState] = useState(INITIAL_EDITOR_STATE);
-  const [savedPost, setSavedPost] = useState<AdminPostRecord | null>(null);
+export function AdminPostEditor({
+  initialPost,
+}: {
+  initialPost?: AdminPostRecord;
+}) {
+  const [editorState, setEditorState] = useState(
+    initialPost
+      ? {
+          ...INITIAL_EDITOR_STATE,
+          slug: initialPost.slug,
+          title: initialPost.title,
+          excerpt: initialPost.excerpt ?? "",
+          contentMd: initialPost.contentMd,
+          visibility: initialPost.visibility,
+          status: initialPost.status,
+          lang: initialPost.lang,
+          coverMediaAssetId: initialPost.coverMediaAssetId
+            ? String(initialPost.coverMediaAssetId)
+            : "",
+        }
+      : INITIAL_EDITOR_STATE,
+  );
+  const [savedPost, setSavedPost] = useState<AdminPostRecord | null>(
+    initialPost ?? null,
+  );
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isPending, startTransition] = useTransition();
   const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
-  const [selectedInlineFile, setSelectedInlineFile] = useState<File | null>(null);
+  const [selectedInlineFile, setSelectedInlineFile] = useState<File | null>(
+    null,
+  );
   const [inlineImageAlt, setInlineImageAlt] = useState("");
   const [coverUploadState, setCoverUploadState] = useState(() =>
     createInitialAdminMediaUploadState(COVER_UPLOAD_NAMESPACE),
@@ -216,7 +245,9 @@ export function AdminPostEditor() {
   }
 
   function buildCreatePayload(status: AdminPostStatus) {
-    const coverMediaAssetId = toOptionalPositiveNumber(editorState.coverMediaAssetId);
+    const coverMediaAssetId = toOptionalPositiveNumber(
+      editorState.coverMediaAssetId,
+    );
 
     return {
       slug: editorState.slug.trim(),
@@ -231,7 +262,9 @@ export function AdminPostEditor() {
   }
 
   function buildUpdatePayload() {
-    const coverMediaAssetId = toOptionalPositiveNumber(editorState.coverMediaAssetId);
+    const coverMediaAssetId = toOptionalPositiveNumber(
+      editorState.coverMediaAssetId,
+    );
 
     return {
       slug: editorState.slug.trim(),
@@ -252,7 +285,9 @@ export function AdminPostEditor() {
     }
 
     setSelectedCoverFile(file);
-    setCoverUploadState(createUploadStateFromFile(file, COVER_UPLOAD_NAMESPACE));
+    setCoverUploadState(
+      createUploadStateFromFile(file, COVER_UPLOAD_NAMESPACE),
+    );
     setErrorMessage("");
   }
 
@@ -264,14 +299,18 @@ export function AdminPostEditor() {
     }
 
     setSelectedInlineFile(file);
-    setInlineUploadState(createUploadStateFromFile(file, INLINE_UPLOAD_NAMESPACE));
+    setInlineUploadState(
+      createUploadStateFromFile(file, INLINE_UPLOAD_NAMESPACE),
+    );
     setErrorMessage("");
   }
 
   function clearSelectedUpload(target: "cover" | "inline") {
     if (target === "cover") {
       setSelectedCoverFile(null);
-      setCoverUploadState(createInitialAdminMediaUploadState(COVER_UPLOAD_NAMESPACE));
+      setCoverUploadState(
+        createInitialAdminMediaUploadState(COVER_UPLOAD_NAMESPACE),
+      );
 
       if (coverFileInputRef.current) {
         coverFileInputRef.current.value = "";
@@ -281,7 +320,9 @@ export function AdminPostEditor() {
     }
 
     setSelectedInlineFile(null);
-    setInlineUploadState(createInitialAdminMediaUploadState(INLINE_UPLOAD_NAMESPACE));
+    setInlineUploadState(
+      createInitialAdminMediaUploadState(INLINE_UPLOAD_NAMESPACE),
+    );
 
     if (inlineFileInputRef.current) {
       inlineFileInputRef.current.value = "";
@@ -494,7 +535,10 @@ export function AdminPostEditor() {
       if (!savedPost) {
         nextPost = await createAdminPost(buildCreatePayload(targetStatus));
       } else {
-        nextPost = await updateAdminPost(savedPost.postId, buildUpdatePayload());
+        nextPost = await updateAdminPost(
+          savedPost.postId,
+          buildUpdatePayload(),
+        );
 
         if (targetStatus === "PUBLISHED" && nextPost.status !== "PUBLISHED") {
           nextPost = await changeAdminPostStatus(savedPost.postId, "PUBLISHED");
@@ -537,13 +581,15 @@ export function AdminPostEditor() {
     <AdminPostEditorShell
       editor={
         <SurfaceCard padding="lg">
-          <p className="text-xs uppercase tracking-[0.24em] text-primary">Editor Inputs</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-primary">
+            Editor Inputs
+          </p>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
             새 글 작성
           </h2>
           <p className="mt-4 text-base leading-8 text-muted-foreground">
-            markdown 본문과 공개 설정을 한 화면에서 조정하고, 저장 후 바로 발행까지
-            이어갈 수 있게 구성합니다.
+            markdown 본문과 공개 설정을 한 화면에서 조정하고, 저장 후 바로
+            발행까지 이어갈 수 있게 구성합니다.
           </p>
 
           <div className="mt-8 grid gap-5">
@@ -577,8 +623,8 @@ export function AdminPostEditor() {
               <FormSelect
                 label="공개 범위"
                 value={editorState.visibility}
-                onChange={(event) =>
-                  updateField("visibility", event.target.value as AdminPostVisibility)
+                onChange={(value) =>
+                  updateField("visibility", value as AdminPostVisibility)
                 }
                 disabled={isPending}
                 options={ADMIN_POST_VISIBILITY_OPTIONS}
@@ -587,8 +633,8 @@ export function AdminPostEditor() {
               <FormSelect
                 label="상태"
                 value={editorState.status}
-                onChange={(event) =>
-                  updateField("status", event.target.value as AdminPostStatus)
+                onChange={(value) =>
+                  updateField("status", value as AdminPostStatus)
                 }
                 disabled={isPending}
                 options={ADMIN_POST_STATUS_OPTIONS}
@@ -607,7 +653,9 @@ export function AdminPostEditor() {
                 label="coverMediaAssetId"
                 name="coverMediaAssetId"
                 value={editorState.coverMediaAssetId}
-                onChange={(event) => updateField("coverMediaAssetId", event.target.value)}
+                onChange={(event) =>
+                  updateField("coverMediaAssetId", event.target.value)
+                }
                 placeholder="업로드 후 자동 반영 또는 수동 입력"
                 disabled={isPending || isUploadBusy(coverUploadState)}
               />
@@ -616,7 +664,7 @@ export function AdminPostEditor() {
             <AdminMediaUploadPanel
               eyebrow="Cover Upload"
               title="커버 이미지 업로드"
-              description="`post-cover` namespace로 presign 업로드를 수행하고, complete 응답의 `mediaAssetId`를 `coverMediaAssetId`에 자동 반영합니다."
+              description="목록과 글 상단에 표시할 대표 이미지를 업로드하세요."
               fileInputRef={coverFileInputRef}
               onFileChange={handleCoverFileChange}
               onPickFile={() => coverFileInputRef.current?.click()}
@@ -629,16 +677,20 @@ export function AdminPostEditor() {
               )}
               onAction={() => void handleCoverUpload()}
               actionDisabled={
-                !selectedCoverFile || isPending || isUploadBusy(coverUploadState)
+                !selectedCoverFile ||
+                isPending ||
+                isUploadBusy(coverUploadState)
               }
               selectedFileName={selectedCoverFile?.name ?? null}
               state={coverUploadState}
               onReset={() => clearSelectedUpload("cover")}
               resetDisabled={
-                !selectedCoverFile || isPending || isUploadBusy(coverUploadState)
+                !selectedCoverFile ||
+                isPending ||
+                isUploadBusy(coverUploadState)
               }
               successMessage={`mediaAssetId ${coverUploadState.mediaAssetId} 업로드가 완료됐고, \`coverMediaAssetId\` 입력란에 자동 반영할 준비가 끝났습니다.`}
-              idleMessage="업로드가 완료되면 complete 응답의 `mediaAssetId`를 바로 `coverMediaAssetId`에 채웁니다."
+              idleMessage="업로드한 이미지가 대표 이미지로 설정됩니다."
             />
 
             <AdminMediaUploadPanel
@@ -657,16 +709,20 @@ export function AdminPostEditor() {
               )}
               onAction={() => void handleInlineImageInsert()}
               actionDisabled={
-                !selectedInlineFile || isPending || isUploadBusy(inlineUploadState)
+                !selectedInlineFile ||
+                isPending ||
+                isUploadBusy(inlineUploadState)
               }
               selectedFileName={selectedInlineFile?.name ?? null}
               state={inlineUploadState}
               onReset={() => clearSelectedUpload("inline")}
               resetDisabled={
-                !selectedInlineFile || isPending || isUploadBusy(inlineUploadState)
+                !selectedInlineFile ||
+                isPending ||
+                isUploadBusy(inlineUploadState)
               }
               successMessage={`mediaAssetId ${inlineUploadState.mediaAssetId} 업로드가 완료됐고, markdown 본문에 content URL을 바로 삽입할 수 있습니다.`}
-              idleMessage="업로드가 끝나면 `mediaAssetId`를 content endpoint URL로 바꿔 본문 현재 위치에 삽입합니다."
+              idleMessage="업로드한 사진을 본문의 커서 위치에 넣을 수 있습니다."
             >
               <div className="mt-5 grid gap-5 md:grid-cols-2">
                 <FormField
@@ -698,15 +754,17 @@ export function AdminPostEditor() {
               className="rounded-3xl py-4 font-mono text-sm leading-7"
             />
 
-            {errorMessage ? <FormMessage variant="danger">{errorMessage}</FormMessage> : null}
+            {errorMessage ? (
+              <FormMessage variant="danger">{errorMessage}</FormMessage>
+            ) : null}
             {successMessage ? (
               <FormMessage variant="success">{successMessage}</FormMessage>
             ) : null}
 
             <FormMessage>
               최초 저장은 `POST`, 이후 수정은 `PUT`, 발행 전환은 `PATCH /status`
-              흐름으로 처리합니다. media 업로드는 presign -&gt; object storage PUT -&gt;
-              complete 순서로 분리해 호출합니다.
+              흐름으로 처리합니다. media 업로드는 presign -&gt; object storage
+              PUT -&gt; complete 순서로 분리해 호출합니다.
             </FormMessage>
           </div>
         </SurfaceCard>
@@ -714,12 +772,15 @@ export function AdminPostEditor() {
       preview={
         <>
           <SurfaceCard padding="lg">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">Preview</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-primary">
+              Preview
+            </p>
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
               markdown preview pane
             </h2>
             <p className="mt-4 text-base leading-8 text-muted-foreground">
-              입력 중인 markdown을 그대로 렌더링해 발행 전 읽기 흐름을 확인합니다.
+              입력 중인 markdown을 그대로 렌더링해 발행 전 읽기 흐름을
+              확인합니다.
             </p>
 
             <div className="mt-8 rounded-3xl border border-border bg-background/70 px-5 py-6">
@@ -734,12 +795,14 @@ export function AdminPostEditor() {
           </SurfaceCard>
 
           <SurfaceCard padding="lg">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">Submit Actions</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-primary">
+              Submit Actions
+            </p>
             <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
               저장과 발행
             </h2>
             <div className="mt-6 flex flex-col gap-3">
-              <button
+              <ActionButton
                 type="button"
                 disabled={isPending}
                 onClick={handleSaveCurrentStatus}
@@ -752,23 +815,27 @@ export function AdminPostEditor() {
                     : savedPost
                       ? "수정 내용 저장"
                       : "임시 저장"}
-              </button>
-              <button
+              </ActionButton>
+              <ActionButton
                 type="button"
                 disabled={isPending}
                 onClick={handlePublish}
                 className="inline-flex min-h-12 items-center justify-center rounded-full border border-border px-6 text-sm font-medium text-foreground transition hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isPending ? "처리 중..." : "발행"}
-              </button>
+              </ActionButton>
             </div>
 
             <div className="mt-6 grid gap-3 rounded-2xl bg-secondary/35 px-4 py-4 text-sm text-muted-foreground">
               <p>현재 상태: {savedPost?.status ?? editorState.status}</p>
               <p>저장된 postId: {savedPost?.postId ?? "없음"}</p>
-              <p>최근 수정 시각: {formatDateTime(savedPost?.updatedAt ?? null)}</p>
+              <p>
+                최근 수정 시각: {formatDateTime(savedPost?.updatedAt ?? null)}
+              </p>
               <p>발행 시각: {formatDateTime(savedPost?.publishedAt ?? null)}</p>
-              <p>coverMediaAssetId: {editorState.coverMediaAssetId || "없음"}</p>
+              <p>
+                coverMediaAssetId: {editorState.coverMediaAssetId || "없음"}
+              </p>
             </div>
           </SurfaceCard>
         </>

@@ -1,4 +1,9 @@
-import { CTAButton, Container, StatusBadge, SurfaceCard } from "@/src/shared/ui";
+import {
+  CTAButton,
+  Container,
+  StatusBadge,
+  SurfaceCard,
+} from "@/src/shared/ui";
 
 interface HomeHeroProps {
   headline: string;
@@ -30,7 +35,7 @@ export function HomeHero({
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
           <div>
             <div className="mb-5 flex flex-wrap items-center gap-2">
-              <StatusBadge variant="success">프로젝트 랜딩 + 블로그 허브</StatusBadge>
+              <StatusBadge variant="success">개발 노트</StatusBadge>
               <span className="text-sm text-muted-foreground">
                 개발 기록과 직접 만든 서비스를 함께 공개합니다
               </span>
@@ -67,15 +72,12 @@ export function HomeHero({
             </div>
           </div>
 
-          <SurfaceCard
-            padding="lg"
-            className="bg-[linear-gradient(180deg,rgba(255,255,255,0.48),rgba(255,255,255,0.9))] backdrop-blur"
-          >
+          <SurfaceCard padding="lg">
             <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
               Snapshot
             </p>
             <p className="mt-4 text-base leading-7 text-foreground">
-              프로젝트를 먼저 탐색하고, 이어서 글 아카이브에서 설계 배경과 구현 기록을 읽는 흐름을 기본 구조로 잡았습니다.
+              직접 만든 서비스와 그 과정에서 배운 것들을 기록합니다.
             </p>
 
             <dl className="mt-8 grid grid-cols-3 gap-3">
@@ -101,7 +103,7 @@ export function HomeHero({
 
             <div className="mt-8 border-t border-border pt-6">
               <p className="text-sm leading-7 text-muted-foreground">
-                검색 유입 이후에도 바로 프로젝트를 살펴볼 수 있게, 텍스트와 링크 중심의 공개 구조를 유지합니다.
+                아이디어부터 배포까지, 프로젝트의 이야기를 만나보세요.
               </p>
             </div>
           </SurfaceCard>

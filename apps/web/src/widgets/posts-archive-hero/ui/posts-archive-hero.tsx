@@ -1,3 +1,4 @@
+import { ActionButton } from "@/src/shared/ui/action-button";
 import Link from "next/link";
 import { Container, SurfaceCard } from "@/src/shared/ui";
 
@@ -12,10 +13,7 @@ export function PostsArchiveHero({
   selectedLang,
   totalCount,
 }: PostsArchiveHeroProps) {
-  const buildPostsHref = (nextParams: {
-    q?: string;
-    lang?: string;
-  }) => {
+  const buildPostsHref = (nextParams: { q?: string; lang?: string }) => {
     const query = new URLSearchParams();
 
     if (nextParams.q) {
@@ -30,21 +28,25 @@ export function PostsArchiveHero({
   };
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24" aria-labelledby="posts-page-heading">
+    <section
+      className="py-16 sm:py-20 lg:py-24"
+      aria-labelledby="posts-page-heading"
+    >
       <Container>
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-start">
           <div className="max-w-4xl">
-            <p className="text-xs uppercase tracking-[0.24em] text-primary">Posts</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-primary">
+              Posts
+            </p>
             <h1
               id="posts-page-heading"
               className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl"
             >
-              검색 유입으로 들어온 글도, 카테고리별 아카이브도 같은 흐름으로 탐색합니다
+              개발하며 배우고 기록한 이야기
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
-              검색 유입으로 들어온 글과 공개 아카이브를 같은 흐름으로 탐색할 수 있게
-              정리합니다. 실제 공개 API 기준으로 제목과 요약 검색, 언어 조건, 결과
-              grid를 서버 렌더 중심으로 다시 조립합니다.
+              설계와 구현, 문제 해결의 과정을 모았습니다. 관심 있는 주제를
+              검색해 보세요.
             </p>
 
             <form
@@ -63,12 +65,12 @@ export function PostsArchiveHero({
                 className="min-h-12 rounded-full border border-border bg-background px-5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-ring"
               />
               <input type="hidden" name="lang" value={selectedLang} />
-              <button
+              <ActionButton
                 type="submit"
                 className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 검색
-              </button>
+              </ActionButton>
             </form>
 
             <div className="mt-6 flex flex-wrap gap-2">
@@ -103,9 +105,7 @@ export function PostsArchiveHero({
               Archive Summary
             </p>
             <p className="mt-4 text-base leading-7 text-foreground">
-              글 목록은 홈의 최신 글 섹션보다 탐색 밀도가 높아야 합니다. 검색어와
-              언어 조건을 한 화면에서 확인하고 결과 grid로 자연스럽게 내려가도록
-              조립합니다.
+              검색어와 언어를 선택해 원하는 기록을 찾아보세요.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
               <div className="rounded-2xl bg-secondary/70 px-4 py-4">

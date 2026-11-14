@@ -5,6 +5,10 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.snowk.blog.api.global.config.properties.JwtProperties;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +37,21 @@ public class JwtConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
+    public JwtDecoder jwtDecoder(
+        @Value("${BLOG_IDENTITY_ISSUER:}") String issuer,
+        @Value("${BLOG_IDENTITY_JWKS_URI:}") String jwks,
+        @Value("${BLOG_IDENTITY_AUDIENCE:blog-api}") String audience
+    ) {
+        if (!issuer.isBlank()) {
+            if (!issuer.startsWith("https://") || jwks.isBlank() || audience.isBlank())
+                throw new IllegalArgumentException("Identity issuer, JWKS and audience are required");
+            var decoder = NimbusJwtDecoder.withJwkSetUri(jwks).build();
+            OAuth2TokenValidator<Jwt> audienceValidator = token -> token.getAudience().contains(audience)
+                ? OAuth2TokenValidatorResult.success()
+                : OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token", "Invalid audience", null));
+            decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(JwtValidators.createDefaultWithIssuer(issuer), audienceValidator));
+            return decoder;
+        }
         // 이후 resource server가 Bearer 토큰을 검증할 때 같은 비밀키를 사용한다.
         SecretKey secretKey = new SecretKeySpec(
             jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8),

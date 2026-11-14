@@ -3,6 +3,9 @@ package com.snowk.blog.api.global.security.converter;
 import com.snowk.blog.api.global.security.authentication.AuthenticatedUserAuthenticationToken;
 import com.snowk.blog.api.global.security.principal.AuthenticatedUser;
 import java.util.Collection;
+import java.util.Map;
+import java.util.HashMap;
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -15,9 +18,26 @@ import org.springframework.util.StringUtils;
 @Component
 public class JwtAuthenticatedUserConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
+    private final Map<String, Long> editorBindings = new HashMap<>();
+    private final boolean sharedIdentity;
+
+    public JwtAuthenticatedUserConverter(
+        @Value("${BLOG_IDENTITY_ISSUER:}") String issuer,
+        @Value("${BLOG_IDENTITY_EDITOR_BINDINGS:}") String bindings
+    ) {
+        sharedIdentity = !issuer.isBlank();
+        if (!bindings.isBlank()) for (String pair : bindings.split(",")) {
+            String[] parts = pair.trim().split(":", -1);
+            if (parts.length != 2 || !parts[0].matches("[0-9]+") || !parts[1].matches("[1-9][0-9]*"))
+                throw new IllegalArgumentException("Invalid blog editor binding");
+            if (editorBindings.putIfAbsent(parts[0], Long.valueOf(parts[1])) != null)
+                throw new IllegalArgumentException("Duplicate blog editor binding");
+        }
+    }
+
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        List<String> roles = extractRoles(jwt);
+        List<String> roles = sharedIdentity ? (editorBindings.containsKey(jwt.getSubject()) ? List.of("ROLE_ADMIN") : List.of("ROLE_USER")) : extractRoles(jwt);
         Collection<GrantedAuthority> authorities = roles.stream()
             .map(SimpleGrantedAuthority::new)
             .map(GrantedAuthority.class::cast)
@@ -25,7 +45,7 @@ public class JwtAuthenticatedUserConverter implements Converter<Jwt, AbstractAut
 
         AuthenticatedUser principal = new AuthenticatedUser(
             jwt.getSubject(),
-            resolveUserId(jwt),
+            sharedIdentity ? editorBindings.get(jwt.getSubject()) : resolveUserId(jwt),
             jwt.getClaimAsString("username"),
             roles
         );

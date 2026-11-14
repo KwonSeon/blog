@@ -46,7 +46,7 @@ export default async function AdminLoginPage({
 
   return (
     <AdminLoginShell>
-      <AdminLoginForm nextPath={nextPath} />
+      <AdminLoginForm />
     </AdminLoginShell>
   );
 }

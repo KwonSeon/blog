@@ -1,78 +1,90 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { siteConfig } from "@/src/shared/config/site";
-import { Container, SurfaceCard } from "@/src/shared/ui";
-import {
-  AdminLogoutButton,
-  AdminSessionGuard,
-} from "@/src/widgets/admin-session-guard";
-
-export const metadata: Metadata = {
-  title: "관리자 작업공간",
-  description:
-    "관리자 인증 이후 글 작성과 발행 흐름으로 이어지기 전의 기본 보호 화면입니다.",
-  robots: {
-    index: false,
-    follow: false,
-  },
-  alternates: {
-    canonical: "/admin",
-  },
-  openGraph: {
-    title: `관리자 작업공간 | ${siteConfig.name}`,
-    description:
-      "관리자 인증 이후 글 작성과 발행 흐름으로 이어지기 전의 기본 보호 화면입니다.",
-    url: `${siteConfig.url}/admin`,
-    siteName: siteConfig.name,
-    type: "website",
-  },
+import { redirect } from "next/navigation";
+import { editorToken } from "@/src/shared/lib/auth/session";
+import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
+import { parseApiJson } from "@/src/shared/lib/api/json";
+import type { AdminPostRecord } from "@/src/entities/post";
+import { Container, SurfaceCard, CTAButton } from "@/src/shared/ui";
+import { AdminLogoutButton } from "@/src/widgets/admin-session-guard";
+export const metadata = {
+  title: "글 관리",
+  robots: { index: false, follow: false },
 };
-
-export default function AdminHomePage() {
+export default async function AdminHomePage() {
+  const token = await editorToken();
+  if (!token) redirect("/admin/login");
+  const response = await fetch(
+    `${serverRuntimeConfig.blogApiBaseUrl}/admin/posts`,
+    { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" },
+  );
+  if (!response.ok) throw new Error("글 목록을 불러오지 못했습니다.");
+  const data = parseApiJson(await response.text()) as {
+    content: AdminPostRecord[];
+    totalCount: number;
+  };
   return (
-    <AdminSessionGuard nextPath="/admin">
-      <section className="py-16 sm:py-20 lg:min-h-screen">
-        <Container size="wide">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-            <div className="max-w-3xl">
-              <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                Admin Workspace
-              </p>
-              <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                관리자 인증이 완료되었습니다
-              </h1>
-              <p className="mt-6 text-base leading-8 text-muted-foreground">
-                이 화면은 로그인 성공 후 도착하는 기본 보호 라우트입니다. 다음 단계에서
-                글 작성, 미리보기, 발행을 위한 관리자 에디터 화면으로 이어집니다.
-              </p>
-            </div>
-
-            <SurfaceCard padding="lg" className="border-primary/10 bg-surface/98">
-              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Next Step
-              </p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
-                다음 구현 대기
-              </h2>
-              <p className="mt-4 text-base leading-8 text-muted-foreground">
-                `P0-020-FE-ADM-2`에서 이 위치를 관리자 에디터와 작성 흐름으로
-                확장합니다. 현재는 로그인 성공과 보호 라우트 진입 기준을 먼저 확인하기
-                위한 placeholder입니다.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/admin/posts/new"
-                  className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-                >
-                  새 글 작성 시작
-                </Link>
-                <AdminLogoutButton />
-              </div>
-            </SurfaceCard>
+    <main>
+      <Container className="py-12">
+        <div className="flex flex-wrap items-center justify-between gap-6 mb-8">
+          <div>
+            <p className="text-muted-foreground">s-nowk Studio</p>
+            <h1 className="text-3xl font-semibold mt-2">글 관리</h1>
+            <p className="mt-3 text-muted-foreground">
+              {data.totalCount}개의 기록 · 임시저장부터 발행까지
+            </p>
           </div>
-        </Container>
-      </section>
-    </AdminSessionGuard>
+          <div className="flex flex-wrap gap-3">
+            <CTAButton href="/admin/posts/new">새 글 작성</CTAButton>
+            <CTAButton href="/" variant="secondary">
+              블로그 보기
+            </CTAButton>
+            <AdminLogoutButton />
+          </div>
+        </div>
+        <div className="grid gap-4">
+          {data.content.length ? (
+            data.content.map((post) => (
+              <SurfaceCard key={String(post.postId)}>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <span className="text-sm text-muted-foreground">
+                      {post.status === "PUBLISHED" ? "발행됨" : "임시저장"} ·{" "}
+                      {post.visibility === "PUBLIC" ? "공개" : "비공개"}
+                    </span>
+                    <h2 className="text-xl font-semibold mt-2">{post.title}</h2>
+                    <p className="text-muted-foreground mt-2">{post.excerpt}</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <CTAButton
+                      href={`/admin/posts/${post.postId}/edit`}
+                      variant="secondary"
+                    >
+                      수정
+                    </CTAButton>
+                    {post.status === "PUBLISHED" &&
+                    post.visibility === "PUBLIC" ? (
+                      <CTAButton
+                        href={`/posts/${post.slug}`}
+                        variant="secondary"
+                      >
+                        글 보기
+                      </CTAButton>
+                    ) : null}
+                  </div>
+                </div>
+              </SurfaceCard>
+            ))
+          ) : (
+            <SurfaceCard>
+              <h2 className="text-xl font-semibold">
+                첫 번째 기록을 남겨보세요
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                작성 중인 글은 임시저장하고, 준비가 되면 발행할 수 있습니다.
+              </p>
+            </SurfaceCard>
+          )}
+        </div>
+      </Container>
+    </main>
   );
 }

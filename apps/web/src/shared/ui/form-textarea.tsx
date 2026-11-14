@@ -1,29 +1,52 @@
-import { forwardRef } from "react";
-import { cn } from "@/lib/utils";
-
-interface FormTextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+"use client";
+import { forwardRef, useState } from "react";
+import { TextArea } from "@astryxdesign/core/TextArea";
+interface Props extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   containerClassName?: string;
 }
-
-export const FormTextarea = forwardRef<HTMLTextAreaElement, FormTextareaProps>(
+export const FormTextarea = forwardRef<HTMLTextAreaElement, Props>(
   function FormTextarea(
-    { label, containerClassName, className, ...props },
+    {
+      label,
+      containerClassName,
+      value,
+      defaultValue,
+      onChange,
+      disabled,
+      required,
+      readOnly,
+      name,
+      placeholder,
+      rows,
+      maxLength,
+      onPaste,
+      onBlur,
+    },
     ref,
   ) {
+    const [local, setLocal] = useState(String(defaultValue ?? ""));
     return (
-      <label className={cn("grid gap-2 text-sm text-foreground", containerClassName)}>
-        <span className="font-medium">{label}</span>
-        <textarea
-          {...props}
-          ref={ref}
-          className={cn(
-            "rounded-2xl border border-input bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60",
-            className,
-          )}
-        />
-      </label>
+      <TextArea
+        ref={ref}
+        label={label}
+        value={String(value ?? local)}
+        onChange={(v, e) => {
+          setLocal(v);
+          onChange?.(e);
+        }}
+        isDisabled={disabled}
+        isRequired={required}
+        isReadOnly={readOnly}
+        htmlName={name}
+        placeholder={placeholder}
+        rows={rows}
+        maxLength={maxLength}
+        onPaste={onPaste}
+        onBlur={onBlur}
+        containerClassName={containerClassName}
+        width="100%"
+      />
     );
   },
 );

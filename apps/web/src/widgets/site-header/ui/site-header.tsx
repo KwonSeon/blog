@@ -6,7 +6,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
       <Container>
-        <div className="flex h-16 items-center justify-between gap-6">
+        <div className="flex min-h-16 flex-wrap py-3 items-center justify-between gap-6">
           <Link
             href="/"
             className="flex items-center gap-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -17,7 +17,10 @@ export function SiteHeader() {
             <span>{siteConfig.name}</span>
           </Link>
 
-          <nav className="flex items-center gap-1" aria-label="메인 메뉴">
+          <nav
+            className="flex flex-wrap items-center gap-1"
+            aria-label="메인 메뉴"
+          >
             {siteConfig.navigation.main.map((item) => (
               <Link
                 key={item.href}
@@ -27,6 +30,9 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/account" className="px-3 py-2 text-sm">
+              내 계정
+            </Link>
             {siteConfig.social.github ? (
               <Link
                 href={siteConfig.social.github}

@@ -1,10 +1,13 @@
 import "server-only";
+import { parseApiJson } from "@/src/shared/lib/api/json";
 
 import { serverRuntimeConfig } from "@/src/shared/config/server-runtime";
 import {
   clearAdminSessionCookie,
   readAdminSessionToken,
 } from "@/src/shared/lib/auth/admin-session.server";
+
+import { sameOrigin } from "@/src/shared/lib/auth/session";
 
 type AdminApiTarget = "blog" | "media";
 
@@ -20,7 +23,7 @@ function resolveApiBaseUrl(target: AdminApiTarget) {
     : serverRuntimeConfig.mediaApiBaseUrl;
 }
 
-function createProxyResponse(response: Response) {
+async function createProxyResponse(response: Response) {
   const headers = new Headers();
   const contentType = response.headers.get("content-type");
 
@@ -30,7 +33,10 @@ function createProxyResponse(response: Response) {
 
   headers.set("cache-control", "no-store");
 
-  return new Response(response.body, {
+  const body = contentType?.includes("application/json")
+    ? JSON.stringify(parseApiJson(await response.text()))
+    : response.body;
+  return new Response(body, {
     status: response.status,
     headers,
   });
@@ -45,7 +51,9 @@ export async function proxyAdminApiRequest({
   target,
   path,
 }: ProxyAdminApiRequestOptions) {
-  const accessToken = await readAdminSessionToken();
+  if (hasRequestBody(request.method) && !sameOrigin(request))
+    return new Response(null, { status: 403 });
+  const accessToken = await readAdminSessionToken(true);
 
   if (!accessToken) {
     return Response.json(

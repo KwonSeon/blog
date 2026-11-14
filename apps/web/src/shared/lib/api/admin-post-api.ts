@@ -16,7 +16,7 @@ export interface AdminPostInput {
   visibility: AdminPostVisibility;
   status: AdminPostStatus;
   lang: string;
-  coverMediaAssetId?: number;
+  coverMediaAssetId?: string | number;
 }
 
 export interface AdminPostUpdateInput {
@@ -26,7 +26,7 @@ export interface AdminPostUpdateInput {
   contentMd: string;
   visibility: AdminPostVisibility;
   lang: string;
-  coverMediaAssetId?: number;
+  coverMediaAssetId?: string | number;
 }
 
 async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
@@ -39,7 +39,8 @@ async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
     cache: "no-store",
   });
 
-  const data = (await response.json().catch(() => null)) as T | ErrorResponse | null;
+  const data = (await response.json().catch(() => null)) as
+    T | ErrorResponse | null;
 
   if (response.status === 401 || response.status === 403) {
     throw new Error("관리자 인증이 만료됐습니다. 다시 로그인하세요.");
@@ -47,7 +48,8 @@ async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
 
   if (!response.ok) {
     throw new Error(
-      (data as ErrorResponse | null)?.message ?? "관리자 글 요청에 실패했습니다.",
+      (data as ErrorResponse | null)?.message ??
+        "관리자 글 요청에 실패했습니다.",
     );
   }
 
@@ -55,21 +57,27 @@ async function requestAdminApi<T>(path: string, init: RequestInit): Promise<T> {
 }
 
 export function createAdminPost(input: AdminPostInput) {
-  return requestAdminApi<AdminPostRecord>("/admin/posts", {
+  return requestAdminApi<AdminPostRecord>("/posts", {
     method: "POST",
     body: JSON.stringify(input),
   });
 }
 
-export function updateAdminPost(postId: number, input: AdminPostUpdateInput) {
-  return requestAdminApi<AdminPostRecord>(`/admin/posts/${postId}`, {
+export function updateAdminPost(
+  postId: string | number,
+  input: AdminPostUpdateInput,
+) {
+  return requestAdminApi<AdminPostRecord>(`/posts/${postId}`, {
     method: "PUT",
     body: JSON.stringify(input),
   });
 }
 
-export function changeAdminPostStatus(postId: number, status: AdminPostStatus) {
-  return requestAdminApi<AdminPostRecord>(`/admin/posts/${postId}/status`, {
+export function changeAdminPostStatus(
+  postId: string | number,
+  status: AdminPostStatus,
+) {
+  return requestAdminApi<AdminPostRecord>(`/posts/${postId}/status`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
   });

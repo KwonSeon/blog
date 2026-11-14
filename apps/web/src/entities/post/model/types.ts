@@ -1,10 +1,5 @@
 export type PostCategory =
-  | "general"
-  | "tutorial"
-  | "devlog"
-  | "retrospective"
-  | "system"
-  | "web";
+  "general" | "tutorial" | "devlog" | "retrospective" | "system" | "web";
 
 export interface Post {
   id: string;
@@ -28,7 +23,7 @@ export type AdminPostVisibility = "PUBLIC" | "PRIVATE";
 export type AdminPostStatus = "DRAFT" | "PUBLISHED";
 
 export interface AdminPostRecord {
-  postId: number;
+  postId: string | number;
   slug: string;
   title: string;
   excerpt: string | null;
@@ -36,8 +31,8 @@ export interface AdminPostRecord {
   visibility: AdminPostVisibility;
   status: AdminPostStatus;
   lang: string;
-  coverMediaAssetId: number | null;
-  authorUserId: number;
+  coverMediaAssetId: string | number | null;
+  authorUserId: string | number;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;

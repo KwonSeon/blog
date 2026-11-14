@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  CTAButton,
-  Container,
-  SurfaceCard,
-} from "@/src/shared/ui";
+import { CTAButton, Container, SurfaceCard } from "@/src/shared/ui";
 
 interface AdminPostEditorShellProps {
   editor: React.ReactNode;
@@ -24,12 +20,10 @@ export function AdminPostEditorShell({
                 Admin Editor
               </p>
               <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-                글 작성, 미리보기, 발행을 같은 화면에서 처리하는 관리자 에디터
+                새로운 기록을 작성하세요
               </h1>
               <p className="mt-5 text-base leading-8 text-muted-foreground">
-                새 글 작성 route에서는 slug, 제목, 요약, markdown 본문, 공개 범위,
-                발행 상태를 한 번에 관리해야 합니다. 현재는 cover image와 본문
-                image 업로드까지 같은 흐름 안에서 처리하도록 연결돼 있습니다.
+                사진과 함께 이야기를 작성하고, 미리보기로 확인한 뒤 발행하세요.
               </p>
             </div>
 
@@ -47,9 +41,7 @@ export function AdminPostEditorShell({
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)]">
-            <div className="grid gap-6">
-              {editor}
-            </div>
+            <div className="grid gap-6">{editor}</div>
 
             <div className="grid gap-6">
               {preview}
@@ -59,10 +51,9 @@ export function AdminPostEditorShell({
                   Publish Notes
                 </p>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                  최초 저장은 `POST /api/admin/posts`, 본문 수정은 `PUT`, 발행 전환은
-                  `PATCH /status` 기준으로 나뉘고, media 업로드는 presign과 complete
-                  호출이 별도 흐름입니다. 그래서 editor state와 upload state를
-                  분리해 두는 편이 이후 수정 화면 재사용에도 유리합니다.
+                  임시저장한 글은 공개되지 않습니다. 발행 전에 제목과 본문, 공개
+                  범위를 확인해 주세요. 업로드한 사진의 주소는 공개될 수
+                  있으므로 민감한 사진은 올리지 마세요.
                 </p>
               </SurfaceCard>
             </div>

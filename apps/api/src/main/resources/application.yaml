@@ -47,6 +47,6 @@ security:
   jwt:
     issuer: ${BLOG_JWT_ISSUER:https://auth.s-nowk.com}
     # 진행용 fallback. 배포 전에는 환경변수로 대체
-    secret-key: ${BLOG_JWT_SECRET_KEY:Nr0k5G2dfQnJm5FBrVfH0Vof64u+0YecT2towTvTgEbzVHR1Lc75LpLu5iWnfXiM}
+    secret-key: ${BLOG_JWT_SECRET_KEY}
     access-token:
       expiretime: 60

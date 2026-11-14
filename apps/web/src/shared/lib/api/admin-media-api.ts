@@ -3,10 +3,7 @@ interface ErrorResponse {
 }
 
 export type AdminMediaNamespace =
-  | "post-cover"
-  | "project-cover"
-  | "post-inline"
-  | "project-inline";
+  "post-cover" | "project-cover" | "post-inline" | "project-inline";
 
 export interface AdminMediaUploadPresignInput {
   namespace: AdminMediaNamespace;
@@ -16,7 +13,7 @@ export interface AdminMediaUploadPresignInput {
 }
 
 export interface AdminMediaUploadPresignResult {
-  mediaAssetId: number;
+  mediaAssetId: string | number;
   bucket: string;
   objectKey: string;
   uploadUrl: string;
@@ -26,13 +23,13 @@ export interface AdminMediaUploadPresignResult {
 }
 
 export interface AdminMediaUploadCompleteInput {
-  mediaAssetId: number;
+  mediaAssetId: string | number;
   objectKey: string;
   originalFilename: string;
 }
 
 export interface AdminMediaUploadCompleteResult {
-  mediaAssetId: number;
+  mediaAssetId: string | number;
   bucket: string;
   objectKey: string;
   originalFilename: string;
@@ -63,7 +60,8 @@ async function requestAdminMediaApi<T>(
     cache: "no-store",
   });
 
-  const data = (await response.json().catch(() => null)) as T | ErrorResponse | null;
+  const data = (await response.json().catch(() => null)) as
+    T | ErrorResponse | null;
 
   if (response.status === 401 || response.status === 403) {
     throw new Error("관리자 인증이 만료됐습니다. 다시 로그인하세요.");
@@ -71,7 +69,8 @@ async function requestAdminMediaApi<T>(
 
   if (!response.ok) {
     throw new Error(
-      (data as ErrorResponse | null)?.message ?? "관리자 미디어 요청에 실패했습니다.",
+      (data as ErrorResponse | null)?.message ??
+        "관리자 미디어 요청에 실패했습니다.",
     );
   }
 
@@ -82,7 +81,7 @@ export function requestAdminMediaUploadPresign(
   input: AdminMediaUploadPresignInput,
 ) {
   return requestAdminMediaApi<AdminMediaUploadPresignResult>(
-    "/admin/media/uploads/presign",
+    "/uploads/presign",
     {
       method: "POST",
       headers: {
@@ -95,7 +94,7 @@ export function requestAdminMediaUploadPresign(
 
 export function completeAdminMediaUpload(input: AdminMediaUploadCompleteInput) {
   return requestAdminMediaApi<AdminMediaUploadCompleteResult>(
-    "/admin/media/uploads/complete",
+    "/uploads/complete",
     {
       method: "POST",
       headers: {
@@ -106,7 +105,7 @@ export function completeAdminMediaUpload(input: AdminMediaUploadCompleteInput) {
   );
 }
 
-export function buildPublicMediaContentUrl(mediaAssetId: number) {
+export function buildPublicMediaContentUrl(mediaAssetId: string | number) {
   return `/media/assets/${mediaAssetId}/content`;
 }
 

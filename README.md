@@ -1,3 +1,5 @@
+> Active development: [architecture and verification](docs/DEVELOPMENT.md). New work targets dev; production main remains unchanged. Runtime infrastructure and credentials are outside this repository.
+
 # s-nowk blog 플랫폼
 
 Next.js(SSR) + Spring API + MySQL(blog_db) + 별도 media 서비스 + Docker 배포 + Cloudflare Tunnel CNAME + Nginx 라우팅으로 **검색 유입(SEO)과 프로젝트 체험(랜딩)**을 동시에 만족하는 개인 블로그/프로젝트 플랫폼.

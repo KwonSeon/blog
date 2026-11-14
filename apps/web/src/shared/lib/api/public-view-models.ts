@@ -1,11 +1,5 @@
-import type {
-  Post,
-  PostDetail,
-} from "@/src/entities/post";
-import type {
-  Project,
-  ProjectStatus,
-} from "@/src/entities/project";
+import type { Post, PostDetail } from "@/src/entities/post";
+import type { Project, ProjectStatus } from "@/src/entities/project";
 import type {
   PublicPostDetail,
   PublicPostListItem,
@@ -40,7 +34,7 @@ function resolveProjectStatus(input: {
 function buildProjectTags(input: {
   serviceUrl?: string | null;
   repoUrl?: string | null;
-  coverMediaAssetId?: number | null;
+  coverMediaAssetId?: string | number | null;
 }) {
   const tags = ["공개 프로젝트"];
 
@@ -61,7 +55,7 @@ function buildProjectTags(input: {
 
 function buildPostTags(input: {
   lang: string;
-  coverMediaAssetId?: number | null;
+  coverMediaAssetId?: string | number | null;
   contentMd?: string;
 }) {
   const tags = [input.lang.toUpperCase(), "공개 글"];
@@ -82,10 +76,17 @@ function resolvePublishedAt(input: {
   createdAt?: string | null;
   updatedAt?: string | null;
 }) {
-  return input.publishedAt ?? input.createdAt ?? input.updatedAt ?? new Date().toISOString();
+  return (
+    input.publishedAt ??
+    input.createdAt ??
+    input.updatedAt ??
+    new Date().toISOString()
+  );
 }
 
-export function toProjectListViewModel(project: PublicProjectListItem): Project {
+export function toProjectListViewModel(
+  project: PublicProjectListItem,
+): Project {
   return {
     id: String(project.projectId),
     slug: project.slug,
@@ -99,7 +100,9 @@ export function toProjectListViewModel(project: PublicProjectListItem): Project 
   };
 }
 
-export function toProjectDetailViewModel(project: PublicProjectDetail): Project {
+export function toProjectDetailViewModel(
+  project: PublicProjectDetail,
+): Project {
   return {
     id: String(project.projectId),
     slug: project.slug,
@@ -141,7 +144,9 @@ export function toPostDetailViewModel(post: PublicPostDetail): PostDetail {
     category: DEFAULT_POST_CATEGORY,
     tags: buildPostTags(post),
     publishedAt,
-    readingTime: formatReadingTime(`${post.title} ${post.excerpt} ${post.contentMd}`),
+    readingTime: formatReadingTime(
+      `${post.title} ${post.excerpt} ${post.contentMd}`,
+    ),
     contentMd: post.contentMd,
   };
 }
