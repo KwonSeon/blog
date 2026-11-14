@@ -3,6 +3,8 @@
 - P1-024 deployed dev/main at `2cc10d8`. CI passed, development browser/origin healthy. Main controller recorded the tools-only revision without restarting either app container; exact start times/restart counts unchanged. Daily03:20 backup and Sunday04:20 isolated-restore LaunchAgents registered. First launchd backup and restore commands both exit0.
 - Backups: three InnoDB DBs (21/2/12 tables), 233 object archive files; restore and hashes passed, no temporary containers/volumes remain. Eight backup regression tests plus five monitor tests. Same-machine/private files only, no offsite encryption or atomic cross-service snapshot.
 - Current P1-025: request-scoped detail memoization and bounded API waits; independent data fetching in parallel; lazy Markdown images; accessible loading/retry/reduced-motion behavior. Preserve Astryx shell skip-link behavior and existing private/public visibility semantics.
+- Development QA passed at `2d144bc`: comment request blocked then retry recovered, lazy/async Markdown image attributes and successful image load, 390px no overflow, Astryx skip link focuses main, PUBLIC→PRIVATE and PUBLIC+DRAFT hide the content with noindex. Synthetic post deleted and editor logged out. Removed misleading loading text after a failed request; lint/build passed again.
+- GitHub existing keychain PAT now has `repo, workflow` after user reauthentication; no token rotation or extra scopes.
 - Baseline browser samples: development home DOMready542ms, post510ms/load1986ms; production empty home823ms. Earlier isolated privacy cold load19s did not repeat (1782ms). These are individual samples, not field Core Web Vitals or a speedup claim.
 
 # 2026-11-14 roadmap: automated backups

@@ -135,3 +135,9 @@ The existing `npm test` discovery runs `tests/operations.test.mjs`, which execut
 ## Backup operations
 
 See [backup and isolated restore](../infra/BACKUP.md). Runtime schedules, configuration, dumps and restore results stay outside Git. Operations tests cover corruption, traversal, failed-backup retention and insufficient-memory guards.
+
+## Public rendering performance
+
+Public parsed API reads and detail view models use request-scoped React cache, so metadata and content share work without keeping newly private/unpublished data across requests. Public API waits are capped at8s; site settings at10s. Post listing requests settings/content concurrently. Markdown images use native lazy loading/async decoding; arbitrary Markdown images still lack intrinsic dimensions, so this does not guarantee zero layout shift. Comment initial reads time out at15s and offer retry; cancellation on unmount remains separate. Astryx provides the keyboard skip link. Loading pulse and comment focus scrolling respect reduced motion.
+
+Individual browser timings are diagnostic samples, not field Core Web Vitals or a measured percentage speedup. Reference: [Next data fetching](https://nextjs.org/docs/app/getting-started/fetching-data).
