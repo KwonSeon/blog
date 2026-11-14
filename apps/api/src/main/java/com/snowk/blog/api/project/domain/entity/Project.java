@@ -67,10 +67,10 @@ public class Project extends BaseTimeEntity {
     @Column(name = "cover_media_asset_id")
     private Long coverMediaAssetId;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(name = "view_count", nullable = false, updatable = false)
     private Long viewCount = 0L;
 
-    @Column(name = "like_count", nullable = false)
+    @Column(name = "like_count", nullable = false, updatable = false)
     private Long likeCount = 0L;
 
     @Column(name = "published_at")
